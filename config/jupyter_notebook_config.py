@@ -1,0 +1,12 @@
+import os
+from s3contents import S3ContentsManager
+c = get_config()
+
+c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
+c.NotebookApp.contents_manager_class = S3ContentsManager
+c.S3ContentsManager.access_key_id = os.environ['AWS_ACCESS_KEY_ID']
+c.S3ContentsManager.secret_access_key = os.environ['AWS_SECRET_ACCESS_KEY']
+c.S3ContentsManager.bucket = os.environ['S3_BUCKET']
+c.S3ContentsManager.region_name= os.environ['AWS_DEFAULT_REGION']
+c.S3ContentsManager.prefix = c.NotebookApp.Session.username
+# c.S3ContentsManager.sse = "AES256"
