@@ -17,6 +17,5 @@ c.Spawner.env_keep = ['JPYNB_S3_ACCESS_KEY_ID', 'JPYNB_S3_SECRET_ACCESS_KEY', 'J
 from subprocess import check_call
 def docker_init(spawner):
     check_call(['docker', 'pull', os.environ['DOCKER_SPAWNER_IMAGE']])
-    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + spawner.user.name]
 
 c.Spawner.pre_spawn_hook = docker_init
