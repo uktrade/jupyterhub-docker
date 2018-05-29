@@ -12,6 +12,6 @@ c.JupyterHub.admin_users = os.environ['ADMIN_USERS']
 from subprocess import check_call
 def docker_init(spawner):
     check_call(['docker', 'pull', os.environ['DOCKER_SPAWNER_IMAGE']])
-    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + username]
+    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + spawner.user.name]
 
 c.Spawner.pre_spawn_hook = docker_init
