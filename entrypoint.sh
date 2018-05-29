@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-jupyterhub --config=/etc/jupyterhub_config.py
+jupyterhub --config=/etc/jupyter/jupyterhub_config.py
