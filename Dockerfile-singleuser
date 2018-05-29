@@ -2,3 +2,4 @@ ARG VER=0.9
 FROM jupyterhub/singleuser:$VER
 
 RUN pip install s3contents dask toolz
+COPY config/jupyter_notebook_config.py /etc/jupyter_notebook_config.py
