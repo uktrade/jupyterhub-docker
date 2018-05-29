@@ -1,4 +1,4 @@
 ARG VER=0.9
 FROM jupyterhub/singleuser:$VER
 
-RUN pip3 install s3contents dask toolz
+RUN pip install s3contents dask toolz
