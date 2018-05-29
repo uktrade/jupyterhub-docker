@@ -8,6 +8,7 @@ c.JupyterHub.pid_file = '/var/run/jupyterhub.lock'
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.JupyterHub.admin_users = os.environ['ADMIN_USERS']
+c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
 
 from subprocess import check_call
 def docker_init(spawner):
