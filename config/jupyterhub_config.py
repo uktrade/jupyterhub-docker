@@ -12,6 +12,7 @@ c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
 
 from subprocess import check_call
 def docker_init(spawner):
+    check_call(['/spawner-init.sh', spawner.user.name])
     check_call(['docker', 'pull', os.environ['DOCKER_SPAWNER_IMAGE']])
     c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + spawner.user.name]
 
