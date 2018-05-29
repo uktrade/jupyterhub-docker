@@ -3,6 +3,7 @@ from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
 c.JupyterHub.bind_url = 'http://0.0.0.0:8000'
+c.JupyterHub.hub_ip = '0.0.0.0'
 c.ConfigurableHTTPProxy.api_url = 'http://0.0.0.0:8001'
 c.JupyterHub.pid_file = '/var/run/jupyterhub.lock'
 c.Authenticator.auto_login = True
