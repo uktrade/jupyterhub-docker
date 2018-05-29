@@ -12,7 +12,7 @@ c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
 c.Spawner.start_timeout = 300
-c.Spawner.env_keep = ['AWS_ACCESS_KEY_ID', 'AWS_SECRET_ACCESS_KEY', 'AWS_DEFAULT_REGION', 'S3_BUCKET']
+c.Spawner.env_keep = ['JPYNB_S3_ACCESS_KEY_ID', 'JPYNB_S3_SECRET_ACCESS_KEY', 'JPYNB_S3_REGION_NAME', 'JPYNB_S3_BUCKET_NAME']
 
 from subprocess import check_call
 def docker_init(spawner):
