@@ -2,7 +2,7 @@ import os
 from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
-c.JupyterHub.ip = '127.0.0.1'
+c.JupyterHub.ip = 'localhost'
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
