@@ -13,6 +13,6 @@ c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 from subprocess import check_call
 def spawner_init(spawner):
     check_call(['/spawner-init.sh', spawner.user.name])
-    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + username]
+    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + spawner.user.name]
 
 c.Spawner.pre_spawn_hook = spawner_init
