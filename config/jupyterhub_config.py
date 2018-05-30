@@ -9,7 +9,7 @@ c.JupyterHub.pid_file = '/var/run/jupyterhub.lock'
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
-c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///etc/jupyterhub/jupyterhub.sqlite')
+c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
 
 from subprocess import check_call
 def spawner_init(spawner):
