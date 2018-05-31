@@ -15,6 +15,5 @@ c.Spawner.env_keep = ['PATH', 'JPYNB_S3_ACCESS_KEY_ID', 'JPYNB_S3_SECRET_ACCESS_
 from subprocess import check_call
 def spawner_init(spawner):
     check_call(['/spawner-init.sh', spawner.user.name])
-    c.Spawner.args = ['--NotebookApp.S3ContentsManager.prefix=' + spawner.user.name]
 
 c.Spawner.pre_spawn_hook = spawner_init
