@@ -12,7 +12,7 @@ RUN conda config --system --prepend channels conda-forge && \
     conda update --all --quiet --yes && \
     conda clean -tipsy
 
-RUN conda install --quiet --yes jupyter notebook jupyterlab jupyterhub && \
+RUN conda install --quiet --yes jupyter notebook jupyterlab && \
     conda clean -tipsy && \
     jupyter labextension install @jupyterlab/hub-extension && \
     npm cache clean --force
