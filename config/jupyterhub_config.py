@@ -2,6 +2,7 @@ import os
 from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
+c.JupyterHub.hub_bind_url = 'http://0.0.0.0:8000'
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
