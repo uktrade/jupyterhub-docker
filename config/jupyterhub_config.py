@@ -11,8 +11,8 @@ c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
 c.Spawner.cmd = ['/opt/conda/bin/jupyterhub-singleuser']
 c.Spawner.env_keep = ['PATH', 'JPYNB_S3_ACCESS_KEY_ID', 'JPYNB_S3_SECRET_ACCESS_KEY', 'JPYNB_S3_REGION_NAME', 'JPYNB_S3_BUCKET_NAME']
-c.JupyterHub.ssl_cert = os.environ['SSL_CERT']
-c.JupyterHub.ssl_key = os.environ['SSL_KEY']
+c.JupyterHub.ssl_cert = '/etc/jupyter/ssl.key'
+c.JupyterHub.ssl_key = '/etc/jupyter/ssl.crt'
 
 from subprocess import check_call
 def spawner_init(spawner):
