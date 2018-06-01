@@ -1,10 +1,16 @@
 #!/usr/bin/env bash
 
+set -euo pipefail
 #debug
 env | sort
 
-echo -e $SSL_KEY > /etc/jupyter/ssl.key
-echo -e $SSL_CERT > /etc/jupyter/ssl.crt
+cat <<EOF >/etc/jupyter/ssl.key
+$SSL_KEY
+EOF
+
+cat <<EOF > /etc/jupyter/ssl.crt
+$SSL_CERT
+EOF
 
 cat /etc/jupyter/ssl.key
 cat /etc/jupyter/ssl.crt
