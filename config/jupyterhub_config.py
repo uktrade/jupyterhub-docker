@@ -3,8 +3,7 @@ import socket
 from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
-c.JupyterHub.bind_url = 'http://0.0.0.0:8000'
-c.ConfigurableHTTPProxy.api_url = 'http://0.0.0.0:8001'
+c.JupyterHub.bind_url = 'https://0.0.0.0:8000'
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
@@ -16,6 +15,6 @@ c.JupyterHub.ssl_key = '/etc/jupyter/ssl.key'
 
 from subprocess import check_call
 def spawner_init(spawner):
-    check_call(['/spawner-init.sh', spawner.user.name])
+    check_call(['/etc/jupyter/spawner-init.sh', spawner.user.name])
 
 c.Spawner.pre_spawn_hook = spawner_init

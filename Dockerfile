@@ -15,7 +15,7 @@ RUN conda config --system --prepend channels conda-forge && \
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
-COPY config/spawner-init.sh /spawner-init.sh
+COPY config/spawner-init.sh /etc/jupyter/spawner-init.sh
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
