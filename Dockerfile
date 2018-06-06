@@ -9,6 +9,7 @@ RUN conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     conda install --quiet --yes jupyter notebook jupyterlab && \
+    conda install --quiet --yes r r-irkernel && \
     conda clean -tipsy && \
     jupyter labextension install @jupyterlab/hub-extension && \
     npm cache clean --force
