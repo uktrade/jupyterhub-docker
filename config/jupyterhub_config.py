@@ -8,6 +8,15 @@ c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
+
+c.Spawner.options_form = """
+    <p>Please choose your Jupyter Notebook kernel</p>
+    <select name="kernel">
+        <option value="python3">Python 3</option>
+        <option value="ir">R</option>
+    </select>
+"""
+
 c.Spawner.cmd = ['/opt/conda/bin/jupyterhub-singleuser']
 c.Spawner.env_keep = ['PATH', 'JPYNB_S3_ACCESS_KEY_ID', 'JPYNB_S3_SECRET_ACCESS_KEY', 'JPYNB_S3_REGION_NAME', 'JPYNB_S3_BUCKET_NAME']
 c.JupyterHub.ssl_cert = '/etc/jupyter/ssl.crt'
@@ -16,5 +25,6 @@ c.JupyterHub.ssl_key = '/etc/jupyter/ssl.key'
 from subprocess import check_call
 def spawner_init(spawner):
     check_call(['/etc/jupyter/spawner-init.sh', spawner.user.name])
+    c.Spawner.args = ['--kernel=' + spawner.user_options['kernel'][1]]
 
 c.Spawner.pre_spawn_hook = spawner_init
