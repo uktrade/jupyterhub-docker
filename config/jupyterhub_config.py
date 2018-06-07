@@ -25,6 +25,6 @@ c.JupyterHub.ssl_key = '/etc/jupyter/ssl.key'
 from subprocess import check_call
 def spawner_init(spawner):
     check_call(['/etc/jupyter/spawner-init.sh', spawner.user.name])
-    c.Spawner.args = ['--kernel=' + spawner.user_options['kernel'][1]]
+    c.Spawner.args = ['--kernel=' + spawner.user_options['kernel'][0]]
 
 c.Spawner.pre_spawn_hook = spawner_init
