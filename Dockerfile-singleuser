@@ -1,7 +1,7 @@
 ARG VER=0.9
 FROM jupyterhub/singleuser:$VER
 
-RUN pip install s3contents dask toolz
+RUN pip install s3contents dask toolz nose s3fs gcsfs
 RUN conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
