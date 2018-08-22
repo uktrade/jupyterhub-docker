@@ -1,6 +1,8 @@
 ARG VER=1.0.0.dev
 FROM jupyterhub/singleuser:$VER
 
+USER root
+
 RUN apt update && \
     apt-get install -y --no-install-recommends fonts-dejavu gfortran gcc && \
     apt-get clean && \
@@ -39,3 +41,6 @@ RUN conda install --quiet --yes \
     'r-hexbin=1.27*' && \
     conda clean -tipsy && \
     fix-permissions $CONDA_DIR
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER $NB_UID
