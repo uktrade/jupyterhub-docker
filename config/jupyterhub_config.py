@@ -15,5 +15,5 @@ c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
-c.DockerSpawner.volumes = {'/etc/jupyter/jupyter_notebook_config.py':'/etc/jupyter/jupyter_notebook_config.py'}
+c.DockerSpawner.volumes = {'/etc/jupyter':'/etc/jupyter'}
 c.Spawner.env_keep = ['PATH']
