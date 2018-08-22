@@ -10,5 +10,3 @@ RUN conda config --system --prepend channels conda-forge && \
     conda clean -tipsy && \
     jupyter labextension install @jupyterlab/hub-extension && \
     npm cache clean --force
-
-COPY config/jupyter_notebook_config.py /usr/local/etc/jupyter/jupyter_notebook_config.py
