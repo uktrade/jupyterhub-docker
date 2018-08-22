@@ -1,4 +1,4 @@
-ARG VER=0.9.2
+ARG VER=1.0.0.dev
 FROM jupyterhub/singleuser:$VER
 
 RUN pip install s3contents dask toolz nose s3fs gcsfs
