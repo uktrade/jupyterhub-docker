@@ -15,5 +15,10 @@ c.Authenticator.admin_users = set([os.environ['ADMIN_USERS']])
 
 c.JupyterHub.spawner_class = 'dockerspawner.DockerSpawner'
 c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
+network_name = os.environ['DOCKER_NETWORK_NAME'] or 'host'
+c.DockerSpawner.network_name = network_name
+c.DockerSpawner.extra_host_config = { 'network_mode': network_name }
 c.DockerSpawner.volumes = {'/etc/jupyter':'/etc/jupyter'}
+c.DockerSpawner.remove_containers = True
+c.DockerSpawner.debug = True
 c.Spawner.env_keep = ['PATH']

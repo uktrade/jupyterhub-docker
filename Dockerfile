@@ -8,6 +8,7 @@ RUN wget -q -O - "https://download.docker.com/linux/static/stable/x86_64/docker-
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 COPY config/spawner-init.sh /etc/jupyter/spawner-init.sh
+VOLUME /etc/jupyter
 COPY entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
