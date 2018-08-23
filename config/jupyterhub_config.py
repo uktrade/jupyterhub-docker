@@ -3,7 +3,6 @@ import socket
 from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
-# c.JupyterHub.bind_url = 'https://0.0.0.0:8000'
 c.JupyterHub.hub_ip = '0.0.0.0'
 c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
 c.JupyterHub.ssl_cert = '/etc/jupyter/ssl.crt'
