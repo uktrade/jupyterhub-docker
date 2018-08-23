@@ -1,6 +1,11 @@
 ARG JUPYTERHUB_VER=1.0
 FROM jupyterhub/jupyterhub:$JUPYTERHUB_VER
 
+RUN apt update && \
+    apt-get install -y --no-install-recommends curl rsync && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+
 ENV DOCKER_VER=18.03.1
 RUN pip install oauthenticator dockerspawner psycopg2-binary
 RUN wget -q -O - "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VER}-ce.tgz" | tar -xzvf - -C /usr/bin --strip-components=1
