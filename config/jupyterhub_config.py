@@ -16,4 +16,4 @@ c.DockerSpawner.image = os.environ['DOCKER_SPAWNER_IMAGE']
 c.DockerSpawner.volumes = {'/etc/jupyter':'/etc/jupyter'}
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
-c.Spawner.env_keep = ['PATH']
+c.Spawner.env_keep = ['PATH', 'TIVA_DB_URL']
