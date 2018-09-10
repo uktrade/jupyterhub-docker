@@ -7,14 +7,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-ENV DOCKER_VER=18.03.1
-RUN pip install --upgrade pip oauthenticator dockerspawner psycopg2-binary awscli
-
-RUN wget -q -O - "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VER}-ce.tgz" | tar -xzvf - -C /usr/bin --strip-components=1
+RUN pip install --upgrade pip oauthenticator psycopg2-binary
 
 COPY config/jupyterhub_config.py /usr/local/etc/jupyter/jupyterhub_config.py
-COPY config/jupyter_notebook_config.py /usr/local/etc/jupyter/jupyter_notebook_config.py
 COPY config/spawner-init.sh /usr/local/etc/jupyter/spawner-init.sh
 COPY entrypoint.sh /entrypoint.sh
+
+COPY config/ecs_spawner.py /opt/conda/lib/python3.6/site-packages/ecs_spawner.py
 
 ENTRYPOINT ["/entrypoint.sh"]
