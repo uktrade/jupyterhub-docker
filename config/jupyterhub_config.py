@@ -1,5 +1,4 @@
 import os
-import socket
 from oauthenticator.generic import GenericOAuthenticator
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 
