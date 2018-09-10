@@ -1,4 +1,4 @@
-ARG VER=1.0.0.dev
+ARG VER=0.9.2
 FROM jupyterhub/singleuser:$VER
 
 USER root

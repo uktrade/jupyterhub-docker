@@ -1,4 +1,4 @@
-ARG JUPYTERHUB_VER=1.0
+ARG JUPYTERHUB_VER=0.9.2
 FROM jupyterhub/jupyterhub:$JUPYTERHUB_VER
 
 RUN apt-get update && \
