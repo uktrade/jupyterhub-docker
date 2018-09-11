@@ -1,10 +1,18 @@
 import os
 import subprocess
+import urllib
 from ecs_spawner import EcsSpawner
 from oauthenticator.generic import GenericOAuthenticator
 
 c.JupyterHub.log_level = 'DEBUG'
 c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
+
+# The interface that the hub listens on, 0.0.0.0 == all
+c.JupyterHub.hub_ip = '0.0.0.0'
+
+# The IP that _other_ services will connect to the hub on, i.e. the current private IP address
+with urllib.request.urlopen('http://169.254.169.254/latest/meta-data/local-ipv4') as response:
+   c.JupyterHub.hub_connect_ip = response.read()
 
 ssl_cert = '/etc/jupyter/ssl.crt'
 ssl_key = '/etc/jupyter/ssl.key'
