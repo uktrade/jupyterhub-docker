@@ -70,7 +70,7 @@ class EcsSpawner(Spawner):
         self.log.debug('Starting spawner')
         max_polls = 600
 
-        task_port = self.endpoint['port']
+        task_port = self.endpoint['notebook_port']
 
         try:
             self.calling_run_task = True
@@ -105,7 +105,7 @@ class EcsSpawner(Spawner):
 
             await gen.sleep(1)
 
-        return (task_ip, task_port)
+        return f'{self.endpoint["notebook_scheme"]}://{task_ip}:{task_port}'
 
     async def stop(self, now=False):
         if self.task_arn == '':
@@ -133,12 +133,18 @@ async def _stop_task(logger, endpoint, task_arn):
 
 async def _get_task_ip(logger, endpoint, task_arn):
     described_tasks = await _describe_tasks(logger, endpoint, [task_arn])
-    task = described_tasks['tasks'][0] if described_tasks['tasks'] else []
+    # Very strangely, sometimes 'tasks' is returned, sometimes 'task'
+    # Also, creating a task seems to be eventually consistent, so it might
+    # not be present at all
+    task = \
+        described_tasks['tasks'][0] if 'tasks' in described_tasks else \
+        described_tasks['task'] if 'task' in described_tasks else \
+        {}
     ip_address_attachements = [
         attachment['value']
         for attachment in task['attachments'][0]['details']
         if attachment['name'] == 'privateIPv4Address'
-    ]
+    ] if 'attachments' in task and task['attachments'] else []
     ip_address = ip_address_attachements[0] if ip_address_attachements else ''
     return ip_address
 

@@ -2,7 +2,9 @@ import os
 import subprocess
 import urllib
 from ecs_spawner import EcsSpawner
+from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
+from tornado.httpclient import AsyncHTTPClient
 
 c.JupyterHub.log_level = 'DEBUG'
 c.JupyterHub.db_url = os.environ['DB_URL']
@@ -25,6 +27,18 @@ subprocess.check_call([
 c.JupyterHub.ssl_cert = ssl_cert
 c.JupyterHub.ssl_key = ssl_key
 
+# The Notebook uses a self signed cert, which is presented both to the hub
+# and to the proxy. Note:
+# - The diagram at https://jupyterhub.readthedocs.io/en/stable/ doesn't
+#   mention that the hub initiates connections with the Notebook directly,
+#   but it does: to determine if it's running or not
+# - JupyterHub seems to use CurlAsyncHTTPClient, with no way of passing
+#   any default args. Hence the monkey-patching below.
+def init_pycurl(self):
+    AsyncHTTPClient.configure('tornado.curl_httpclient.CurlAsyncHTTPClient', defaults=dict(validate_cert=False))
+JupyterHub.init_pycurl = init_pycurl
+c.ConfigurableHTTPProxy.command = ['configurable-http-proxy', '--insecure']
+
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
@@ -40,7 +54,8 @@ c.EcsSpawner.endpoint = {
     'host': os.environ['ECS_SPAWNER__HOST'],
     'access_key_id': os.environ['ECS_SPAWNER__ACCESS_KEY_ID'],
     'secret_access_key': os.environ['ECS_SPAWNER__SECRET_ACCESS_KEY'],
-    'port': int(os.environ['ECS_SPAWNER__PORT']),
+    'notebook_port': int(os.environ['ECS_SPAWNER__PORT']),
+    'notebook_scheme': 'https',
     'notebook_args': [
         '--config=/etc/jupyter/jupyter_notebook_config.py',
         '--S3ContentsManager.access_key_id=' + os.environ['JPYNB_S3_ACCESS_KEY_ID'],
