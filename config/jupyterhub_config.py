@@ -1,11 +1,21 @@
 import os
+import subprocess
 from ecs_spawner import EcsSpawner
 from oauthenticator.generic import GenericOAuthenticator
 
-c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
-c.JupyterHub.ssl_cert = '/etc/jupyter/ssl.crt'
-c.JupyterHub.ssl_key = '/etc/jupyter/ssl.key'
 c.JupyterHub.log_level = 'DEBUG'
+c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
+
+ssl_cert = '/etc/jupyter/ssl.crt'
+ssl_key = '/etc/jupyter/ssl.key'
+subprocess.check_call([
+    'openssl', 'req', '-new', '-newkey', 'rsa:2048', '-days', '3650', '-nodes', '-x509',
+    '-subj', '/CN=selfsigned',
+    '-keyout', ssl_key,
+    '-out', ssl_cert,
+])
+c.JupyterHub.ssl_cert = ssl_cert
+c.JupyterHub.ssl_key = ssl_key
 
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 c.Authenticator.auto_login = True
