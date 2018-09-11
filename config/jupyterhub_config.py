@@ -5,7 +5,7 @@ from ecs_spawner import EcsSpawner
 from oauthenticator.generic import GenericOAuthenticator
 
 c.JupyterHub.log_level = 'DEBUG'
-c.JupyterHub.db_url = os.environ.get('DB_URL', 'sqlite:///jupyterhub.sqlite')
+c.JupyterHub.db_url = os.environ['DB_URL']
 
 # The interface that the hub listens on, 0.0.0.0 == all
 c.JupyterHub.hub_ip = '0.0.0.0'
