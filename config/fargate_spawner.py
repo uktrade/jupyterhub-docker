@@ -10,9 +10,6 @@ from jupyterhub.spawner import (
 from tornado import (
     gen,
 )
-from tornado.concurrent import (
-    Future,
-)
 from tornado.httpclient import (
     AsyncHTTPClient,
     HTTPError,
