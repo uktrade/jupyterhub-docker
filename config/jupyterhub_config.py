@@ -14,7 +14,7 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 
 # The IP that _other_ services will connect to the hub on, i.e. the current private IP address
 with urllib.request.urlopen('http://169.254.169.254/latest/meta-data/local-ipv4') as response:
-   c.JupyterHub.hub_connect_ip = response.read()
+   c.JupyterHub.hub_connect_ip = response.read().decode('ascii')
 
 ssl_cert = '/etc/jupyter/ssl.crt'
 ssl_key = '/etc/jupyter/ssl.key'
@@ -58,6 +58,10 @@ c.FargateSpawner.endpoint = {
     'notebook_scheme': 'https',
     'notebook_args': [
         '--config=/etc/jupyter/jupyter_notebook_config.py',
+        # The default behaviour is that the Notebook connects to the Hub directly by HTTP.
+        # We connect via the proxy, which is on the same IP as the hub, and which is
+        # listening on HTTPS
+        '--SingleUserNotebookApp.hub_api_url=' + f'https://{c.JupyterHub.hub_connect_ip}:8000/hub/api',
         '--S3ContentsManager.access_key_id=' + os.environ['JPYNB_S3_ACCESS_KEY_ID'],
         '--S3ContentsManager.secret_access_key=' + os.environ['JPYNB_S3_SECRET_ACCESS_KEY'],
         '--S3ContentsManager.region_name=' + os.environ['JPYNB_S3_REGION_NAME'],
