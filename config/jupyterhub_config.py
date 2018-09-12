@@ -45,29 +45,28 @@ c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set(os.environ['ADMIN_USERS'].split())
 
 c.JupyterHub.spawner_class = FargateSpawner
-c.FargateSpawner.endpoint = {
-    'cluster_name': os.environ['FARGATE_SPAWNER__CUSTER_NAME'],
-    'task_definition_arn': os.environ['FARGATE_SPAWNER__TASK_DEFINITION_ARN'],
-    'security_groups': [os.environ['FARGATE_SPAWNER__SECURITY_GROUP']],
-    'subnets': [os.environ['FARGATE_SPAWNER__SUBNET']],
-    'region': os.environ['FARGATE_SPAWNER__REGION'],
-    'host': os.environ['FARGATE_SPAWNER__HOST'],
-    'access_key_id': os.environ['FARGATE_SPAWNER__ACCESS_KEY_ID'],
-    'secret_access_key': os.environ['FARGATE_SPAWNER__SECRET_ACCESS_KEY'],
-    'notebook_port': int(os.environ['FARGATE_SPAWNER__PORT']),
-    'notebook_scheme': 'https',
-    'notebook_args': [
-        '--config=/etc/jupyter/jupyter_notebook_config.py',
-        # The default behaviour is that the Notebook connects to the Hub directly by HTTP.
-        # We connect via the proxy, which is on the same IP as the hub, and which is
-        # listening on HTTPS
-        '--SingleUserNotebookApp.hub_api_url=' + f'https://{c.JupyterHub.hub_connect_ip}:8000/hub/api',
-        '--S3ContentsManager.access_key_id=' + os.environ['JPYNB_S3_ACCESS_KEY_ID'],
-        '--S3ContentsManager.secret_access_key=' + os.environ['JPYNB_S3_SECRET_ACCESS_KEY'],
-        '--S3ContentsManager.region_name=' + os.environ['JPYNB_S3_REGION_NAME'],
-        '--S3ContentsManager.bucket=' + os.environ['JPYNB_S3_BUCKET_NAME'],
-    ],
-}
+c.FargateSpawner.aws_region = os.environ['FARGATE_SPAWNER__REGION']
+c.FargateSpawner.aws_host = os.environ['FARGATE_SPAWNER__HOST']
+c.FargateSpawner.aws_access_key_id = os.environ['FARGATE_SPAWNER__ACCESS_KEY_ID']
+c.FargateSpawner.aws_secret_access_key = os.environ['FARGATE_SPAWNER__SECRET_ACCESS_KEY']
+c.FargateSpawner.task_cluster_name = os.environ['FARGATE_SPAWNER__CUSTER_NAME']
+c.FargateSpawner.task_definition_arn = os.environ['FARGATE_SPAWNER__TASK_DEFINITION_ARN']
+c.FargateSpawner.task_security_groups = [os.environ['FARGATE_SPAWNER__SECURITY_GROUP']]
+c.FargateSpawner.task_subnets = [os.environ['FARGATE_SPAWNER__SUBNET']]
+c.FargateSpawner.notebook_port = int(os.environ['FARGATE_SPAWNER__PORT'])
+c.FargateSpawner.notebook_scheme = 'https'
+c.FargateSpawner.notebook_args = [
+    '--config=/etc/jupyter/jupyter_notebook_config.py',
+    # The default behaviour is that the Notebook connects to the Hub directly by HTTP.
+    # We connect via the proxy, which is on the same IP as the hub, and which is
+    # listening on HTTPS
+    '--SingleUserNotebookApp.hub_api_url=' + f'https://{c.JupyterHub.hub_connect_ip}:8000/hub/api',
+    '--S3ContentsManager.access_key_id=' + os.environ['JPYNB_S3_ACCESS_KEY_ID'],
+    '--S3ContentsManager.secret_access_key=' + os.environ['JPYNB_S3_SECRET_ACCESS_KEY'],
+    '--S3ContentsManager.region_name=' + os.environ['JPYNB_S3_REGION_NAME'],
+    '--S3ContentsManager.bucket=' + os.environ['JPYNB_S3_BUCKET_NAME'],
+]
+
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 600
 c.Spawner.env_keep = ['PATH', 'DATABASE_URL']
