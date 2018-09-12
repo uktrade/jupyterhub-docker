@@ -4,7 +4,7 @@ FROM jupyterhub/singleuser:$VER
 USER root
 
 RUN apt update && \
-    apt-get install -y --no-install-recommends fonts-dejavu gfortran gcc && \
+    apt-get install -y --no-install-recommends fonts-dejavu gfortran gcc libpq-dev && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
