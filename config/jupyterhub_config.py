@@ -1,7 +1,7 @@
 import os
 import subprocess
 import urllib
-from fargate_spawner import FargateSpawner
+from fargatespawner import FargateSpawner
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
 from tornado.httpclient import AsyncHTTPClient
