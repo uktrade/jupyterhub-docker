@@ -1,7 +1,7 @@
 import os
 import subprocess
 import urllib
-from ecs_spawner import EcsSpawner
+from fargate_spawner import FargateSpawner
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
 from tornado.httpclient import AsyncHTTPClient
@@ -44,17 +44,17 @@ c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set(os.environ['ADMIN_USERS'].split())
 
-c.JupyterHub.spawner_class = EcsSpawner
-c.EcsSpawner.endpoint = {
-    'cluster_name': os.environ['ECS_SPAWNER__CUSTER_NAME'],
-    'task_definition_arn': os.environ['ECS_SPAWNER__TASK_DEFINITION_ARN'],
-    'security_groups': [os.environ['ECS_SPAWNER__SECURITY_GROUP']],
-    'subnets': [os.environ['ECS_SPAWNER__SUBNET']],
-    'region': os.environ['ECS_SPAWNER__REGION'],
-    'host': os.environ['ECS_SPAWNER__HOST'],
-    'access_key_id': os.environ['ECS_SPAWNER__ACCESS_KEY_ID'],
-    'secret_access_key': os.environ['ECS_SPAWNER__SECRET_ACCESS_KEY'],
-    'notebook_port': int(os.environ['ECS_SPAWNER__PORT']),
+c.JupyterHub.spawner_class = FargateSpawner
+c.FargateSpawner.endpoint = {
+    'cluster_name': os.environ['FARGATE_SPAWNER__CUSTER_NAME'],
+    'task_definition_arn': os.environ['FARGATE_SPAWNER__TASK_DEFINITION_ARN'],
+    'security_groups': [os.environ['FARGATE_SPAWNER__SECURITY_GROUP']],
+    'subnets': [os.environ['FARGATE_SPAWNER__SUBNET']],
+    'region': os.environ['FARGATE_SPAWNER__REGION'],
+    'host': os.environ['FARGATE_SPAWNER__HOST'],
+    'access_key_id': os.environ['FARGATE_SPAWNER__ACCESS_KEY_ID'],
+    'secret_access_key': os.environ['FARGATE_SPAWNER__SECRET_ACCESS_KEY'],
+    'notebook_port': int(os.environ['FARGATE_SPAWNER__PORT']),
     'notebook_scheme': 'https',
     'notebook_args': [
         '--config=/etc/jupyter/jupyter_notebook_config.py',
@@ -64,8 +64,8 @@ c.EcsSpawner.endpoint = {
         '--S3ContentsManager.bucket=' + os.environ['JPYNB_S3_BUCKET_NAME'],
     ],
 }
-c.EcsSpawner.debug = True
-c.EcsSpawner.start_timeout = 600
+c.FargateSpawner.debug = True
+c.FargateSpawner.start_timeout = 600
 c.Spawner.env_keep = ['PATH', 'DATABASE_URL']
 # c.Spawner.cmd = ['jupyter-labhub']
 # c.Spawner.default_url = '/lab'

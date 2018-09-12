@@ -7,6 +7,6 @@ COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
 COPY config/spawner-init.sh /etc/jupyter/spawner-init.sh
 COPY entrypoint.sh /entrypoint.sh
 
-COPY config/ecs_spawner.py /opt/conda/lib/python3.6/site-packages/ecs_spawner.py
+COPY config/fargate_spawner.py /opt/conda/lib/python3.6/site-packages/fargate_spawner.py
 
 ENTRYPOINT ["/entrypoint.sh"]

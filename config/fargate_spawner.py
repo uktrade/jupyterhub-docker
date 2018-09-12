@@ -26,7 +26,7 @@ from traitlets import (
 )
 
 
-class EcsSpawner(Spawner):
+class FargateSpawner(Spawner):
 
     endpoint = Dict(config=True)
     task_arn = Unicode('')
