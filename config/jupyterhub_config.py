@@ -1,13 +1,16 @@
 import os
 import subprocess
 import urllib
+from env_utils import normalise_environment
 from fargatespawner import FargateSpawner
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
 from tornado.httpclient import AsyncHTTPClient
 
+env = normalise_environment(os.environ)
+
 c.JupyterHub.log_level = 'DEBUG'
-c.JupyterHub.db_url = os.environ['DB_URL']
+c.JupyterHub.db_url = env['DB_URL']
 
 # The interface that the hub listens on, 0.0.0.0 == all
 c.JupyterHub.hub_ip = '0.0.0.0'
@@ -42,18 +45,18 @@ c.ConfigurableHTTPProxy.command = ['configurable-http-proxy', '--insecure']
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
-c.Authenticator.admin_users = set(os.environ['ADMIN_USERS'].split())
+c.Authenticator.admin_users = set(env['ADMIN_USERS'].split())
 
 c.JupyterHub.spawner_class = FargateSpawner
-c.FargateSpawner.aws_region = os.environ['FARGATE_SPAWNER__AWS_REGION']
-c.FargateSpawner.aws_host = os.environ['FARGATE_SPAWNER__AWS_HOST']
-c.FargateSpawner.aws_access_key_id = os.environ['FARGATE_SPAWNER__AWS_ACCESS_KEY_ID']
-c.FargateSpawner.aws_secret_access_key = os.environ['FARGATE_SPAWNER__AWS_SECRET_ACCESS_KEY']
-c.FargateSpawner.task_cluster_name = os.environ['FARGATE_SPAWNER__TASK_CUSTER_NAME']
-c.FargateSpawner.task_definition_arn = os.environ['FARGATE_SPAWNER__TASK_DEFINITION_ARN']
-c.FargateSpawner.task_security_groups = [os.environ['FARGATE_SPAWNER__TASK_SECURITY_GROUP']]
-c.FargateSpawner.task_subnets = [os.environ['FARGATE_SPAWNER__TASK_SUBNET']]
-c.FargateSpawner.notebook_port = int(os.environ['FARGATE_SPAWNER__NOTEBOOK_PORT'])
+c.FargateSpawner.aws_region = env['FARGATE_SPAWNER']['AWS_REGION']
+c.FargateSpawner.aws_host = env['FARGATE_SPAWNER']['AWS_HOST']
+c.FargateSpawner.aws_access_key_id = env['FARGATE_SPAWNER']['AWS_ACCESS_KEY_ID']
+c.FargateSpawner.aws_secret_access_key = env['FARGATE_SPAWNER']['AWS_SECRET_ACCESS_KEY']
+c.FargateSpawner.task_cluster_name = env['FARGATE_SPAWNER']['TASK_CUSTER_NAME']
+c.FargateSpawner.task_definition_arn = env['FARGATE_SPAWNER']['TASK_DEFINITION_ARN']
+c.FargateSpawner.task_security_groups = [env['FARGATE_SPAWNER']['TASK_SECURITY_GROUP']]
+c.FargateSpawner.task_subnets = [env['FARGATE_SPAWNER']['TASK_SUBNET']]
+c.FargateSpawner.notebook_port = int(env['FARGATE_SPAWNER']['NOTEBOOK_PORT'])
 c.FargateSpawner.notebook_scheme = 'https'
 c.FargateSpawner.notebook_args = [
     '--config=/etc/jupyter/jupyter_notebook_config.py',
@@ -61,10 +64,10 @@ c.FargateSpawner.notebook_args = [
     # We connect via the proxy, which is on the same IP as the hub, and which is
     # listening on HTTPS
     '--SingleUserNotebookApp.hub_api_url=' + f'https://{c.JupyterHub.hub_connect_ip}:8000/hub/api',
-    '--S3ContentsManager.access_key_id=' + os.environ['JPYNB_S3_ACCESS_KEY_ID'],
-    '--S3ContentsManager.secret_access_key=' + os.environ['JPYNB_S3_SECRET_ACCESS_KEY'],
-    '--S3ContentsManager.region_name=' + os.environ['JPYNB_S3_REGION_NAME'],
-    '--S3ContentsManager.bucket=' + os.environ['JPYNB_S3_BUCKET_NAME'],
+    '--S3ContentsManager.access_key_id=' + env['JPYNB_S3_ACCESS_KEY_ID'],
+    '--S3ContentsManager.secret_access_key=' + env['JPYNB_S3_SECRET_ACCESS_KEY'],
+    '--S3ContentsManager.region_name=' + env['JPYNB_S3_REGION_NAME'],
+    '--S3ContentsManager.bucket=' + env['JPYNB_S3_BUCKET_NAME'],
 ]
 
 c.FargateSpawner.debug = True
