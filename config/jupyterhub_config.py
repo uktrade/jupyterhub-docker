@@ -1,6 +1,7 @@
 import os
 import subprocess
 import urllib
+from database_access import database_access_spawn_hooks
 from env_utils import normalise_environment
 from fargatespawner import FargateSpawner
 from jupyterhub.app import JupyterHub
@@ -69,6 +70,11 @@ c.FargateSpawner.notebook_args = [
     '--S3ContentsManager.region_name=' + env['JPYNB_S3_REGION_NAME'],
     '--S3ContentsManager.bucket=' + env['JPYNB_S3_BUCKET_NAME'],
 ]
+
+c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = \
+    database_access_spawn_hooks(
+        *((env['DATABASE_ACCESS']['DATABASES'],env['DATABASE_ACCESS']['USERS']) if 'DATABASE_ACCESS' in env else ({},{})),
+    )
 
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 600
