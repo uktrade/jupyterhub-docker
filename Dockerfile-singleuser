@@ -5,7 +5,7 @@ USER root
 
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-dejavu gfortran build-essential libpq-dev default-jdk && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-dejavu gfortran build-essential libpq-dev unixodbc-dev odbc-postgresql && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -49,7 +49,7 @@ RUN conda install --quiet --yes 'r-rjava' && \
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID
 COPY config/Rprofile $HOME/.Rprofile
+COPY config/R_parse_odbc.py $HOME/R_parse_odbc.py
 RUN R CMD javareconf && \
-    R -e 'install.packages("RPostgreSQL")' && \
-    R -e 'install.packages("rJava")' && \
-    R -e 'install.packages("RJDBC")'
+    R -e 'install.packages("DBI")' && \
+    R -e 'install.packages("odbc")'
