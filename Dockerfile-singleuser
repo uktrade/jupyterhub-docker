@@ -50,6 +50,5 @@ RUN conda install --quiet --yes 'r-rjava' && \
 USER $NB_UID
 COPY config/Rprofile $HOME/.Rprofile
 COPY config/R_parse_odbc.py $HOME/R_parse_odbc.py
-RUN R CMD javareconf && \
-    R -e 'install.packages("DBI")' && \
+RUN R -e 'install.packages("DBI")' && \
     R -e 'install.packages("odbc")'
