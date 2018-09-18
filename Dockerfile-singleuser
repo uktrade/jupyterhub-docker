@@ -13,14 +13,10 @@ RUN pip install --upgrade pip s3contents dask toolz nose s3fs gcsfs dj-database-
 
 RUN conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
-    conda config --system --set show_channel_urls true
-
-RUN conda install --quiet --yes jupyter notebook && \
-    conda clean -tipsy && \
-    npm cache clean --force
-
-# R packages
-RUN conda install --quiet --yes \
+    conda config --system --set show_channel_urls true && \
+    conda install --quiet --yes \
+    jupyter \
+    notebook \
     'r-base=3.4.1' \
     'r-irkernel=0.8*' \
     'r-plyr=1.8*' \
@@ -39,10 +35,10 @@ RUN conda install --quiet --yes \
     'r-htmltools=0.3*' \
     'r-sparklyr=0.7*' \
     'r-htmlwidgets=1.0*' \
-    'r-hexbin=1.27*'
-
-RUN conda install --quiet --yes 'r-rjava' && \
+    'r-hexbin=1.27*' \
+    'r-rjava' && \
     conda clean -tipsy && \
+    npm cache clean --force && \
     fix-permissions $CONDA_DIR
 
 COPY requirements.* /tmp/
