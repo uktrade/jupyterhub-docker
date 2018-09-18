@@ -2,11 +2,11 @@ ARG JUPYTERHUB_VER=0.9.2
 FROM jupyterhub/jupyterhub:$JUPYTERHUB_VER
 
 RUN pip install --upgrade \
-	pip \
+	pip==18.0 \
 	fargatespawner==0.0.12 \
 	aiopg==0.15.0 \
-	oauthenticator \
-	psycopg2-binary
+	oauthenticator==0.8.0 \
+	psycopg2-binary==2.7.5
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
 COPY config/spawner-init.sh /etc/jupyter/spawner-init.sh
