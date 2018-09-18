@@ -51,16 +51,11 @@ RUN conda config --system --prepend channels conda-forge && \
     npm cache clean --force && \
     fix-permissions $CONDA_DIR
 
-COPY requirements.* /tmp/
-RUN conda install --yes --file /tmp/requirements.conda && \
-    conda clean -tipsy && \
-    fix-permissions $CONDA_DIR
-RUN pip install -r /tmp/requirements.pip
-
-# Switch back to jovyan to avoid accidental container runs as root
-USER $NB_UID
 COPY config/Rprofile $HOME/.Rprofile
 RUN R -e 'install.packages("DBI")' && \
     R -e 'install.packages("odbc")'
 
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+
+# Switch back to jovyan to avoid accidental container runs as root
+USER $NB_UID
