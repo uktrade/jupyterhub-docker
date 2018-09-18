@@ -43,7 +43,7 @@ RUN conda install --quiet --yes \
 COPY config/Rprofile $HOME/.Rprofile
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-dejavu gfortran build-essential libpq-dev unixodbc-dev odbc-postgresql && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gfortran build-essential libpq-dev unixodbc-dev odbc-postgresql && \
     R -e 'install.packages("DBI")' && \
     R -e 'install.packages("odbc")' && \
     apt-get remove -y gfortran build-essential apt-utils && \
