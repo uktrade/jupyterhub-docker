@@ -50,6 +50,8 @@ RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends fonts-dejavu gfortran build-essential libpq-dev unixodbc-dev odbc-postgresql && \
     R -e 'install.packages("DBI")' && \
     R -e 'install.packages("odbc")' && \
+    apt-get remove -y gfortran build-essential apt-utils && \
+    apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
