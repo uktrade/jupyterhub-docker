@@ -1,4 +1,0 @@
-repo = getOption("repos")
-repo["CRAN"] = "http://cran.uk.r-project.org"
-options(repos = repo)
-rm(repo)

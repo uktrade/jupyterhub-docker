@@ -16,40 +16,40 @@ RUN pip install --upgrade \
 
 RUN conda install --quiet --yes \
     notebook \
-    'r-base=3.4.1' \
-    'r-irkernel=0.8*' \
-    'r-plyr=1.8*' \
-    'r-devtools=1.13*' \
-    'r-tidyverse=1.1*' \
-    'r-shiny=1.0*' \
-    'r-rmarkdown=1.8*' \
-    'r-forecast=8.2*' \
-    'r-rsqlite=2.0*' \
-    'r-reshape2=1.4*' \
-    'r-nycflights13=0.2*' \
-    'r-caret=6.0*' \
-    'r-rcurl=1.95*' \
-    'r-crayon=1.3*' \
-    'r-randomforest=4.6*' \
-    'r-htmltools=0.3*' \
-    'r-sparklyr=0.7*' \
-    'r-htmlwidgets=1.0*' \
-    'r-hexbin=1.27*' \
-    'r-rjava' && \
+    'r-base=3.5.0' \
+    'r-irkernel=0.8.11' \
+    'r-plyr=1.8.4' \
+    'r-devtools=1.13.5' \
+    'r-tidyverse=1.2.1' \
+    'r-shiny=1.0.5' \
+    'r-rmarkdown=1.9' \
+    'r-forecast=8.3' \
+    'r-rsqlite=2.1.0' \
+    'r-reshape2=1.4.3' \
+    'r-nycflights13=0.2.2' \
+    'r-caret=6.0_79' \
+    'r-rcurl=1.95_4.10' \
+    'r-crayon=1.3.4' \
+    'r-randomforest=4.6_14' \
+    'r-htmltools=0.3.6' \
+    'r-sparklyr=0.7.0' \
+    'r-htmlwidgets=1.2' \
+    'r-hexbin=1.27.2' \
+    'r-rjava=0.9_9' \
+    'r-dbi=0.8' \
+    'r-odbc=1.1.2' && \
     conda clean -tipsy && \
     npm cache clean --force && \
     fix-permissions $CONDA_DIR
 
-COPY config/Rprofile $HOME/.Rprofile
 RUN apt-get update && \
     DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends gfortran build-essential libpq-dev unixodbc-dev odbc-postgresql && \
-    R -e 'install.packages("DBI")' && \
-    R -e 'install.packages("odbc")' && \
-    apt-get remove -y gfortran build-essential apt-utils && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libxrender1 libxext6 odbc-postgresql && \
+    apt-get remove -y apt-utils && \
     apt-get autoremove -y && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/odbc
 
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
