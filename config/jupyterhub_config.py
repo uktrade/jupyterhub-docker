@@ -17,3 +17,4 @@ c.DockerSpawner.volumes = {'/etc/jupyter':'/etc/jupyter'}
 c.DockerSpawner.remove_containers = True
 c.DockerSpawner.debug = True
 c.Spawner.env_keep = ['PATH', 'DATABASE_URL']
+c.Spawner.cmd = ['jupyter-labhub']
