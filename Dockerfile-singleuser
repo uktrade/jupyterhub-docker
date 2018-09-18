@@ -18,7 +18,6 @@ RUN conda config --system --prepend channels conda-forge && \
     conda config --system --set auto_update_conda false && \
     conda config --system --set show_channel_urls true && \
     conda install --quiet --yes \
-    jupyter \
     notebook \
     'r-base=3.4.1' \
     'r-irkernel=0.8*' \
