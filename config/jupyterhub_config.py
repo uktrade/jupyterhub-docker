@@ -78,9 +78,8 @@ c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = \
 
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 180
-c.Spawner.env_keep = ['PATH', 'DATABASE_URL']
-# c.Spawner.cmd = ['jupyter-labhub']
-# c.Spawner.default_url = '/lab'
+c.FargateSpawner.env_keep = ['PATH', 'DATABASE_URL']
+c.FargateSpawner.cmd = ['jupyter-labhub']
 
 c.JupyterHub.tornado_settings = {
     # We immediately show the page with the progress bar
