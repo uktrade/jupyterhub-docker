@@ -25,7 +25,7 @@ class ButtonExtension {
       const model = notebook.model;
       const cell = model.contentFactory.createCodeCell({
         cell: {
-          source: code,
+          source: code[model.defaultKernelName],
           metadata: {
             trusted: true
           }
@@ -50,17 +50,25 @@ class ButtonExtension {
   }
 }
 
-const code = [
-  'from os import environ as __environ',
-  'from collections import namedtuple as __namedtuple',
-  'from psycopg2 import connect as __connect',
-  '__dsns = dict((key.split("__")[1], __connect(value)) for (key, value) in __environ.items() if key.startswith("DATABASE_DSN__"))',
-  'conn = __namedtuple("Connections", __dsns.keys())(**__dsns)',
-  'print("You now have {} database connection{}:".format(len(__dsns.keys()), "s" if len(__dsns.keys()) > 1 else ""))',
-  'for key in __dsns.keys():',
-  '  print(f"  conn.{key}")',
-  'del __dsns',
-  'del __environ',
-  'del __namedtuple',
-  'del __connect'
-].join('\n');
+const code = {
+  'ir': [
+    'library(DBI)',
+    'con <- dbConnect(odbc::odbc(), "TiVA")',
+    'print("You now have 1 database connection")',
+    'print("  con")'
+  ].join('\n'),
+  'python3': [
+    'from os import environ as __environ',
+    'from collections import namedtuple as __namedtuple',
+    'from psycopg2 import connect as __connect',
+    '__dsns = dict((key.split("__")[1], __connect(value)) for (key, value) in __environ.items() if key.startswith("DATABASE_DSN__"))',
+    'conn = __namedtuple("Connections", __dsns.keys())(**__dsns)',
+    'print("You now have {} database connection{}:".format(len(__dsns.keys()), "s" if len(__dsns.keys()) > 1 else ""))',
+    'for key in __dsns.keys():',
+    '  print(f"  conn.{key}")',
+    'del __dsns',
+    'del __environ',
+    'del __namedtuple',
+    'del __connect'
+  ].join('\n')
+}
