@@ -52,5 +52,8 @@ ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/odbc
 
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
+COPY jupyterlab_database_access /jupyterlab_database_access
+RUN jupyter labextension install /jupyterlab_database_access
+
 # Switch back to jovyan to avoid accidental container runs as root
 USER $NB_UID
