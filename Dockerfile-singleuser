@@ -2,6 +2,15 @@ FROM jupyter/base-notebook:137a295ff71b
 
 USER root
 
+RUN apt-get update && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
+    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libxrender1 libxext6 odbc-postgresql && \
+    apt-get remove -y apt-utils && \
+    apt-get autoremove -y && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
+ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/odbc
+
 RUN pip install --upgrade \
     pip==18.0 \
     s3contents==0.1.10 \
@@ -40,15 +49,6 @@ RUN conda install --quiet --yes \
     conda clean -tipsy && \
     npm cache clean --force && \
     fix-permissions $CONDA_DIR
-
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends libxrender1 libxext6 odbc-postgresql && \
-    apt-get remove -y apt-utils && \
-    apt-get autoremove -y && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
-ENV LD_LIBRARY_PATH /usr/lib/x86_64-linux-gnu/odbc
 
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 
