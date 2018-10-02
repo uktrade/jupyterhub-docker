@@ -1,3 +1,4 @@
+import json
 import os
 import subprocess
 import urllib
@@ -17,8 +18,8 @@ c.JupyterHub.db_url = env['DB_URL']
 c.JupyterHub.hub_ip = '0.0.0.0'
 
 # The IP that _other_ services will connect to the hub on, i.e. the current private IP address
-with urllib.request.urlopen('http://169.254.169.254/latest/meta-data/local-ipv4') as response:
-   c.JupyterHub.hub_connect_ip = response.read().decode('ascii')
+with urllib.request.urlopen('http://169.254.170.2/v2/metadata') as response:
+   c.JupyterHub.hub_connect_ip = json.loads(response.read().decode('utf-8'))['Containers'][0]['Networks'][0]['IPv4Addresses'][0]
 
 ssl_cert = '/etc/jupyter/ssl.crt'
 ssl_key = '/etc/jupyter/ssl.key'
