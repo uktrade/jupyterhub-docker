@@ -21,14 +21,14 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 with urllib.request.urlopen('http://169.254.170.2/v2/metadata') as response:
    c.JupyterHub.hub_connect_ip = json.loads(response.read().decode('utf-8'))['Containers'][0]['Networks'][0]['IPv4Addresses'][0]
 
-ssl_cert = '/etc/jupyter/ssl.crt'
-ssl_key = '/etc/jupyter/ssl.key'
+ssl_cert = env['HOME'] + '/ssl.crt'
+ssl_key = env['HOME'] + '/ssl.key'
 subprocess.check_call([
     'openssl', 'req', '-new', '-newkey', 'rsa:2048', '-days', '3650', '-nodes', '-x509',
     '-subj', '/CN=selfsigned',
     '-keyout', ssl_key,
     '-out', ssl_cert,
-])
+], env={'RANDFILE': env['HOME'] + '/openssl_rnd'})
 c.JupyterHub.ssl_cert = ssl_cert
 c.JupyterHub.ssl_key = ssl_key
 
@@ -43,6 +43,7 @@ def init_pycurl(self):
     AsyncHTTPClient.configure('tornado.curl_httpclient.CurlAsyncHTTPClient', defaults=dict(validate_cert=False))
 JupyterHub.init_pycurl = init_pycurl
 c.ConfigurableHTTPProxy.command = ['configurable-http-proxy', '--insecure']
+c.ConfigurableHTTPProxy.pid_file = env['HOME'] + '/proxy.pid'
 
 c.JupyterHub.authenticator_class = GenericOAuthenticator
 c.Authenticator.auto_login = True
@@ -79,7 +80,7 @@ c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = \
 
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 180
-c.FargateSpawner.env_keep = ['PATH', 'DATABASE_URL']
+c.FargateSpawner.env_keep = ['DATABASE_URL']
 c.FargateSpawner.cmd = ['jupyter-labhub']
 
 c.JupyterHub.tornado_settings = {

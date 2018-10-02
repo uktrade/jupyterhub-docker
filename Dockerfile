@@ -1,15 +1,37 @@
-ARG JUPYTERHUB_VER=0.9.2
-FROM jupyterhub/jupyterhub:$JUPYTERHUB_VER
+FROM alpine:3.8
 
-RUN pip install --upgrade \
-	pip==18.0 \
-	fargatespawner==0.0.12 \
-	aiopg==0.15.0 \
-	oauthenticator==0.8.0 \
-	psycopg2-binary==2.7.5
+ENV \
+	LC_ALL=en_US.UTF-8 \
+	LANG=en_US.UTF-8 \
+	LANGUAGE=en_US.UTF-8
+
+RUN \
+	apk add --no-cache \
+		libcurl=7.61.1-r0 \
+		npm=8.11.4-r0 \
+		openssl=1.0.2p-r0 \
+		py-cryptography=2.1.4-r1 \
+		py-psycopg2=2.7.5-r0 \
+		py3-curl=7.43.0-r5 \
+		python3=3.6.6-r0 \
+		tini=0.18.0-r0 && \
+	python3 -m ensurepip && \
+	pip3 install pip==18.00 && \
+	pip3 install \
+		aiopg==0.15.0 \
+		fargatespawner==0.0.12 \
+		jupyterhub==0.9.2 \
+		oauthenticator==0.8.0 && \
+	npm install -g \
+		configurable-http-proxy@3.1.1 && \
+	npm cache clean --force
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
-COPY config/database_access.py /opt/conda/lib/python3.6/site-packages/database_access.py
-COPY config/env_utils.py /opt/conda/lib/python3.6/site-packages/env_utils.py
+COPY config/database_access.py /usr/lib/python3.6/site-packages/database_access.py
+COPY config/env_utils.py /usr/lib/python3.6/site-packages/env_utils.py
 
-ENTRYPOINT ["jupyterhub", "--config=/etc/jupyter/jupyterhub_config.py"]
+ENTRYPOINT ["tini", "--"]
+CMD ["jupyterhub", "--config=/etc/jupyter/jupyterhub_config.py"]
+
+RUN adduser -S jovyan
+USER jovyan
