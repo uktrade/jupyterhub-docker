@@ -9,7 +9,6 @@ RUN pip install --upgrade \
 	psycopg2-binary==2.7.5
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
-COPY config/spawner-init.sh /etc/jupyter/spawner-init.sh
 COPY entrypoint.sh /entrypoint.sh
 
 COPY config/database_access.py /opt/conda/lib/python3.6/site-packages/database_access.py
