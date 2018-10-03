@@ -52,8 +52,10 @@ class ButtonExtension {
 
 const code = {
   'ir': [
+    'library(stringr)',
     'library(DBI)',
-    'con <- dbConnect(odbc::odbc(), "TiVA")',
+    'm <- str_match(Sys.getenv("DATABASE_URL"), "^postgres://([a-z0-9]+):([a-zA-Z0-9]+)@([a-z0-9_\\\\-\\\\.]+):(\\\\d+)/([a-z0-9_\\\\-]+)")',
+    'con <- dbConnect(RPostgres::Postgres(), user=m[2], password=m[3], host=m[4], port=m[5], dbname=m[6])',
     'print("You now have 1 database connection")',
     'print("  con")'
   ].join('\n'),
