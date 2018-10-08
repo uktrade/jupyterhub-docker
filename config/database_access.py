@@ -1,11 +1,16 @@
 import datetime
+import json
 import re
 import secrets
 import string
 import aiopg
+from tornado.httpclient import (
+    AsyncHTTPClient,
+    HTTPRequest,
+)
 
 
-def database_access_spawn_hooks(databases, users):
+def database_access_spawn_hooks(database_endpoint, databases, users):
     password_alphabet = string.ascii_letters + string.digits
     user_alphabet = string.ascii_lowercase + string.digits
 
@@ -49,6 +54,15 @@ def database_access_spawn_hooks(databases, users):
             database_dsns.append((
                 f'DATABASE_DSN__{database_friendly_name}__{table_names_str}',
                 f'host={database["HOST"]} port={database["PORT"]} sslmode=require dbname={database["NAME"]} user={user} password={password}'
+            ))
+
+        http_client = AsyncHTTPClient()
+        http_request = HTTPRequest(database_endpoint, method='GET')
+        http_response = await http_client.fetch(http_request)
+        for database in json.loads(http_response.body)['databases']:
+            database_dsns.append((
+                f'DATABASE_DSN__{database["memorable_name"]}',
+                f'host={database["db_host"]} port={database["db_port"]} sslmode=require dbname={database["db_name"]} user={database["db_user"]} password={database["db_password"]}'
             ))
 
         spawner.environment = {

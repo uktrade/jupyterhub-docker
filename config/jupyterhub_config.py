@@ -75,6 +75,7 @@ c.FargateSpawner.notebook_args = [
 
 c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = \
     database_access_spawn_hooks(
+        env['DATABASE_ACCESS']['URL'],
         *((env['DATABASE_ACCESS']['DATABASES'],env['DATABASE_ACCESS']['USERS']) if 'DATABASE_ACCESS' in env else ({},{})),
     )
 
