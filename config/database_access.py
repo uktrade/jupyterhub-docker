@@ -56,8 +56,11 @@ def database_access_spawn_hooks(database_endpoint, databases, users):
                 f'host={database["HOST"]} port={database["PORT"]} sslmode=require dbname={database["NAME"]} user={user} password={password}'
             ))
 
+        token = (await spawner.user.get_auth_state())['access_token']
         http_client = AsyncHTTPClient()
-        http_request = HTTPRequest(database_endpoint, method='GET')
+        http_request = HTTPRequest(database_endpoint, method='GET', headers={
+            'Authorization': f'Bearer {token}',
+        })
         http_response = await http_client.fetch(http_request)
         for database in json.loads(http_response.body)['databases']:
             database_dsns.append((
