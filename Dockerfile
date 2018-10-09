@@ -18,7 +18,6 @@ RUN \
 	python3 -m ensurepip && \
 	pip3 install pip==18.00 && \
 	pip3 install \
-		aiopg==0.15.0 \
 		fargatespawner==0.0.12 \
 		jupyterhub==0.9.2 \
 		oauthenticator==0.8.0 && \
