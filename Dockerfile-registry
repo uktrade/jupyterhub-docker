@@ -1,0 +1,11 @@
+FROM registry:2.6.2
+
+RUN \
+	apk add --no-cache \
+		openssl=1.0.2n-r0
+
+ENV \
+	REGISTRY_HTTP_TLS_CERTIFICATE=/ssl.crt \
+	REGISTRY_HTTP_TLS_KEY=/ssl.key
+
+COPY registry-entrypoint.sh /entrypoint.sh
