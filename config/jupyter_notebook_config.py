@@ -1,16 +1,15 @@
 import os
 import subprocess
-from s3contents import S3ContentsManager
+from jupyters3 import JupyterS3
 from jupyterhub.services.auth import HubOAuth
 from tornado.httpclient import AsyncHTTPClient
 c = get_config()
 
 c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.terminals_enabled = False
-c.NotebookApp.contents_manager_class = S3ContentsManager
+c.NotebookApp.contents_manager_class = JupyterS3
 
-c.S3ContentsManager.prefix = os.environ['JUPYTERHUB_USER']
-c.S3ContentsManager.sse = "AES256"
+c.JupyterS3.prefix = os.environ['JUPYTERHUB_USER'] + '/'
 
 keyfile = os.environ['HOME'] + '/ssl.key'
 certfile = os.environ['HOME'] + '/ssl.crt'
