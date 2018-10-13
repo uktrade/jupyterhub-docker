@@ -16,9 +16,9 @@ RUN \
 		python3=3.6.6-r0 \
 		tini=0.18.0-r0 && \
 	python3 -m ensurepip && \
-	pip3 install pip==18.00 && \
+	pip3 install pip==18.01 && \
 	pip3 install \
-		fargatespawner==0.0.12 \
+		fargatespawner==0.0.13 \
 		jupyterhub==0.9.2 \
 		oauthenticator==0.8.0 && \
 	npm install -g \
