@@ -2,6 +2,30 @@
 
 ![JupyterHub components and connections](jupyterhub-components-and-connections.png)
 
-# Building & Pushing Docker Images to ECR
+# Building & Pushing Docker Images to Quay
 
-The docker images in ECS are pulled by ECS from ECR. To push the images _to_ ECR, You can follow the usual `View Push Commands` instructions given in the AWS Console, _except_ that to build the notebook image, you must specify the correct Dockerfile with `-f Dockerfile-singleuser`, and for development work, be mindful to replace the `:latest` tag with a unique name.
+## JupyterHub
+
+```bash
+docker build -t jupyterhub . && \
+docker tag jupyterhub:latest  quay.io/uktrade/jupyterhub:latest && \
+docker push quay.io/uktrade/jupyterhub:latest
+```
+
+## Single user notebook server
+
+```bash
+docker build -t jupyterhub-singleuser -f Dockerfile-singleuser . && \
+docker tag jupyterhub-singleuser:latest  quay.io/uktrade/jupyterhub-singleuser:latest && \
+docker push quay.io/uktrade/jupyterhub-singleuser:latest
+```
+
+## Docker pull-through cache
+
+To limit egress from the notebook servers, we only allow in-VPC connections. For the docker images themselves, we run a registry that proxies read access to certain images in Quay.
+
+```bash
+docker build -t jupyterhub-registry -f Dockerfile-registry . && \
+docker tag jupyterhub-registry:latest  quay.io/uktrade/jupyterhub-registry:latest && \
+docker push quay.io/uktrade/jupyterhub-registry:latest
+```
