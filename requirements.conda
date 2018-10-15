@@ -1,0 +1,22 @@
+# nlp specific packages
+nltk
+spacy
+scikit-learn
+gensim
+pyldavis
+
+# generic python packages
+numpy
+scipy
+pandas
+matplotlib
+keras
+tensorflow
+theano
+tensorboard
+pytorch
+xgboost
+seaborn
+bokeh
+basemap
+networkx
