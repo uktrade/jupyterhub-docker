@@ -1,5 +1,5 @@
 resource "aws_db_instance" "admin" {
-  identifier = "jupyerhub-admin"
+  identifier = "jupyterhub-admin"
 
   allocated_storage = 20
   storage_type = "gp2"
@@ -11,16 +11,18 @@ resource "aws_db_instance" "admin" {
   username = "jupyterhub_admin_master"
   password = "${random_string.aws_db_instance_admin_password.result}"
 
+  final_snapshot_identifier = "jupyterhub-admin-final-snapshot"
+
   vpc_security_group_ids = ["${aws_security_group.admin_db.id}"]
   db_subnet_group_name = "${aws_db_subnet_group.admin.name}"
 }
 
 resource "aws_db_subnet_group" "admin" {
-  name       = "jupyerhub-admin"
-  subnet_ids = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+  name       = "jupyterhub-admin"
+  subnet_ids = ["${aws_subnet.private_with_egress.*.id}"]
 
   tags {
-    Name = "jupyerhub-admin"
+    Name = "jupyterhub-admin"
   }
 }
 

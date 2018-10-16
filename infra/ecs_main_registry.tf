@@ -6,7 +6,7 @@ resource "aws_ecs_service" "registry" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+    subnets         = ["${aws_subnet.private_with_egress.*.id}"]
     security_groups = ["${aws_security_group.registry_service.id}"]
   }
 
@@ -79,7 +79,7 @@ resource "aws_iam_role_policy_attachment" "registry_task_execution" {
 
 resource "aws_alb" "registry" {
   name            = "jupyterhub-registry"
-  subnets         = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+  subnets         = ["${aws_subnet.private_with_egress.*.id}"]
   security_groups = ["${aws_security_group.registry_alb.id}"]
 }
 
@@ -100,7 +100,7 @@ resource "aws_alb_target_group" "registry" {
   name_prefix = "jhreg-"
   port        = "${local.registry_target_group_port}"
   protocol    = "HTTPS"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
 
   lifecycle {

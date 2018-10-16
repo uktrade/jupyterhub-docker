@@ -6,7 +6,7 @@ resource "aws_ecs_service" "admin" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+    subnets         = ["${aws_subnet.private_with_egress.*.id}"]
     security_groups = ["${aws_security_group.admin_service.id}"]
   }
 
@@ -101,7 +101,7 @@ resource "aws_iam_role_policy_attachment" "admin_task_execution" {
 
 resource "aws_alb" "admin" {
   name            = "jupyterhub-admin"
-  subnets         = ["${data.aws_subnet.public_subnets.*.id}"]
+  subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.admin_alb.id}"]
 }
 
@@ -122,7 +122,7 @@ resource "aws_alb_target_group" "admin" {
   name_prefix = "jhadm-"
   port        = "${local.admin_target_group_port}"
   protocol    = "HTTPS"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
 
   health_check {

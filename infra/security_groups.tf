@@ -1,7 +1,7 @@
 resource "aws_security_group" "registry_alb" {
   name        = "jupyterhub-registry-alb"
   description = "jupyterhub-registry-alb"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-registry-alb"
@@ -23,7 +23,7 @@ resource "aws_security_group_rule" "registry_alb_egress_https_to_service" {
 resource "aws_security_group" "registry_service" {
   name        = "jupyterhub-registry-service"
   description = "jupyterhub-registry-service"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-registry-service"
@@ -58,7 +58,7 @@ resource "aws_security_group_rule" "registry_service_egress_https_to_everywhere"
 resource "aws_security_group" "admin_alb" {
   name        = "jupyterhub-admin-alb"
   description = "jupyterhub-admin-alb"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-admin-alb"
@@ -104,7 +104,7 @@ resource "aws_security_group_rule" "admin_alb_egress_https_to_service" {
 resource "aws_security_group" "admin_service" {
   name        = "jupyterhub-admin-service"
   description = "jupyterhub-admin-service"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-admin-service"
@@ -123,11 +123,22 @@ resource "aws_security_group_rule" "admin_service_ingress_https_from_alb" {
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere" {
+resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere_ipv4" {
   description = "HTTPS to public internet"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   cidr_blocks       = ["0.0.0.0/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere_ipv6" {
+  description = "HTTPS to public internet"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
   ipv6_cidr_blocks  = ["::/0"]
 
   type        = "egress"
@@ -175,7 +186,7 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" 
 resource "aws_security_group" "admin_db" {
   name        = "jupyterhub-admin-db"
   description = "jupyterhub-admin-db"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-admin-db"
@@ -197,7 +208,7 @@ resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service
 resource "aws_security_group" "test_1_db" {
   name        = "jupyterhub-test-1-db"
   description = "jupyterhub-test-1-db"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-test-1-db"
@@ -219,7 +230,7 @@ resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_admin_servic
 resource "aws_security_group" "test_2_db" {
   name        = "jupyterhub-test-2-db"
   description = "jupyterhub-test-2-db"
-  vpc_id      = "${data.aws_vpc.vpc.id}"
+  vpc_id      = "${aws_vpc.main.id}"
 
   tags {
     Name = "jupyterhub-test-2-db"
