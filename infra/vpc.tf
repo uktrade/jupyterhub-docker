@@ -1,3 +1,8 @@
+data "aws_subnet" "public_subnets" {
+  count = "${length(var.public_subnets)}"
+  id    = "${var.public_subnets[count.index]}"
+}
+
 data "aws_subnet" "private_subnets_with_egress" {
   count = "${length(var.private_subnets_with_egress)}"
   id    = "${var.private_subnets_with_egress[count.index]}"

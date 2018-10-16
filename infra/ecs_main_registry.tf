@@ -97,16 +97,24 @@ resource "aws_alb_listener" "registry" {
 }
 
 resource "aws_alb_target_group" "registry" {
-  name     = "jupyerhub-registry"
-  port     = "${local.registry_target_group_port}"
-  protocol = "HTTPS"
-  vpc_id   = "${data.aws_vpc.vpc.id}"
+  name_prefix = "jhreg-"
+  port        = "${local.registry_target_group_port}"
+  protocol    = "HTTPS"
+  vpc_id      = "${data.aws_vpc.vpc.id}"
   target_type = "ip"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_acm_certificate" "registry" {
   domain_name       = "${aws_route53_record.registry.name}"
   validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_acm_certificate_validation" "registry" {

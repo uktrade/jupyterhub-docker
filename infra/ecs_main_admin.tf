@@ -1,29 +1,151 @@
-resource "aws_db_instance" "admin" {
-  identifier = "jupyerhub-admin"
+resource "aws_ecs_service" "admin" {
+  name            = "jupyterhub-admin"
+  cluster         = "${aws_ecs_cluster.main_cluster.id}"
+  task_definition = "${aws_ecs_task_definition.admin.arn}"
+  desired_count   = 1
+  launch_type     = "FARGATE"
 
-  allocated_storage = 20
-  storage_type = "gp2"
-  engine = "postgres"
-  engine_version = "10.4"
-  instance_class = "db.t2.micro"
+  network_configuration {
+    subnets         = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+    security_groups = ["${aws_security_group.admin_service.id}"]
+  }
 
-  name = "jupyterhub_admin"
-  username = "jupyterhub_admin_master"
-  password = "${random_string.aws_db_instance_admin_password.result}"
+  load_balancer {
+    target_group_arn = "${aws_alb_target_group.admin.arn}"
+    container_port   = "${local.admin_container_port}"
+    container_name   = "${local.admin_container_name}"
+  }
 
-  db_subnet_group_name = "${aws_db_subnet_group.admin.name}"
+  depends_on = [
+    # The target group must have been associated with the listener first
+    "aws_alb_listener.admin",
+  ]
 }
 
-resource "aws_db_subnet_group" "admin" {
-  name       = "jupyerhub-admin"
-  subnet_ids = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
+resource "aws_ecs_task_definition" "admin" {
+  family                   = "jupyterhub-admin"
+  container_definitions    = "${data.template_file.admin_container_definitions.rendered}"
+  execution_role_arn       = "${aws_iam_role.admin_task_execution.arn}"
+  network_mode             = "awsvpc"
+  cpu                      = "${local.admin_container_cpu}"
+  memory                   = "${local.admin_container_memory}"
+  requires_compatibilities = ["FARGATE"]
+}
 
-  tags {
-    Name = "jupyerhub-admin"
+data "template_file" "admin_container_definitions" {
+  template = "${file("${path.module}/ecs_main_admin_container_definitions.json")}"
+
+  vars {
+    container_image  = "${var.admin_container_image}"
+    container_name   = "${local.admin_container_name}"
+    container_port   = "${local.admin_container_port}"
+    container_cpu    = "${local.admin_container_cpu}"
+    container_memory = "${local.admin_container_memory}"
+
+    log_group  = "${aws_cloudwatch_log_group.admin.name}"
+    log_region = "${data.aws_region.aws_region.name}"
+
+    admin_db__host            = "${aws_db_instance.admin.address}"
+    admin_db__name            = "${aws_db_instance.admin.name}"
+    admin_db__password        = "${random_string.aws_db_instance_admin_password.result}"
+    admin_db__port            = "${aws_db_instance.admin.port}"
+    admin_db__user            = "${aws_db_instance.admin.username}"
+    allowed_hosts_1           = "${var.admin_domain}"
+    authbroker_client_id      = "${var.authbroker_client_id}"
+    authbroker_client_secret  = "${var.authbroker_client_secret}"
+    authbroker_url            = "${var.authbroker_url}"
+    data_db__test_1__host     = "${aws_db_instance.test_1.address}"
+    data_db__test_1__name     = "${aws_db_instance.test_1.name}"
+    data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
+    data_db__test_1__port     = "${aws_db_instance.test_1.port}"
+    data_db__test_1__user     = "${aws_db_instance.test_1.username}"
+    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
+    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
+    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
+    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
+    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
+    secret_key                = "${random_string.admin_secret_key.result}"
   }
 }
 
-resource "random_string" "aws_db_instance_admin_password" {
-  length = 128
+resource "random_string" "admin_secret_key" {
+  length = 256
   special = false
+}
+
+resource "aws_cloudwatch_log_group" "admin" {
+  name = "jupyterhub-admin"
+}
+
+resource "aws_iam_role" "admin_task_execution" {
+  name               = "admin-task-execution"
+  path               = "/"
+  assume_role_policy = "${data.aws_iam_policy_document.admin_task_execution.json}"
+}
+
+data "aws_iam_policy_document" "admin_task_execution" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "admin_task_execution" {
+  role       = "${aws_iam_role.admin_task_execution.name}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+}
+
+resource "aws_alb" "admin" {
+  name            = "jupyterhub-admin"
+  subnets         = ["${data.aws_subnet.public_subnets.*.id}"]
+  security_groups = ["${aws_security_group.admin_alb.id}"]
+}
+
+resource "aws_alb_listener" "admin" {
+  load_balancer_arn = "${aws_alb.admin.arn}"
+  port              = "${local.admin_alb_port}"
+  protocol          = "HTTPS"
+
+  default_action {
+    target_group_arn = "${aws_alb_target_group.admin.arn}"
+    type             = "forward"
+  }
+
+  certificate_arn = "${aws_acm_certificate_validation.admin.certificate_arn}"
+}
+
+resource "aws_alb_target_group" "admin" {
+  name_prefix = "jhadm-"
+  port        = "${local.admin_target_group_port}"
+  protocol    = "HTTPS"
+  vpc_id      = "${data.aws_vpc.vpc.id}"
+  target_type = "ip"
+
+  health_check {
+    path = "/healthcheck"
+    protocol = "HTTPS"
+    healthy_threshold = 3
+    unhealthy_threshold = 2
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate" "admin" {
+  domain_name       = "${aws_route53_record.admin.name}"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "admin" {
+  certificate_arn = "${aws_acm_certificate.admin.arn}"
 }
