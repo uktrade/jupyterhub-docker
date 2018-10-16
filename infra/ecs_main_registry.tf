@@ -5,8 +5,6 @@ resource "aws_ecs_service" "registry" {
   desired_count   = 1
   launch_type     = "FARGATE"
 
-  # iam_role = "${aws_iam_role.registry_ecs_service.name}"
-
   network_configuration {
     subnets         = ["${data.aws_subnet.private_subnets_with_egress.*.id}"]
     security_groups = ["${aws_security_group.registry_service.id}"]
@@ -52,28 +50,6 @@ data "template_file" "registry_container_definitions" {
     registry_proxy_password  = "${var.registry_proxy_password}"
   }
 }
-
-# resource "aws_iam_role" "registry_ecs_service" {
-#   name               = "jupyterhub-registry"
-#   path               = "/"
-#   assume_role_policy = "${data.aws_iam_policy_document.registry_ecs_service.json}"
-# }
-
-# resource "aws_iam_role_policy_attachment" "registry_ecs_service" {
-#   role       = "${aws_iam_role.registry_ecs_service.name}"
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2ContainerServiceRole"
-# }
-
-# data "aws_iam_policy_document" "registry_ecs_service" {
-#   statement {
-#     actions = ["sts:AssumeRole"]
-
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ecs.amazonaws.com"]
-#     }
-#   }
-# }
 
 resource "aws_cloudwatch_log_group" "registry" {
   name = "jupyterhub-registry"
