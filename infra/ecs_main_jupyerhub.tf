@@ -73,10 +73,11 @@ data "template_file" "jupyterhub_container_definitions" {
     fargate_spawner__task_security_group   = "${aws_security_group.notebooks.id}"
     fargate_spawner__task_subnet           = "${aws_subnet.private_with_egress.*.id[0]}"  # To be changed to limit egress
 
-    jpynb_s3_access_key_id = "${aws_iam_access_key.notebooks_s3_access.id}"
-    jpynb_s3_secret_access_key = "${aws_iam_access_key.notebooks_s3_access.secret}"
-    jpynb_s3_bucket_name = "${aws_s3_bucket.notebooks.id}"
-    jpynb_s3_region_name = "${data.aws_region.aws_region.name}"
+    jupyters3__aws_access_key_id = "${aws_iam_access_key.notebooks_s3_access.id}"
+    jupyters3__aws_secret_access_key = "${aws_iam_access_key.notebooks_s3_access.secret}"
+    jupyters3__aws_region = "${aws_s3_bucket.notebooks.region}"
+    jupyters3__aws_s3_bucket = "${aws_s3_bucket.notebooks.id}"
+    jupyters3__aws_s3_host = "${aws_s3_bucket.notebooks.bucket_regional_domain_name}"
   }
 }
 

@@ -68,11 +68,11 @@ c.FargateSpawner.notebook_args = [
     # We connect via the proxy, which is on the same IP as the hub, and which is
     # listening on HTTPS
     '--SingleUserNotebookApp.hub_api_url=' + f'https://{c.JupyterHub.hub_connect_ip}:8000/hub/api',
-    '--JupyterS3.aws_access_key_id=' + env['JPYNB_S3_ACCESS_KEY_ID'],
-    '--JupyterS3.aws_secret_access_key=' + env['JPYNB_S3_SECRET_ACCESS_KEY'],
-    '--JupyterS3.aws_region=' + env['JPYNB_S3_REGION_NAME'],
-    '--JupyterS3.aws_s3_host=' + env['JPYNB_S3_BUCKET_NAME'] + '.s3.' + env['JPYNB_S3_REGION_NAME'] + '.amazonaws.com',
-    '--JupyterS3.aws_s3_bucket=' + env['JPYNB_S3_BUCKET_NAME']
+    '--JupyterS3.aws_access_key_id=' + env['JUPYTERS3']['AWS_ACCESS_KEY_ID'],
+    '--JupyterS3.aws_secret_access_key=' + env['JUPYTERS3']['AWS_SECRET_ACCESS_KEY'],
+    '--JupyterS3.aws_region=' + env['JUPYTERS3']['AWS_REGION'],
+    '--JupyterS3.aws_s3_host=' + env['JUPYTERS3']['AWS_S3_HOST'],
+    '--JupyterS3.aws_s3_bucket=' + env['JUPYTERS3']['AWS_S3_BUCKET'],
 ]
 
 c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = database_access_spawn_hooks(env['DATABASE_ACCESS']['URL'])
