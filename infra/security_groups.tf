@@ -9,7 +9,7 @@ resource "aws_security_group" "registry_alb" {
 }
 
 resource "aws_security_group_rule" "registry_alb_ingress_https_from_notebooks" {
-  description = "HTTPS from ECS"
+  description = "ingress-https-from-notebooks"
 
   security_group_id = "${aws_security_group.registry_alb.id}"
   source_security_group_id = "${aws_security_group.notebooks.id}"
@@ -21,7 +21,7 @@ resource "aws_security_group_rule" "registry_alb_ingress_https_from_notebooks" {
 }
 
 resource "aws_security_group_rule" "registry_alb_egress_https_to_service" {
-  description = "HTTPS to registry service"
+  description = "egress-https-to-service"
 
   security_group_id = "${aws_security_group.registry_alb.id}"
   source_security_group_id = "${aws_security_group.registry_service.id}"
@@ -43,7 +43,7 @@ resource "aws_security_group" "registry_service" {
 }
 
 resource "aws_security_group_rule" "registry_service_ingress_https_from_alb" {
-  description = "HTTPS from ALB"
+  description = "ingress-https-from-alb"
 
   security_group_id = "${aws_security_group.registry_service.id}"
   source_security_group_id = "${aws_security_group.registry_alb.id}"
@@ -55,7 +55,7 @@ resource "aws_security_group_rule" "registry_service_ingress_https_from_alb" {
 }
 
 resource "aws_security_group_rule" "registry_service_egress_https_to_everywhere" {
-  description = "HTTPS to public internet - needed for quay.io"
+  description = "egress-https-to-everywhere"
 
   security_group_id = "${aws_security_group.registry_service.id}"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -77,8 +77,8 @@ resource "aws_security_group" "admin_alb" {
   }
 }
 
-resource "aws_security_group_rule" "admin_alb_ingress_https" {
-  description = "HTTPS from whitelist"
+resource "aws_security_group_rule" "admin_alb_ingress_https_from_whitelist" {
+  description = "ingress-https-from-whitelist"
 
   security_group_id = "${aws_security_group.admin_alb.id}"
   cidr_blocks       = ["${var.ip_whitelist}"]
@@ -89,8 +89,8 @@ resource "aws_security_group_rule" "admin_alb_ingress_https" {
   protocol   = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_alb_ingress_icmp_3" {
-  description = "Host unreachable for MTU discovery from whitelist"
+resource "aws_security_group_rule" "admin_alb_ingress_icmp_host_unreachable_for_mtu_discovery_from_whitelist" {
+  description = "ingress-icmp-host-unreachable-for-mtu-discovery-from-whitelist"
 
   security_group_id = "${aws_security_group.admin_alb.id}"
   cidr_blocks       = ["${var.ip_whitelist}"]
@@ -101,8 +101,8 @@ resource "aws_security_group_rule" "admin_alb_ingress_icmp_3" {
   protocol  = "icmp"
 }
 
-resource "aws_security_group_rule" "admin_alb_egress_https_to_service" {
-  description = "HTTPS to admin service"
+resource "aws_security_group_rule" "admin_alb_egress_https_to_admin_service" {
+  description = "egress-https-to-admin-service"
 
   security_group_id = "${aws_security_group.admin_alb.id}"
   source_security_group_id = "${aws_security_group.admin_service.id}"
@@ -123,8 +123,8 @@ resource "aws_security_group" "admin_service" {
   }
 }
 
-resource "aws_security_group_rule" "admin_service_ingress_https_from_alb" {
-  description = "HTTPS from ALB"
+resource "aws_security_group_rule" "admin_service_ingress_https_from_admin_alb" {
+  description = "ingress-https-from-admin-alb"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   source_security_group_id = "${aws_security_group.admin_alb.id}"
@@ -136,7 +136,7 @@ resource "aws_security_group_rule" "admin_service_ingress_https_from_alb" {
 }
 
 resource "aws_security_group_rule" "admin_service_ingress_https_from_jupyterhub_service" {
-  description = "HTTPS from JupyterHub"
+  description = "ingress-https-from-jupyterhub-service"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
@@ -147,8 +147,8 @@ resource "aws_security_group_rule" "admin_service_ingress_https_from_jupyterhub_
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere_ipv4" {
-  description = "HTTPS to public internet"
+resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere" {
+  description = "egress-https-to-everywhere"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -159,20 +159,8 @@ resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere_ipv
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere_ipv6" {
-  description = "HTTPS to public internet"
-
-  security_group_id = "${aws_security_group.admin_service.id}"
-  ipv6_cidr_blocks  = ["::/0"]
-
-  type        = "egress"
-  from_port   = "443"
-  to_port     = "443"
-  protocol    = "tcp"
-}
-
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
-  description = "Postgres to admin database"
+  description = "egress-postgres-to-admin-db"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   source_security_group_id = "${aws_security_group.admin_db.id}"
@@ -184,7 +172,7 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
 }
 
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" {
-  description = "Postgres to test 1 database"
+  description = "egress-postgres-to-test-1-db"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   source_security_group_id = "${aws_security_group.test_1_db.id}"
@@ -196,7 +184,7 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" 
 }
 
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" {
-  description = "Postgres to test 2 database"
+  description = "egress-postgres-to-test-2-db"
 
   security_group_id = "${aws_security_group.admin_service.id}"
   source_security_group_id = "${aws_security_group.test_2_db.id}"
@@ -218,7 +206,7 @@ resource "aws_security_group" "admin_db" {
 }
 
 resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service" {
-  description = "Postgres from admin service"
+  description = "ingress-postgres-from-admin-service"
 
   security_group_id = "${aws_security_group.admin_db.id}"
   source_security_group_id = "${aws_security_group.admin_service.id}"
@@ -240,7 +228,7 @@ resource "aws_security_group" "test_1_db" {
 }
 
 resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_admin_service" {
-  description = "Postgres from admin service"
+  description = "ingress-postgres-from-admin-service"
 
   security_group_id = "${aws_security_group.test_1_db.id}"
   source_security_group_id = "${aws_security_group.admin_service.id}"
@@ -252,7 +240,7 @@ resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_admin_servic
 }
 
 resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_notebooks" {
-  description = "Postgres from notebooks"
+  description = "ingress-postgres-from-notebooks"
 
   security_group_id        = "${aws_security_group.test_1_db.id}"
   source_security_group_id = "${aws_security_group.notebooks.id}"
@@ -274,7 +262,7 @@ resource "aws_security_group" "test_2_db" {
 }
 
 resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
-  description = "Postgres from admin service"
+  description = "ingress-postgres-from-admin-db"
 
   security_group_id = "${aws_security_group.test_2_db.id}"
   source_security_group_id = "${aws_security_group.admin_service.id}"
@@ -286,7 +274,7 @@ resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
 }
 
 resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
-  description = "Postgres from notebooks"
+  description = "ingress-postgres-from-notebooks"
 
   security_group_id        = "${aws_security_group.test_2_db.id}"
   source_security_group_id = "${aws_security_group.notebooks.id}"
@@ -307,8 +295,8 @@ resource "aws_security_group" "jupyterhub_alb" {
   }
 }
 
-resource "aws_security_group_rule" "jupyterhub_alb_ingress_https" {
-  description = "HTTPS from whitelist"
+resource "aws_security_group_rule" "jupyterhub_alb_ingress_https_from_whitelist" {
+  description = "ingress-https-from-whitelist"
 
   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
   cidr_blocks       = ["${var.ip_whitelist}"]
@@ -319,8 +307,8 @@ resource "aws_security_group_rule" "jupyterhub_alb_ingress_https" {
   protocol  = "tcp"
 }
 
-resource "aws_security_group_rule" "jupyterhub_alb_ingress_icmp_3" {
-  description = "Host unreachable for MTU discovery from whitelist"
+resource "aws_security_group_rule" "jupyterhub_alb_ingress_icmp_host_unreachable_for_mtu_discovery" {
+  description = "ingress-icmp-host-unreachable-for-mtu-discovery-from-whitelist"
 
   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
   cidr_blocks       = ["${var.ip_whitelist}"]
@@ -332,7 +320,7 @@ resource "aws_security_group_rule" "jupyterhub_alb_ingress_icmp_3" {
 }
 
 resource "aws_security_group_rule" "jupyterhub_alb_egress_https_to_jupyterhub_service" {
-  description = "HTTPS from to JupyterHub"
+  description = "egress-https-to-jupyterhub_service"
 
   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
@@ -354,7 +342,7 @@ resource "aws_security_group" "jupyterhub_db" {
 }
 
 resource "aws_security_group_rule" "jupyterhub_db_ingress_postgres_from_jupyterhub_service" {
-  description = "Postgres from JupyterHub service"
+  description = "ingress-postgres-from-jupyterhub-service"
 
   security_group_id        = "${aws_security_group.jupyterhub_db.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
@@ -376,7 +364,7 @@ resource "aws_security_group" "jupyterhub_service" {
 }
 
 resource "aws_security_group_rule" "jupyterhub_egress_postgres_to_jupyterhub_db" {
-  description = "Postgres to JupyterHub DB"
+  description = "egress-postgres-to-jupyterhub_db"
 
   security_group_id        = "${aws_security_group.jupyterhub_service.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_db.id}"
@@ -388,7 +376,7 @@ resource "aws_security_group_rule" "jupyterhub_egress_postgres_to_jupyterhub_db"
 }
 
 resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_jupyterhub_admin" {
-  description = "HTTPS to admin"
+  description = "egress-https-to-jupyterhub_admin"
 
   security_group_id = "${aws_security_group.jupyterhub_service.id}"
   source_security_group_id = "${aws_security_group.admin_service.id}"
@@ -399,8 +387,8 @@ resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_jupyterhu
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywhere_ipv4" {
-  description = "HTTPS to public internet"
+resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywhere" {
+  description = "egress-https-to-everywhere"
 
   security_group_id = "${aws_security_group.jupyterhub_service.id}"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -411,20 +399,8 @@ resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywher
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywhere_ipv6" {
-  description = "HTTPS to public internet"
-
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  ipv6_cidr_blocks  = ["::/0"]
-
-  type        = "egress"
-  from_port   = "443"
-  to_port     = "443"
-  protocol    = "tcp"
-}
-
 resource "aws_security_group_rule" "jupyterhub_egress_https_to_notebooks" {
-  description = "HTTPS to notebooks"
+  description = "egress-https-to-notebooks"
 
   security_group_id = "${aws_security_group.jupyterhub_service.id}"
   source_security_group_id = "${aws_security_group.notebooks.id}"
@@ -436,7 +412,7 @@ resource "aws_security_group_rule" "jupyterhub_egress_https_to_notebooks" {
 }
 
 resource "aws_security_group_rule" "jupyterhub_ingress_https_from_notebooks" {
-  description = "HTTPS from notebooks"
+  description = "ingress-https-from-notebooks"
 
   security_group_id = "${aws_security_group.jupyterhub_service.id}"
   source_security_group_id = "${aws_security_group.notebooks.id}"
@@ -448,7 +424,7 @@ resource "aws_security_group_rule" "jupyterhub_ingress_https_from_notebooks" {
 }
 
 resource "aws_security_group_rule" "jupyterhub_service_ingress_https_from_jupyterhub_alb" {
-  description = "HTTPS from notebooks"
+  description = "ingress-https-from-jupyterhub-alb"
 
   security_group_id = "${aws_security_group.jupyterhub_service.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_alb.id}"
@@ -470,7 +446,7 @@ resource "aws_security_group" "notebooks" {
 }
 
 resource "aws_security_group_rule" "notebooks_ingress_https_from_jupytehub" {
-  description = "HTTPS (self-signed) from JupyterHub"
+  description = "ingress-https-from-jupytehub"
 
   security_group_id = "${aws_security_group.notebooks.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
@@ -482,7 +458,7 @@ resource "aws_security_group_rule" "notebooks_ingress_https_from_jupytehub" {
 }
 
 resource "aws_security_group_rule" "notebooks_egress_https_to_everywhere" {
-  description = "HTTPS from notebooks"
+  description = "egress-https-to-everywhere"
 
   security_group_id = "${aws_security_group.notebooks.id}"
   cidr_blocks       = ["0.0.0.0/0"]
@@ -494,7 +470,7 @@ resource "aws_security_group_rule" "notebooks_egress_https_to_everywhere" {
 }
 
 resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service" {
-  description = "HTTPS to JupyterHub"
+  description = "egress-https-to-jupyterhub-service"
 
   security_group_id        = "${aws_security_group.notebooks.id}"
   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
@@ -506,7 +482,7 @@ resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service
 }
 
 resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_1" {
-  description = "Postgres to test 1"
+  description = "egress-postgres-to-test-1"
 
   security_group_id        = "${aws_security_group.notebooks.id}"
   source_security_group_id = "${aws_security_group.test_1_db.id}"
@@ -518,7 +494,7 @@ resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_1" {
 }
 
 resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
-  description = "Postgres to test 2"
+  description = "egress-postgres-to-test-2"
 
   security_group_id        = "${aws_security_group.notebooks.id}"
   source_security_group_id = "${aws_security_group.test_2_db.id}"
