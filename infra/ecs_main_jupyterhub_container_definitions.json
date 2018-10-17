@@ -1,0 +1,130 @@
+[
+  {
+    "name": "${container_name}",
+    "image": "${container_image}",
+    "memoryReservation": ${container_memory},
+    "cpu": ${container_cpu},
+    "essential": true,
+    "portMappings": [{
+        "containerPort": ${container_port}
+    }],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${log_region}",
+        "awslogs-stream-prefix": "jupyterhub"
+      }
+    },
+    "environment": [
+      {
+        "name": "DB_URL",
+        "value": "${db_url}"
+      },
+      {
+        "name": "CONFIGPROXY_AUTH_TOKEN",
+        "value": "${configproxy_auth_token}"
+      },
+      {
+        "name": "JPY_COOKIE_SECRET",
+        "value": "${jpy_cookie_secret}"
+      },
+      {
+        "name": "JUPYTERHUB_CRYPT_KEY",
+        "value": "${jupyterhub_crypt_key}"
+      },
+      {
+        "name": "ADMIN_USERS",
+        "value": "${admin_users}"
+      },
+      {
+        "name": "OAUTH_CALLBACK_URL",
+        "value": "${oauth_callback_url}"
+      },
+      {
+        "name": "OAUTH_CLIENT_ID",
+        "value": "${oauth_client_id}"
+      },
+      {
+        "name": "OAUTH_CLIENT_SECRET",
+        "value": "${oauth_client_secret}"
+      },
+      {
+        "name": "OAUTH2_AUTHORIZE_URL",
+        "value": "${oauth2_authorize_url}"
+      },
+      {
+        "name": "OAUTH2_TOKEN_URL",
+        "value": "${oauth2_token_url}"
+      },
+      {
+        "name": "OAUTH2_USERDATA_URL",
+        "value": "${oauth2_userdata_url}"
+      },
+      {
+        "name": "OAUTH2_USERNAME_KEY",
+        "value": "${oauth2_username_key}"
+      },
+      {
+        "name": "DATABASE_ACCESS__URL",
+        "value": "${database_access__url}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_ACCESS_KEY_ID",
+        "value": "${fargate_spawner__aws_access_key_id}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_HOST",
+        "value": "${fargate_spawner__aws_host}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_REGION",
+        "value": "${fargate_spawner__aws_region}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_SECRET_ACCESS_KEY",
+        "value": "${fargate_spawner__aws_secret_access_key}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__NOTEBOOK_PORT",
+        "value": "${fargate_spawner__notebook_port}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_CUSTER_NAME",
+        "value": "${fargate_spawner__task_custer_name}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_CONTAINER_NAME",
+        "value": "${fargate_spawner__task_container_name}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_DEFINITION_ARN",
+        "value": "${fargate_spawner__task_definition_arn}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_SECURITY_GROUP",
+        "value": "${fargate_spawner__task_security_group}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_SUBNET",
+        "value": "${fargate_spawner__task_subnet}"
+      },
+      {
+        "name": "JPYNB_S3_ACCESS_KEY_ID",
+        "value": "${jpynb_s3_access_key_id}"
+      },
+      {
+        "name": "JPYNB_S3_BUCKET_NAME",
+        "value": "${jpynb_s3_bucket_name}"
+      },
+      {
+        "name": "JPYNB_S3_REGION_NAME",
+        "value": "${jpynb_s3_region_name}"
+      },
+      {
+        "name": "JPYNB_S3_SECRET_ACCESS_KEY",
+        "value": "${jpynb_s3_secret_access_key}"
+      }
+    ]
+  }
+]

@@ -16,10 +16,32 @@ resource "aws_ecs_service" "admin" {
     container_name   = "${local.admin_container_name}"
   }
 
+  service_registries {
+    registry_arn   = "${aws_service_discovery_service.admin.arn}"
+  }
+
   depends_on = [
     # The target group must have been associated with the listener first
     "aws_alb_listener.admin",
   ]
+}
+
+resource "aws_service_discovery_service" "admin" {
+  name = "jupyterhub-admin"
+  dns_config {
+    namespace_id = "${aws_service_discovery_private_dns_namespace.jupyterhub.id}"
+    dns_records {
+      ttl = 10
+      type = "A"
+    }
+  }
+
+  # Needed for a service to be able to register instances with a target group,
+  # but only if it has a service_registries, which we do
+  # https://forums.aws.amazon.com/thread.jspa?messageID=852407&tstart=0
+  health_check_custom_config {
+    failure_threshold = 1
+  }
 }
 
 resource "aws_ecs_task_definition" "admin" {
@@ -51,9 +73,10 @@ data "template_file" "admin_container_definitions" {
     admin_db__port            = "${aws_db_instance.admin.port}"
     admin_db__user            = "${aws_db_instance.admin.username}"
     allowed_hosts_1           = "${var.admin_domain}"
-    authbroker_client_id      = "${var.authbroker_client_id}"
-    authbroker_client_secret  = "${var.authbroker_client_secret}"
-    authbroker_url            = "${var.authbroker_url}"
+    allowed_hosts_2           = "${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}"
+    authbroker_client_id      = "${var.admin_authbroker_client_id}"
+    authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
+    authbroker_url            = "${var.admin_authbroker_url}"
     data_db__test_1__host     = "${aws_db_instance.test_1.address}"
     data_db__test_1__name     = "${aws_db_instance.test_1.name}"
     data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
@@ -135,17 +158,4 @@ resource "aws_alb_target_group" "admin" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_acm_certificate" "admin" {
-  domain_name       = "${aws_route53_record.admin.name}"
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_acm_certificate_validation" "admin" {
-  certificate_arn = "${aws_acm_certificate.admin.arn}"
 }

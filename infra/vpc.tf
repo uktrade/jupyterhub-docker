@@ -52,12 +52,6 @@ resource "aws_route" "public_internet_gateway_ipv4" {
   gateway_id             = "${aws_internet_gateway.main.id}"
 }
 
-resource "aws_route" "public_internet_gateway_ipv6" {
-  route_table_id              = "${aws_route_table.public.id}"
-  destination_ipv6_cidr_block = "::/0"
-  gateway_id                  = "${aws_internet_gateway.main.id}"
-}
-
 resource "aws_route_table" "private_with_egress" {
   vpc_id = "${aws_vpc.main.id}"
   tags {
@@ -96,4 +90,10 @@ resource "aws_nat_gateway" "main" {
 
 resource "aws_eip" "nat_gateway" {
   vpc = true
+}
+
+resource "aws_service_discovery_private_dns_namespace" "jupyterhub" {
+  name = "jupyterhub"
+  description = "jupyterhub"
+  vpc = "${aws_vpc.main.id}"
 }

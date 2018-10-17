@@ -81,6 +81,7 @@ resource "aws_alb" "registry" {
   name            = "jupyterhub-registry"
   subnets         = ["${aws_subnet.private_with_egress.*.id}"]
   security_groups = ["${aws_security_group.registry_alb.id}"]
+  internal        = true
 }
 
 resource "aws_alb_listener" "registry" {
@@ -106,17 +107,4 @@ resource "aws_alb_target_group" "registry" {
   lifecycle {
     create_before_destroy = true
   }
-}
-
-resource "aws_acm_certificate" "registry" {
-  domain_name       = "${aws_route53_record.registry.name}"
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_acm_certificate_validation" "registry" {
-  certificate_arn = "${aws_acm_certificate.registry.arn}"
 }

@@ -41,6 +41,10 @@
       "value": "${allowed_hosts_1}"
     },
     {
+      "name": "ALLOWED_HOSTS__2",
+      "value": "${allowed_hosts_2}"
+    },
+    {
       "name": "AUTHBROKER_CLIENT_ID",
       "value": "${authbroker_client_id}"
     },
