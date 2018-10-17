@@ -71,7 +71,8 @@ c.FargateSpawner.notebook_args = [
     '--JupyterS3.aws_access_key_id=' + env['JPYNB_S3_ACCESS_KEY_ID'],
     '--JupyterS3.aws_secret_access_key=' + env['JPYNB_S3_SECRET_ACCESS_KEY'],
     '--JupyterS3.aws_region=' + env['JPYNB_S3_REGION_NAME'],
-    '--JupyterS3.aws_host=' + env['JPYNB_S3_BUCKET_NAME'] + '.s3.' + env['JPYNB_S3_REGION_NAME'] + '.amazonaws.com',
+    '--JupyterS3.aws_s3_host=' + env['JPYNB_S3_BUCKET_NAME'] + '.s3.' + env['JPYNB_S3_REGION_NAME'] + '.amazonaws.com',
+    '--JupyterS3.aws_s3_bucket=' + env['JPYNB_S3_BUCKET_NAME']
 ]
 
 c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = database_access_spawn_hooks(env['DATABASE_ACCESS']['URL'])
