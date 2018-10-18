@@ -26,6 +26,7 @@ resource "aws_ecs_task_definition" "jupyterhub" {
   family                   = "jupyterhub"
   container_definitions    = "${data.template_file.jupyterhub_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.jupyterhub_task_execution.arn}"
+  task_role_arn            = "${aws_iam_role.jupyterhub_task.arn}"
   network_mode             = "awsvpc"
   cpu                      = "${local.jupyterhub_container_cpu}"
   memory                   = "${local.jupyterhub_container_memory}"
@@ -136,6 +137,23 @@ data "aws_iam_policy_document" "jupyterhub_task_execution" {
     resources = [
       "${aws_cloudwatch_log_group.jupyterhub.arn}",
     ]
+  }
+}
+
+resource "aws_iam_role" "jupyterhub_task" {
+  name               = "jupyterhub-task"
+  path               = "/"
+  assume_role_policy = "${data.aws_iam_policy_document.jupyterhub_task_ecs_tasks_assume_role.json}"
+}
+
+data "aws_iam_policy_document" "jupyterhub_task_ecs_tasks_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
   }
 }
 

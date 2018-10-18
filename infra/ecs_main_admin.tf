@@ -48,6 +48,7 @@ resource "aws_ecs_task_definition" "admin" {
   family                   = "jupyterhub-admin"
   container_definitions    = "${data.template_file.admin_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.admin_task_execution.arn}"
+  task_role_arn            = "${aws_iam_role.admin_task.arn}"
   network_mode             = "awsvpc"
   cpu                      = "${local.admin_container_cpu}"
   memory                   = "${local.admin_container_memory}"
@@ -138,6 +139,23 @@ data "aws_iam_policy_document" "admin_task_execution" {
     resources = [
       "${aws_cloudwatch_log_group.admin.arn}",
     ]
+  }
+}
+
+resource "aws_iam_role" "admin_task" {
+  name               = "jupyterhub-admin-task"
+  path               = "/"
+  assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
+}
+
+data "aws_iam_policy_document" "admin_task_ecs_tasks_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+
+    principals {
+      type        = "Service"
+      identifiers = ["ecs-tasks.amazonaws.com"]
+    }
   }
 }
 
