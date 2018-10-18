@@ -27,8 +27,8 @@ resource "aws_security_group_rule" "registry_alb_egress_https_to_service" {
   source_security_group_id = "${aws_security_group.registry_service.id}"
 
   type        = "egress"
-  from_port   = "${local.registry_target_group_port}"
-  to_port     = "${local.registry_target_group_port}"
+  from_port   = "${local.registry_container_port}"
+  to_port     = "${local.registry_container_port}"
   protocol    = "tcp"
 }
 
@@ -49,8 +49,8 @@ resource "aws_security_group_rule" "registry_service_ingress_https_from_alb" {
   source_security_group_id = "${aws_security_group.registry_alb.id}"
 
   type        = "ingress"
-  from_port   = "${local.registry_target_group_port}"
-  to_port     = "${local.registry_target_group_port}"
+  from_port   = "${local.registry_container_port}"
+  to_port     = "${local.registry_container_port}"
   protocol    = "tcp"
 }
 
@@ -108,8 +108,8 @@ resource "aws_security_group_rule" "admin_alb_egress_https_to_admin_service" {
   source_security_group_id = "${aws_security_group.admin_service.id}"
 
   type        = "egress"
-  from_port   = "${local.admin_target_group_port}"
-  to_port     = "${local.admin_target_group_port}"
+  from_port   = "${local.admin_container_port}"
+  to_port     = "${local.admin_container_port}"
   protocol    = "tcp"
 }
 
@@ -130,8 +130,8 @@ resource "aws_security_group_rule" "admin_service_ingress_https_from_admin_alb" 
   source_security_group_id = "${aws_security_group.admin_alb.id}"
 
   type        = "ingress"
-  from_port   = "${local.admin_target_group_port}"
-  to_port     = "${local.admin_target_group_port}"
+  from_port   = "${local.admin_container_port}"
+  to_port     = "${local.admin_container_port}"
   protocol    = "tcp"
 }
 

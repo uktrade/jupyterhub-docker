@@ -141,7 +141,7 @@ resource "aws_alb_listener" "jupyterhub" {
 
 resource "aws_alb_target_group" "jupyterhub" {
   name_prefix = "jh-"
-  port        = "${local.jupyterhub_target_group_port}"
+  port        = "${local.jupyterhub_container_port}"
   protocol    = "HTTPS"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"

@@ -99,7 +99,7 @@ resource "aws_alb_listener" "registry" {
 
 resource "aws_alb_target_group" "registry" {
   name_prefix = "jhreg-"
-  port        = "${local.registry_target_group_port}"
+  port        = "${local.registry_container_port}"
   protocol    = "HTTPS"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"

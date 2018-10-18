@@ -46,14 +46,12 @@ locals {
   registry_container_port    = "443"
   registry_container_memory  = 2048
   registry_container_cpu     = 1024
-  registry_target_group_port = "443"
   registry_alb_port          = "443"
 
   admin_container_name    = "jupyterhub-admin"
   admin_container_port    = "8000"
   admin_container_memory  = 2048
   admin_container_cpu     = 1024
-  admin_target_group_port = "8000"
   admin_alb_port          = "443"
   admin_api_path          = "/api/v1/databases"
 
@@ -61,7 +59,6 @@ locals {
   jupyterhub_container_port       = "8000"
   jupyterhub_container_memory     = 2048
   jupyterhub_container_cpu        = 1024
-  jupyterhub_target_group_port    = "8000"
   jupyterhub_alb_port             = "443"
   jupyterhub_oauth_username_key  = "email"
   jupyterhub_oauth_callback_path = "/hub/oauth_callback"

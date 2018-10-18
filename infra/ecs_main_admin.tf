@@ -143,7 +143,7 @@ resource "aws_alb_listener" "admin" {
 
 resource "aws_alb_target_group" "admin" {
   name_prefix = "jhadm-"
-  port        = "${local.admin_target_group_port}"
+  port        = "${local.admin_container_port}"
   protocol    = "HTTPS"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
