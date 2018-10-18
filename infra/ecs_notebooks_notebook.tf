@@ -29,10 +29,10 @@ resource "aws_cloudwatch_log_group" "notebook" {
 resource "aws_iam_role" "notebook_task_execution" {
   name               = "notebook-task-execution"
   path               = "/"
-  assume_role_policy = "${data.aws_iam_policy_document.notebook_task_execution.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.notebook_task_execution_ecs_tasks_assume_role.json}"
 }
 
-data "aws_iam_policy_document" "notebook_task_execution" {
+data "aws_iam_policy_document" "notebook_task_execution_ecs_tasks_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -45,16 +45,16 @@ data "aws_iam_policy_document" "notebook_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "notebook_task_execution" {
   role       = "${aws_iam_role.notebook_task_execution.name}"
-  policy_arn = "${aws_iam_policy.notebook_logs.arn}"
+  policy_arn = "${aws_iam_policy.notebook_task_execution.arn}"
 }
 
-resource "aws_iam_policy" "notebook_logs" {
-  name        = "jupyterhub-notebook-logs"
+resource "aws_iam_policy" "notebook_task_execution" {
+  name        = "jupyterhub-notebook-task-execution"
   path        = "/"
-  policy       = "${data.aws_iam_policy_document.notebook_logs.json}"
+  policy       = "${data.aws_iam_policy_document.notebook_task_execution.json}"
 }
 
-data "aws_iam_policy_document" "notebook_logs" {
+data "aws_iam_policy_document" "notebook_task_execution" {
   statement {
     actions = [
       "logs:CreateLogStream",

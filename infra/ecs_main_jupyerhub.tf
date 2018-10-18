@@ -101,10 +101,10 @@ resource "aws_cloudwatch_log_group" "jupyterhub" {
 resource "aws_iam_role" "jupyterhub_task_execution" {
   name               = "jupyterhub-task-execution"
   path               = "/"
-  assume_role_policy = "${data.aws_iam_policy_document.jupyterhub_task_execution.json}"
+  assume_role_policy = "${data.aws_iam_policy_document.jupyterhub_task_execution_ecs_tasks_assume_role.json}"
 }
 
-data "aws_iam_policy_document" "jupyterhub_task_execution" {
+data "aws_iam_policy_document" "jupyterhub_task_execution_ecs_tasks_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -117,16 +117,16 @@ data "aws_iam_policy_document" "jupyterhub_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "jupyterhub_task_execution" {
   role       = "${aws_iam_role.jupyterhub_task_execution.name}"
-  policy_arn = "${aws_iam_policy.jupyterhub_logs.arn}"
+  policy_arn = "${aws_iam_policy.jupyterhub_task_execution.arn}"
 }
 
-resource "aws_iam_policy" "jupyterhub_logs" {
-  name        = "jupyterhub-logs"
+resource "aws_iam_policy" "jupyterhub_task_execution" {
+  name        = "jupyterhub-task-execution"
   path        = "/"
-  policy       = "${data.aws_iam_policy_document.jupyterhub_logs.json}"
+  policy       = "${data.aws_iam_policy_document.jupyterhub_task_execution.json}"
 }
 
-data "aws_iam_policy_document" "jupyterhub_logs" {
+data "aws_iam_policy_document" "jupyterhub_task_execution" {
   statement {
     actions = [
       "logs:CreateLogStream",
