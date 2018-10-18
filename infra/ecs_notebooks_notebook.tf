@@ -159,7 +159,8 @@ data "aws_iam_policy_document" "notebooks_task_access" {
       "iam:PassRole"
     ]
     resources = [
-      "${aws_iam_role.notebook_task_execution.arn}"
+      "${aws_iam_role.notebook_task_execution.arn}",
+      "${aws_iam_role.notebook_task.arn}",
     ]
   }
 }
