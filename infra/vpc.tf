@@ -33,6 +33,18 @@ resource "aws_subnet" "private_with_egress" {
   }
 }
 
+resource "aws_subnet" "private_without_egress" {
+  count      = "${length(var.aws_availability_zones)}"
+  vpc_id     = "${aws_vpc.main.id}"
+  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, 4, 2 * length(var.aws_availability_zones) + count.index)}"
+
+  availability_zone = "${var.aws_availability_zones[count.index]}"
+
+  tags {
+    Name = "jupyterhub-private-with-egress-${var.aws_availability_zones_short[count.index]}"
+  }
+}
+
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.main.id}"
   tags {
@@ -90,6 +102,19 @@ resource "aws_nat_gateway" "main" {
 
 resource "aws_eip" "nat_gateway" {
   vpc = true
+}
+
+resource "aws_route_table" "private_without_egress" {
+  vpc_id = "${aws_vpc.main.id}"
+  tags {
+    Name = "jupyterhub-private-without-egress"
+  }
+}
+
+resource "aws_route_table_association" "jupyterhub_private_without_egress" {
+  count          = "${length(var.aws_availability_zones)}"
+  subnet_id      = "${aws_subnet.private_without_egress.*.id[count.index]}"
+  route_table_id = "${aws_route_table.private_without_egress.id}"
 }
 
 resource "aws_service_discovery_private_dns_namespace" "jupyterhub" {

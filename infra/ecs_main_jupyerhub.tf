@@ -71,7 +71,7 @@ data "template_file" "jupyterhub_container_definitions" {
     fargate_spawner__task_container_name   = "${local.notebook_container_name}"
     fargate_spawner__task_definition_arn   = "${aws_ecs_task_definition.notebook.family}:${aws_ecs_task_definition.notebook.revision}"
     fargate_spawner__task_security_group   = "${aws_security_group.notebooks.id}"
-    fargate_spawner__task_subnet           = "${aws_subnet.private_with_egress.*.id[0]}"  # To be changed to limit egress
+    fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
 
     jupyters3__aws_access_key_id = "${aws_iam_access_key.notebooks_s3_access.id}"
     jupyters3__aws_secret_access_key = "${aws_iam_access_key.notebooks_s3_access.secret}"

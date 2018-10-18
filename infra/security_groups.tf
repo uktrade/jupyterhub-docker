@@ -504,3 +504,62 @@ resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
   to_port   = "${aws_db_instance.test_2.port}"
   protocol  = "tcp"
 }
+
+resource "aws_security_group" "logs" {
+  name        = "jupyterhub-logs"
+  description = "jupyterhub-logs"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-logs-private-without-egress"
+  }
+}
+
+resource "aws_security_group_rule" "logs_ingress_https_from_notebooks" {
+  description = "ingress-from-notebooks"
+
+  security_group_id        = "${aws_security_group.logs.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type      = "ingress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}
+
+
+resource "aws_security_group_rule" "logs_ingress_https_from_admin_service" {
+  description = "ingress-from-admin-service"
+
+  security_group_id        = "${aws_security_group.logs.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
+
+  type      = "ingress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "logs_ingress_https_from_jupyterhub_service" {
+  description = "ingress-https-from-jupyterhub-service"
+
+  security_group_id        = "${aws_security_group.logs.id}"
+  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+
+  type      = "ingress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "logs_ingress_https_from_registry_service" {
+  description = "ingress-https-from-registry-service"
+
+  security_group_id        = "${aws_security_group.logs.id}"
+  source_security_group_id = "${aws_security_group.registry_service.id}"
+
+  type      = "ingress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}
