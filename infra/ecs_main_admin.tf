@@ -120,7 +120,7 @@ data "aws_iam_policy_document" "admin_task_execution_ecs_tasks_assume_role" {
 
 resource "aws_iam_role_policy_attachment" "admin_task_execution" {
   role       = "${aws_iam_role.admin_task_execution.name}"
-  policy_arn = "${aws_iam_policy.jupyterhub_task_execution.arn}"
+  policy_arn = "${aws_iam_policy.admin_task_execution.arn}"
 }
 
 resource "aws_iam_policy" "admin_task_execution" {
