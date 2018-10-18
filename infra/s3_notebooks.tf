@@ -33,6 +33,14 @@ data "aws_iam_policy_document" "notebooks_s3_access" {
     resources = [
       "${aws_s3_bucket.notebooks.arn}",
     ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
   }
 
   statement {
@@ -45,6 +53,14 @@ data "aws_iam_policy_document" "notebooks_s3_access" {
     resources = [
       "${aws_s3_bucket.notebooks.arn}/*",
     ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
   }
 }
 
