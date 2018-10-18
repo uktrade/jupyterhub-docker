@@ -13,6 +13,7 @@ variable "ip_whitelist" {
 }
 
 variable "vpc_cidr" {}
+variable "subnets_num_bits" {}
 
 variable "aws_route53_zone" {}
 variable "admin_domain" {}

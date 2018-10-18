@@ -12,7 +12,7 @@ resource "aws_vpc" "main" {
 resource "aws_subnet" "public" {
   count = "${length(var.aws_availability_zones)}"
   vpc_id     = "${aws_vpc.main.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, 4, count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, count.index)}"
 
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
@@ -24,7 +24,7 @@ resource "aws_subnet" "public" {
 resource "aws_subnet" "private_with_egress" {
   count      = "${length(var.aws_availability_zones)}"
   vpc_id     = "${aws_vpc.main.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, 4, length(var.aws_availability_zones) + count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, length(var.aws_availability_zones) + count.index)}"
 
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
@@ -36,7 +36,7 @@ resource "aws_subnet" "private_with_egress" {
 resource "aws_subnet" "private_without_egress" {
   count      = "${length(var.aws_availability_zones)}"
   vpc_id     = "${aws_vpc.main.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, 4, 2 * length(var.aws_availability_zones) + count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, 2 * length(var.aws_availability_zones) + count.index)}"
 
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
