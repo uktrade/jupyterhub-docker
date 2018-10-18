@@ -13,7 +13,7 @@
       "options": {
         "awslogs-group": "${log_group}",
         "awslogs-region": "${log_region}",
-        "awslogs-stream-prefix": "jupyterhub"
+        "awslogs-stream-prefix": "${container_name}"
       }
     },
     "environment": [
