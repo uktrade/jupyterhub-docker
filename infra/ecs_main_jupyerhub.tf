@@ -117,7 +117,26 @@ data "aws_iam_policy_document" "jupyterhub_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "jupyterhub_task_execution" {
   role       = "${aws_iam_role.jupyterhub_task_execution.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "${aws_iam_policy.jupyterhub_logs.arn}"
+}
+
+resource "aws_iam_policy" "jupyterhub_logs" {
+  name        = "jupyterhub-logs"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.jupyterhub_logs.json}"
+}
+
+data "aws_iam_policy_document" "jupyterhub_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "${aws_cloudwatch_log_group.jupyterhub.arn}",
+    ]
+  }
 }
 
 resource "aws_alb" "jupyterhub" {

@@ -119,7 +119,26 @@ data "aws_iam_policy_document" "admin_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "admin_task_execution" {
   role       = "${aws_iam_role.admin_task_execution.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "${aws_iam_policy.admin_logs.arn}"
+}
+
+resource "aws_iam_policy" "admin_logs" {
+  name        = "jupyterhub-admin-logs"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.admin_logs.json}"
+}
+
+data "aws_iam_policy_document" "admin_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "${aws_cloudwatch_log_group.admin.arn}",
+    ]
+  }
 }
 
 resource "aws_alb" "admin" {

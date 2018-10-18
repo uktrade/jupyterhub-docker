@@ -45,7 +45,26 @@ data "aws_iam_policy_document" "notebook_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "notebook_task_execution" {
   role       = "${aws_iam_role.notebook_task_execution.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "${aws_iam_policy.notebook_logs.arn}"
+}
+
+resource "aws_iam_policy" "notebook_logs" {
+  name        = "jupyterhub-notebook-logs"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.notebook_logs.json}"
+}
+
+data "aws_iam_policy_document" "notebook_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "${aws_cloudwatch_log_group.notebook.arn}",
+    ]
+  }
 }
 
 resource "aws_iam_user" "notebooks_task_access" {

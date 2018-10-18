@@ -74,7 +74,26 @@ data "aws_iam_policy_document" "registry_task_execution" {
 
 resource "aws_iam_role_policy_attachment" "registry_task_execution" {
   role       = "${aws_iam_role.registry_task_execution.name}"
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+  policy_arn = "${aws_iam_policy.registry_logs.arn}"
+}
+
+resource "aws_iam_policy" "registry_logs" {
+  name        = "jupyterhub-registry-logs"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.registry_logs.json}"
+}
+
+data "aws_iam_policy_document" "registry_logs" {
+  statement {
+    actions = [
+      "logs:CreateLogStream",
+      "logs:PutLogEvents",
+    ]
+
+    resources = [
+      "${aws_cloudwatch_log_group.registry.arn}",
+    ]
+  }
 }
 
 resource "aws_alb" "registry" {
