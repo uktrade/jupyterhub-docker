@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
   statement {
     principals {
       type = "AWS"
-      identifiers = ["${aws_iam_user.notebooks_s3_access.arn}"]
+      identifiers = ["${aws_iam_user.notebooks_s3_access.unique_id}"]
     }
 
     actions = [
@@ -25,7 +25,7 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
   statement {
     principals {
       type = "AWS"
-      identifiers = ["${aws_iam_user.notebooks_s3_access.arn}"]
+      identifiers = ["${aws_iam_user.notebooks_s3_access.unique_id}"]
     }
 
     actions = [
