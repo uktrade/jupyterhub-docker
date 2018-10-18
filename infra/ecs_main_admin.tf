@@ -157,6 +157,7 @@ resource "aws_alb_listener" "admin" {
     type             = "forward"
   }
 
+  ssl_policy      = "ELBSecurityPolicy-TLS-1-2-2017-01"
   certificate_arn = "${aws_acm_certificate_validation.admin.certificate_arn}"
 }
 
