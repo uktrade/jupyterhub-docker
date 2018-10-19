@@ -110,14 +110,6 @@
         "value": "${fargate_spawner__task_subnet}"
       },
       {
-        "name": "JUPYTERS3__AWS_ACCESS_KEY_ID",
-        "value": "${jupyters3__aws_access_key_id}"
-      },
-      {
-        "name": "JUPYTERS3__AWS_SECRET_ACCESS_KEY",
-        "value": "${jupyters3__aws_secret_access_key}"
-      },
-      {
         "name": "JUPYTERS3__AWS_REGION",
         "value": "${jupyters3__aws_region}"
       },

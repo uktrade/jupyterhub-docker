@@ -85,6 +85,56 @@ data "aws_iam_policy_document" "notebook_task_ecs_tasks_assume_role" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "notebook_task" {
+  role       = "${aws_iam_role.notebook_task.name}"
+  policy_arn = "${aws_iam_policy.notebook_task.arn}"
+}
+
+resource "aws_iam_policy" "notebook_task" {
+  name   = "jupyterhub-notebook-task"
+  policy = "${data.aws_iam_policy_document.notebook_task.json}"
+}
+
+data "aws_iam_policy_document" "notebook_task" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
+  }
+
+  statement {
+    actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}/*",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
+  }
+}
+
 resource "aws_iam_user" "notebooks_task_access" {
   name = "jupyter-notebooks-task-access"
 }
@@ -163,4 +213,51 @@ data "aws_iam_policy_document" "notebooks_task_access" {
       "${aws_iam_role.notebook_task.arn}",
     ]
   }
+}
+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = "${aws_vpc.main.id}"
+  service_name      = "com.amazonaws.${data.aws_region.aws_region.name}.s3"
+  vpc_endpoint_type = "Gateway"
+
+  policy = "${data.aws_iam_policy_document.aws_vpc_endpoint_s3_notebooks.json}"
+}
+
+data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
+  statement {
+    principals {
+      type = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}",
+    ]
+  }
+
+  statement {
+    principals {
+      type = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}/*",
+    ]
+  }
+}
+
+resource "aws_vpc_endpoint_route_table_association" "s3" {
+  vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
+  route_table_id  = "${aws_route_table.private_without_egress.id}"
 }

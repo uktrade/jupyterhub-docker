@@ -1,6 +1,6 @@
 import os
 import subprocess
-from jupyters3 import JupyterS3
+from jupyters3 import JupyterS3, JupyterS3ECSRoleAuthentication
 from jupyterhub.services.auth import HubOAuth
 from tornado.httpclient import AsyncHTTPClient
 c = get_config()
@@ -10,6 +10,7 @@ c.NotebookApp.terminals_enabled = False
 c.NotebookApp.contents_manager_class = JupyterS3
 
 c.JupyterS3.prefix = os.environ['JUPYTERHUB_USER'] + '/'
+c.JupyterS3.authentication_class = JupyterS3ECSRoleAuthentication
 
 keyfile = os.environ['HOME'] + '/ssl.key'
 certfile = os.environ['HOME'] + '/ssl.crt'

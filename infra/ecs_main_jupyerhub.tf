@@ -74,8 +74,6 @@ data "template_file" "jupyterhub_container_definitions" {
     fargate_spawner__task_security_group   = "${aws_security_group.notebooks.id}"
     fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
 
-    jupyters3__aws_access_key_id = "${aws_iam_access_key.notebooks_s3_access.id}"
-    jupyters3__aws_secret_access_key = "${aws_iam_access_key.notebooks_s3_access.secret}"
     jupyters3__aws_region = "${aws_s3_bucket.notebooks.region}"
     jupyters3__aws_s3_bucket = "${aws_s3_bucket.notebooks.id}"
     jupyters3__aws_s3_host = "${aws_s3_bucket.notebooks.bucket_regional_domain_name}"
