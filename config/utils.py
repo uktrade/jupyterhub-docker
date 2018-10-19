@@ -1,6 +1,5 @@
 import itertools
 
-
 def normalise_environment(key_values):
     ''' Converts denormalised dict of (string -> string) pairs, where the first string
         is treated as a path into a nested list/dictionary structure

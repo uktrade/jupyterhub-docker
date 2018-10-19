@@ -1,3 +1,4 @@
+import base64
 import json
 import os
 import subprocess
@@ -73,7 +74,22 @@ c.FargateSpawner.notebook_args = [
     '--JupyterS3.aws_s3_bucket=' + env['JUPYTERS3']['AWS_S3_BUCKET'],
 ]
 
-c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = access_spawn_hooks(env['DATABASE_ACCESS']['URL'])
+notebook_task_role = {
+    'access_key_id': env['NOTEBOOK_TASK_ROLE']['AWS_ACCESS_KEY_ID'],
+    'secret_access_key': env['NOTEBOOK_TASK_ROLE']['AWS_SECRET_ACCESS_KEY'],
+    'role_prefix': env['NOTEBOOK_TASK_ROLE']['ROLE_PREFIX'],
+    'assume_role_policy_document': base64.b64decode(env['NOTEBOOK_TASK_ROLE']['ASSUME_ROLE_POLICY_DOCUMENT_BASE64']).decode('utf-8'),
+    'permissions_boundary_arn': env['NOTEBOOK_TASK_ROLE']['PERMISSIONS_BOUNDARY_ARN'],
+    'policy_name': env['NOTEBOOK_TASK_ROLE']['POLICY_NAME'],
+    'policy_document_template': base64.b64decode(env['NOTEBOOK_TASK_ROLE']['POLICY_DOCUMENT_TEMPLATE_BASE64']).decode('utf-8'),
+}
+
+database_access_url = env['DATABASE_ACCESS']['URL']
+
+c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = access_spawn_hooks(
+    notebook_task_role,
+    database_access_url,
+)
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 480
 c.FargateSpawner.env_keep = ['DATABASE_URL']

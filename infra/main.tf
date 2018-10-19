@@ -68,4 +68,7 @@ locals {
   notebook_container_port   = "8888"
   notebook_container_memory = 16384
   notebook_container_cpu    = 2048
+
+  notebook_task_role_prefix      = "jupyterhub-notebook-user-"
+  notebook_task_role_policy_name = "jupyterhub-notebook-task"
 }

@@ -70,6 +70,34 @@
         "value": "${database_access__url}"
       },
       {
+        "name": "NOTEBOOK_TASK_ROLE__AWS_ACCESS_KEY_ID",
+        "value": "${notebook_task_role__aws_access_key_id}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__AWS_SECRET_ACCESS_KEY",
+        "value": "${notebook_task_role__aws_secret_access_key}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__ROLE_PREFIX",
+        "value": "${notebook_task_role__role_prefix}"
+      },
+        {
+        "name": "NOTEBOOK_TASK_ROLE__POLICY_NAME",
+        "value": "${notebook_task_role__policy_name}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__PERMISSIONS_BOUNDARY_ARN",
+        "value": "${notebook_task_role__permissions_boundary_arn}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__POLICY_DOCUMENT_TEMPLATE_BASE64",
+        "value": "${notebook_task_role__policy_document_template_base64}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__ASSUME_ROLE_POLICY_DOCUMENT_BASE64",
+        "value": "${notebook_task_role__assume_role_policy_document_base64}"
+      },
+      {
         "name": "FARGATE_SPAWNER__AWS_ACCESS_KEY_ID",
         "value": "${fargate_spawner__aws_access_key_id}"
       },

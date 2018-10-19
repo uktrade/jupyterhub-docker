@@ -2,7 +2,7 @@ resource "aws_ecs_task_definition" "notebook" {
   family                = "jupyterhub-notebook"
   container_definitions = "${data.template_file.notebook_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.notebook_task_execution.arn}"
-  task_role_arn         = "${aws_iam_role.notebook_task.arn}"
+  # task_role_arn         = "${aws_iam_role.notebook_task.arn}"
   network_mode          = "awsvpc"
   cpu                   = "${local.notebook_container_cpu}"
   memory                = "${local.notebook_container_memory}"
@@ -68,13 +68,7 @@ data "aws_iam_policy_document" "notebook_task_execution" {
   }
 }
 
-resource "aws_iam_role" "notebook_task" {
-  name               = "jupyterhub-notebook-task"
-  path               = "/"
-  assume_role_policy = "${data.aws_iam_policy_document.notebook_task_ecs_tasks_assume_role.json}"
-}
-
-data "aws_iam_policy_document" "notebook_task_ecs_tasks_assume_role" {
+data "aws_iam_policy_document" "notebook_s3_access_ecs_tasks_assume_role" {
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -85,17 +79,7 @@ data "aws_iam_policy_document" "notebook_task_ecs_tasks_assume_role" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "notebook_task" {
-  role       = "${aws_iam_role.notebook_task.name}"
-  policy_arn = "${aws_iam_policy.notebook_task.arn}"
-}
-
-resource "aws_iam_policy" "notebook_task" {
-  name   = "jupyterhub-notebook-task"
-  policy = "${data.aws_iam_policy_document.notebook_task.json}"
-}
-
-data "aws_iam_policy_document" "notebook_task" {
+data "aws_iam_policy_document" "notebook_s3_access_template" {
   statement {
     actions = [
       "s3:ListBucket",
@@ -104,6 +88,14 @@ data "aws_iam_policy_document" "notebook_task" {
     resources = [
       "${aws_s3_bucket.notebooks.arn}",
     ]
+
+    condition {
+      test = "StringLike"
+      variable = "s3:prefix"
+      values = [
+        "__JUPYTERHUB_USER__/*"
+      ]
+    }
 
     condition {
       test = "StringEquals"
@@ -122,7 +114,7 @@ data "aws_iam_policy_document" "notebook_task" {
     ]
 
     resources = [
-      "${aws_s3_bucket.notebooks.arn}/*",
+      "${aws_s3_bucket.notebooks.arn}/__JUPYTERHUB_USER__/*",
     ]
 
     condition {
@@ -210,8 +202,86 @@ data "aws_iam_policy_document" "notebooks_task_access" {
     ]
     resources = [
       "${aws_iam_role.notebook_task_execution.arn}",
-      "${aws_iam_role.notebook_task.arn}",
     ]
+  }
+
+  statement {
+    actions = [
+      "iam:GetRole",
+      "iam:PassRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:CreateRole",
+      "iam:PutRolePolicy",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+    ]
+
+    # The boundary means that JupyterHub can't create abitrary roles:
+    # they must have this boundary attached. At most, they will
+    # be able to have access to the entire bucket, and only
+    # from inside the VPC
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PermissionsBoundary"
+      values   = [
+        "${aws_iam_policy.notebooks_s3_access_boundary.arn}",
+      ]
+    }
+  }
+}
+
+resource "aws_iam_policy" "notebooks_s3_access_boundary" {
+  name   = "notebooks-s3-access-boundary"
+  policy = "${data.aws_iam_policy_document.notebooks_s3_access_boundary.json}"
+}
+
+data "aws_iam_policy_document" "notebooks_s3_access_boundary" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
+  }
+
+  statement {
+    actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}/*",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
   }
 }
 

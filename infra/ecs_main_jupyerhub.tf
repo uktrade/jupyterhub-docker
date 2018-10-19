@@ -63,6 +63,14 @@ data "template_file" "jupyterhub_container_definitions" {
 
     database_access__url = "https://${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}:${local.admin_container_port}${local.admin_api_path}"
 
+    notebook_task_role__aws_access_key_id                  = "${aws_iam_access_key.notebooks_task_access.id}"
+    notebook_task_role__aws_secret_access_key              = "${aws_iam_access_key.notebooks_task_access.secret}"
+    notebook_task_role__role_prefix                        = "${local.notebook_task_role_prefix}"
+    notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebooks_s3_access_boundary.arn}"
+    notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
+    notebook_task_role__policy_name                        = "${local.notebook_task_role_policy_name}"
+    notebook_task_role__policy_document_template_base64    = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_template.json)}"
+
     fargate_spawner__aws_region            = "${data.aws_region.aws_region.name}"
     fargate_spawner__aws_access_key_id     = "${aws_iam_access_key.notebooks_task_access.id}"
     fargate_spawner__aws_secret_access_key = "${aws_iam_access_key.notebooks_task_access.secret}"
