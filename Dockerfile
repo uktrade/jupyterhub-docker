@@ -18,7 +18,7 @@ RUN \
 	python3 -m ensurepip && \
 	pip3 install pip==18.01 && \
 	pip3 install \
-		fargatespawner==0.0.14 \
+		fargatespawner==0.0.16 \
 		jupyterhub==0.9.2 \
 		oauthenticator==0.8.0 && \
 	npm install -g \
