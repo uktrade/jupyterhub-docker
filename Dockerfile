@@ -27,7 +27,7 @@ RUN \
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
 COPY config/access.py /usr/lib/python3.6/site-packages/access.py
-COPY config/env_utils.py /usr/lib/python3.6/site-packages/env_utils.py
+COPY config/utils.py /usr/lib/python3.6/site-packages/utils.py
 
 ENTRYPOINT ["tini", "--"]
 CMD ["jupyterhub", "--config=/etc/jupyter/jupyterhub_config.py"]

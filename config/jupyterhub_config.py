@@ -3,7 +3,7 @@ import os
 import subprocess
 import urllib
 from access import access_spawn_hooks
-from env_utils import normalise_environment
+from utils import normalise_environment
 from fargatespawner import FargateSpawner
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
