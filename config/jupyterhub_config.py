@@ -2,7 +2,7 @@ import json
 import os
 import subprocess
 import urllib
-from database_access import database_access_spawn_hooks
+from access import access_spawn_hooks
 from env_utils import normalise_environment
 from fargatespawner import FargateSpawner
 from jupyterhub.app import JupyterHub
@@ -73,7 +73,7 @@ c.FargateSpawner.notebook_args = [
     '--JupyterS3.aws_s3_bucket=' + env['JUPYTERS3']['AWS_S3_BUCKET'],
 ]
 
-c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = database_access_spawn_hooks(env['DATABASE_ACCESS']['URL'])
+c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = access_spawn_hooks(env['DATABASE_ACCESS']['URL'])
 c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 480
 c.FargateSpawner.env_keep = ['DATABASE_URL']

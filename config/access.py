@@ -5,7 +5,7 @@ from tornado.httpclient import (
 )
 
 
-def database_access_spawn_hooks(database_endpoint):
+def access_spawn_hooks(database_endpoint):
 
     async def pre_spawn_hook(spawner):
         email_address = spawner.user.name

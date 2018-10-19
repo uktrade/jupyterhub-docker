@@ -26,7 +26,7 @@ RUN \
 	npm cache clean --force
 
 COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
-COPY config/database_access.py /usr/lib/python3.6/site-packages/database_access.py
+COPY config/access.py /usr/lib/python3.6/site-packages/access.py
 COPY config/env_utils.py /usr/lib/python3.6/site-packages/env_utils.py
 
 ENTRYPOINT ["tini", "--"]
