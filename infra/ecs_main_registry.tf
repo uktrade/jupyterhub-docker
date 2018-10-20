@@ -53,7 +53,8 @@ data "template_file" "registry_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "registry" {
-  name = "jupyterhub-registry"
+  name              = "jupyterhub-registry"
+  retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "registry_task_execution" {

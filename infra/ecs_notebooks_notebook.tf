@@ -24,7 +24,8 @@ data "template_file" "notebook_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "notebook" {
-  name = "jupyterhub-notebook"
+  name              = "jupyterhub-notebook"
+  retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "notebook_task_execution" {

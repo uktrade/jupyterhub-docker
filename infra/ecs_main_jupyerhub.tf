@@ -102,7 +102,8 @@ resource "random_id" "jupyterhub_container_jupyterhub_crypt_key" {
 }
 
 resource "aws_cloudwatch_log_group" "jupyterhub" {
-  name = "jupyterhub"
+  name              = "jupyterhub"
+  retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "jupyterhub_task_execution" {

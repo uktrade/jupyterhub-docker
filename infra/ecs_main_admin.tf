@@ -98,7 +98,8 @@ resource "random_string" "admin_secret_key" {
 }
 
 resource "aws_cloudwatch_log_group" "admin" {
-  name = "jupyterhub-admin"
+  name              = "jupyterhub-admin"
+  retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "admin_task_execution" {
