@@ -9,3 +9,31 @@ resource "aws_s3_bucket" "notebooks" {
     }
   }
 }
+
+resource "aws_s3_bucket_policy" "notebooks" {
+  bucket = "${aws_s3_bucket.notebooks.id}"
+  policy = "${data.aws_iam_policy_document.notebooks.json}"
+}
+
+data "aws_iam_policy_document" "notebooks" {
+  statement {
+    effect = "Deny"
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+      "s3:*",
+    ]
+    resources = [
+      "arn:aws:s3:::${aws_s3_bucket.notebooks.id}/*",
+    ]
+    condition {
+      test = "Bool"
+      variable = "aws:SecureTransport"
+      values = [
+        "false"
+      ]
+    }
+  }
+}
