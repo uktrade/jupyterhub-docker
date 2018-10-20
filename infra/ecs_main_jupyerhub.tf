@@ -90,7 +90,7 @@ resource "random_string" "jupyterhub_container_configproxy_auth_token" {
 }
 
 resource "random_id" "jupyterhub_container_jpy_cookie_secret" {
-  byte_length = 256
+  byte_length = 32
 }
 
 resource "random_id" "jupyterhub_container_jupyterhub_crypt_key" {
