@@ -1,15 +1,15 @@
-import datetime
-import hashlib
-import hmac
 import json
 import os
 import re
 import urllib
+
 from tornado.httpclient import (
     AsyncHTTPClient,
     HTTPError,
     HTTPRequest,
 )
+
+from utils import aws_headers
 
 
 def access_spawn_hooks(notebook_task_role, database_endpoint):
@@ -97,7 +97,7 @@ async def make_iam_request(log, access_key_id, secret_access_key, pre_auth_heade
     method = 'POST'
     path = '/'
 
-    headers = _aws_headers(
+    headers = aws_headers(
         service='iam', access_key_id=access_key_id, secret_access_key=secret_access_key,
         region='us-east-1', host=host, method='POST', path='/',
         query={}, pre_auth_headers=pre_auth_headers, payload=payload,
@@ -111,68 +111,3 @@ async def make_iam_request(log, access_key_id, secret_access_key, pre_auth_heade
         raise
 
     return response
-
-
-def _aws_headers(service, access_key_id, secret_access_key,
-                 region, host, method, path, query, pre_auth_headers, payload):
-    algorithm = 'AWS4-HMAC-SHA256'
-
-    now = datetime.datetime.utcnow()
-    amzdate = now.strftime('%Y%m%dT%H%M%SZ')
-    datestamp = now.strftime('%Y%m%d')
-    credential_scope = f'{datestamp}/{region}/{service}/aws4_request'
-    headers_lower = {
-        header_key.lower().strip(): header_value.strip()
-        for header_key, header_value in pre_auth_headers.items()
-    }
-    required_headers = ['host', 'x-amz-content-sha256', 'x-amz-date']
-    signed_header_keys = sorted([header_key
-                                 for header_key in headers_lower.keys()] + required_headers)
-    signed_headers = ';'.join(signed_header_keys)
-    payload_hash = hashlib.sha256(payload).hexdigest()
-
-    def signature():
-        def canonical_request():
-            header_values = {
-                **headers_lower,
-                'host': host,
-                'x-amz-content-sha256': payload_hash,
-                'x-amz-date': amzdate,
-            }
-
-            canonical_uri = urllib.parse.quote(path, safe='/~')
-            query_keys = sorted(query.keys())
-            canonical_querystring = '&'.join([
-                urllib.parse.quote(key, safe='~') + '=' + urllib.parse.quote(query[key], safe='~')
-                for key in query_keys
-            ])
-            canonical_headers = ''.join([
-                header_key + ':' + header_values[header_key] + '\n'
-                for header_key in signed_header_keys
-            ])
-
-            return f'{method}\n{canonical_uri}\n{canonical_querystring}\n' + \
-                   f'{canonical_headers}\n{signed_headers}\n{payload_hash}'
-
-        def sign(key, msg):
-            return hmac.new(key, msg.encode('utf-8'), hashlib.sha256).digest()
-
-        string_to_sign = \
-            f'{algorithm}\n{amzdate}\n{credential_scope}\n' + \
-            hashlib.sha256(canonical_request().encode('utf-8')).hexdigest()
-
-        date_key = sign(('AWS4' + secret_access_key).encode('utf-8'), datestamp)
-        region_key = sign(date_key, region)
-        service_key = sign(region_key, service)
-        request_key = sign(service_key, 'aws4_request')
-        return sign(request_key, string_to_sign).hex()
-
-    return {
-        **pre_auth_headers,
-        'x-amz-date': amzdate,
-        'x-amz-content-sha256': payload_hash,
-        'Authorization': (
-            f'{algorithm} Credential={access_key_id}/{credential_scope}, ' +
-            f'SignedHeaders={signed_headers}, Signature=' + signature()
-        ),
-    }
