@@ -128,164 +128,6 @@ data "aws_iam_policy_document" "notebook_s3_access_template" {
   }
 }
 
-resource "aws_iam_user" "notebooks_task_access" {
-  name = "jupyter-notebooks-task-access"
-}
-
-resource "aws_iam_access_key" "notebooks_task_access" {
-  user = "${aws_iam_user.notebooks_task_access.name}"
-}
-
-resource "aws_iam_user_policy" "notebooks_task_access" {
-  name   = "notebooks-task-access"
-  user   = "${aws_iam_user.notebooks_task_access.name}"
-  policy = "${data.aws_iam_policy_document.notebooks_task_access.json}"
-}
-
-data "aws_iam_policy_document" "notebooks_task_access" {
-  statement {
-    actions = [
-      "ecs:RunTask",
-    ]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "ecs:cluster"
-      values = [
-        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
-      ]
-    }
-
-    resources = [
-      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.notebook.family}:*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "ecs:StopTask",
-    ]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "ecs:cluster"
-      values = [
-        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
-      ]
-    }
-
-    resources = [
-      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "ecs:DescribeTasks",
-    ]
-
-    condition {
-      test     = "ArnEquals"
-      variable = "ecs:cluster"
-      values = [
-        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
-      ]
-    }
-
-    resources = [
-      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
-    ]
-  }
-
-  statement {
-    actions = [
-      "iam:PassRole"
-    ]
-    resources = [
-      "${aws_iam_role.notebook_task_execution.arn}",
-    ]
-  }
-
-  statement {
-    actions = [
-      "iam:GetRole",
-      "iam:PassRole",
-    ]
-
-    resources = [
-      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
-    ]
-  }
-
-  statement {
-    actions = [
-      "iam:CreateRole",
-      "iam:PutRolePolicy",
-    ]
-
-    resources = [
-      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
-    ]
-
-    # The boundary means that JupyterHub can't create abitrary roles:
-    # they must have this boundary attached. At most, they will
-    # be able to have access to the entire bucket, and only
-    # from inside the VPC
-    condition {
-      test     = "StringEquals"
-      variable = "iam:PermissionsBoundary"
-      values   = [
-        "${aws_iam_policy.notebooks_s3_access_boundary.arn}",
-      ]
-    }
-  }
-}
-
-resource "aws_iam_policy" "notebooks_s3_access_boundary" {
-  name   = "notebooks-s3-access-boundary"
-  policy = "${data.aws_iam_policy_document.notebooks_s3_access_boundary.json}"
-}
-
-data "aws_iam_policy_document" "notebooks_s3_access_boundary" {
-  statement {
-    actions = [
-      "s3:ListBucket",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.notebooks.arn}",
-    ]
-
-    condition {
-      test = "StringEquals"
-      variable = "aws:sourceVpce"
-      values = [
-        "${aws_vpc_endpoint.s3.id}"
-      ]
-    }
-  }
-
-  statement {
-    actions = [
-        "s3:PutObject",
-        "s3:GetObject",
-        "s3:DeleteObject"
-    ]
-
-    resources = [
-      "${aws_s3_bucket.notebooks.arn}/*",
-    ]
-
-    condition {
-      test = "StringEquals"
-      variable = "aws:sourceVpce"
-      values = [
-        "${aws_vpc_endpoint.s3.id}"
-      ]
-    }
-  }
-}
-
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = "${aws_vpc.main.id}"
   service_name      = "com.amazonaws.${data.aws_region.aws_region.name}.s3"
@@ -325,6 +167,51 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
     resources = [
       "${aws_s3_bucket.notebooks.arn}/*",
     ]
+  }
+}
+
+resource "aws_iam_policy" "notebook_task_boundary" {
+  name   = "jupyterhub-notebook-task-boundary"
+  policy = "${data.aws_iam_policy_document.jupyterhub_notebook_task_boundary.json}"
+}
+
+data "aws_iam_policy_document" "jupyterhub_notebook_task_boundary" {
+  statement {
+    actions = [
+      "s3:ListBucket",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
+  }
+
+  statement {
+    actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}/*",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
   }
 }
 

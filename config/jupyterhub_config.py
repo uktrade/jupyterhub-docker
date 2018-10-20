@@ -5,7 +5,10 @@ import subprocess
 import urllib
 from access import access_spawn_hooks
 from utils import normalise_environment
-from fargatespawner import FargateSpawner
+from fargatespawner import (
+    FargateSpawner,
+    FargateSpawnerECSRoleAuthentication,
+)
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
 from tornado.httpclient import AsyncHTTPClient
@@ -52,10 +55,9 @@ c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set(env['ADMIN_USERS'].split())
 
 c.JupyterHub.spawner_class = FargateSpawner
+c.FargateSpawner.authentication_class = FargateSpawnerECSRoleAuthentication
 c.FargateSpawner.aws_region = env['FARGATE_SPAWNER']['AWS_REGION']
-c.FargateSpawner.aws_host = env['FARGATE_SPAWNER']['AWS_HOST']
-c.FargateSpawner.aws_access_key_id = env['FARGATE_SPAWNER']['AWS_ACCESS_KEY_ID']
-c.FargateSpawner.aws_secret_access_key = env['FARGATE_SPAWNER']['AWS_SECRET_ACCESS_KEY']
+c.FargateSpawner.aws_ecs_host = env['FARGATE_SPAWNER']['AWS_ECS_HOST']
 c.FargateSpawner.task_cluster_name = env['FARGATE_SPAWNER']['TASK_CUSTER_NAME']
 c.FargateSpawner.task_container_name = env['FARGATE_SPAWNER']['TASK_CONTAINER_NAME']
 c.FargateSpawner.task_definition_arn = env['FARGATE_SPAWNER']['TASK_DEFINITION_ARN']
@@ -75,8 +77,6 @@ c.FargateSpawner.notebook_args = [
 ]
 
 notebook_task_role = {
-    'access_key_id': env['NOTEBOOK_TASK_ROLE']['AWS_ACCESS_KEY_ID'],
-    'secret_access_key': env['NOTEBOOK_TASK_ROLE']['AWS_SECRET_ACCESS_KEY'],
     'role_prefix': env['NOTEBOOK_TASK_ROLE']['ROLE_PREFIX'],
     'assume_role_policy_document': base64.b64decode(env['NOTEBOOK_TASK_ROLE']['ASSUME_ROLE_POLICY_DOCUMENT_BASE64']).decode('utf-8'),
     'permissions_boundary_arn': env['NOTEBOOK_TASK_ROLE']['PERMISSIONS_BOUNDARY_ARN'],

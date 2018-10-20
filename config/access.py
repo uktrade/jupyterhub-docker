@@ -1,8 +1,8 @@
-from collections import namedtuple
 import datetime
 import hashlib
 import hmac
 import json
+import os
 import re
 import urllib
 from tornado.httpclient import (
@@ -40,6 +40,14 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
         spawner.log.debug('User (%s) setting up database DSNs... done (%s)', email_address, database_dsns)
         spawner.log.debug('User (%s) setting up AWS role...', email_address)
 
+        request = HTTPRequest('http://169.254.170.2/' + os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'], method='GET')
+        creds = json.loads((await AsyncHTTPClient().fetch(request)).body.decode('utf-8'))
+        access_key_id = creds['AccessKeyId']
+        secret_access_key = creds['SecretAccessKey']
+        pre_auth_headers = {
+            'x-amz-security-token': creds['Token'],
+        }
+
         role_name = notebook_task_role['role_prefix'] + email_address
         payload_create_role = urllib.parse.urlencode({
             'Action': 'CreateRole',
@@ -50,7 +58,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             'PermissionsBoundary': notebook_task_role['permissions_boundary_arn'],
         }).encode('utf-8')
         try:
-            await make_iam_request(spawner.log, notebook_task_role['access_key_id'], notebook_task_role['secret_access_key'],
+            await make_iam_request(spawner.log, access_key_id, secret_access_key, pre_auth_headers,
                                    payload_create_role)
         except HTTPError as exception:
             if exception.response.code != 409 or b'<Code>EntityAlreadyExists</Code>' not in exception.response.body:
@@ -63,7 +71,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             'PolicyName': notebook_task_role['policy_name'],
             'PolicyDocument': notebook_task_role['policy_document_template'].replace('__JUPYTERHUB_USER__', email_address),
         }).encode('utf-8')
-        await make_iam_request(spawner.log, notebook_task_role['access_key_id'], notebook_task_role['secret_access_key'],
+        await make_iam_request(spawner.log, access_key_id, secret_access_key, pre_auth_headers,
                                payload_put_role_policy)
 
         payload_get_role = urllib.parse.urlencode({
@@ -71,7 +79,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             'Version': '2010-05-08',
             'RoleName': role_name,
         }).encode('utf-8')
-        response_get_role = await make_iam_request(spawner.log, notebook_task_role['access_key_id'], notebook_task_role['secret_access_key'],
+        response_get_role = await make_iam_request(spawner.log, access_key_id, secret_access_key, pre_auth_headers,
                                                    payload_get_role)
         spawner.task_role_arn = re.search(b'<Arn>([^<]+)</Arn>', response_get_role.body)[1]
 
@@ -84,11 +92,10 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
     return pre_spawn_hook, post_stop_hook
 
 
-async def make_iam_request(log, access_key_id, secret_access_key, payload):
+async def make_iam_request(log, access_key_id, secret_access_key, pre_auth_headers, payload):
     host = 'iam.amazonaws.com'
     method = 'POST'
     path = '/'
-    pre_auth_headers = {}
 
     headers = _aws_headers(
         service='iam', access_key_id=access_key_id, secret_access_key=secret_access_key,

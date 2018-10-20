@@ -63,18 +63,14 @@ data "template_file" "jupyterhub_container_definitions" {
 
     database_access__url = "https://${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}:${local.admin_container_port}${local.admin_api_path}"
 
-    notebook_task_role__aws_access_key_id                  = "${aws_iam_access_key.notebooks_task_access.id}"
-    notebook_task_role__aws_secret_access_key              = "${aws_iam_access_key.notebooks_task_access.secret}"
     notebook_task_role__role_prefix                        = "${local.notebook_task_role_prefix}"
-    notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebooks_s3_access_boundary.arn}"
+    notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
     notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
     notebook_task_role__policy_name                        = "${local.notebook_task_role_policy_name}"
     notebook_task_role__policy_document_template_base64    = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_template.json)}"
 
     fargate_spawner__aws_region            = "${data.aws_region.aws_region.name}"
-    fargate_spawner__aws_access_key_id     = "${aws_iam_access_key.notebooks_task_access.id}"
-    fargate_spawner__aws_secret_access_key = "${aws_iam_access_key.notebooks_task_access.secret}"
-    fargate_spawner__aws_host              = "ecs.${data.aws_region.aws_region.name}.amazonaws.com"
+    fargate_spawner__aws_ecs_host          = "ecs.${data.aws_region.aws_region.name}.amazonaws.com"
     fargate_spawner__notebook_port         = "${local.notebook_container_port}"
     fargate_spawner__task_custer_name      = "${aws_ecs_cluster.notebooks.name}"
     fargate_spawner__task_container_name   = "${local.notebook_container_name}"
@@ -160,6 +156,116 @@ data "aws_iam_policy_document" "jupyterhub_task_ecs_tasks_assume_role" {
     principals {
       type        = "Service"
       identifiers = ["ecs-tasks.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy_attachment" "jupyterhub_task" {
+  role       = "${aws_iam_role.jupyterhub_task.name}"
+  policy_arn = "${aws_iam_policy.jupyterhub_task.arn}"
+}
+
+resource "aws_iam_policy" "jupyterhub_task" {
+  name        = "jupyterhub_task"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.jupyterhub_task.json}"
+}
+
+data "aws_iam_policy_document" "jupyterhub_task" {
+  statement {
+    actions = [
+      "ecs:RunTask",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.notebook.family}:*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "ecs:StopTask",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "ecs:DescribeTasks",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = [
+      "${aws_iam_role.notebook_task_execution.arn}",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:GetRole",
+      "iam:PassRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:CreateRole",
+      "iam:PutRolePolicy",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+    ]
+
+    # The boundary means that JupyterHub can't create abitrary roles:
+    # they must have this boundary attached. At most, they will
+    # be able to have access to the entire bucket, and only
+    # from inside the VPC
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PermissionsBoundary"
+      values   = [
+        "${aws_iam_policy.notebook_task_boundary.arn}",
+      ]
     }
   }
 }
