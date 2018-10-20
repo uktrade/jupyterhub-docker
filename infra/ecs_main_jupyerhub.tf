@@ -274,6 +274,16 @@ resource "aws_alb" "jupyterhub" {
   name            = "jupyterhub"
   subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.jupyterhub_alb.id}"]
+
+  access_logs {
+    bucket  = "${aws_s3_bucket.alb_access_logs.id}"
+    prefix  = "jupyterhub"
+    enabled = true
+  }
+
+  depends_on = [
+    "aws_s3_bucket_policy.alb_access_logs",
+  ]
 }
 
 resource "aws_alb_listener" "jupyterhub" {

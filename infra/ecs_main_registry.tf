@@ -120,6 +120,16 @@ resource "aws_alb" "registry" {
   subnets         = ["${aws_subnet.private_with_egress.*.id}"]
   security_groups = ["${aws_security_group.registry_alb.id}"]
   internal        = true
+
+  access_logs {
+    bucket  = "${aws_s3_bucket.alb_access_logs.id}"
+    prefix  = "registry"
+    enabled = true
+  }
+
+  depends_on = [
+    "aws_s3_bucket_policy.alb_access_logs",
+  ]
 }
 
 resource "aws_alb_listener" "registry" {

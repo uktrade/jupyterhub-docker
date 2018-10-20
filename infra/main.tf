@@ -42,6 +42,9 @@ variable "jupyterhub_oauth_userdata_url" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
 
+variable "alb_access_logs_bucket" {}
+variable "alb_logs_account" {}
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "443"

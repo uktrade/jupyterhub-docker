@@ -164,6 +164,16 @@ resource "aws_alb" "admin" {
   name            = "jupyterhub-admin"
   subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.admin_alb.id}"]
+
+  access_logs {
+    bucket  = "${aws_s3_bucket.alb_access_logs.id}"
+    prefix  = "admin"
+    enabled = true
+  }
+
+  depends_on = [
+    "aws_s3_bucket_policy.alb_access_logs",
+  ]
 }
 
 resource "aws_alb_listener" "admin" {
