@@ -9,6 +9,54 @@ resource "aws_vpc" "main" {
   }
 }
 
+resource "aws_flow_log" "main" {
+  log_group_name = "${aws_cloudwatch_log_group.vpc_main_flow_log.name}"
+  iam_role_arn   = "${aws_iam_role.vpc_main_flow_log.arn}"
+  vpc_id         = "${aws_vpc.main.id}"
+  traffic_type   = "ALL"
+}
+
+resource "aws_cloudwatch_log_group" "vpc_main_flow_log" {
+  name              = "jupyterhub-vpc-main-flow-log"
+  retention_in_days = "3653"
+}
+
+resource "aws_iam_role" "vpc_main_flow_log" {
+  name = "jupyterhub-vpc-main-flow-log"
+  assume_role_policy = "${data.aws_iam_policy_document.vpc_main_flow_log_vpc_flow_logs_assume_role.json}"
+}
+
+data "aws_iam_policy_document" "vpc_main_flow_log_vpc_flow_logs_assume_role" {
+  statement {
+    actions = ["sts:AssumeRole"]
+    principals {
+      type        = "Service"
+      identifiers = ["vpc-flow-logs.amazonaws.com"]
+    }
+  }
+}
+
+resource "aws_iam_role_policy" "vpc_main_flow_log" {
+  name   = "jupyterhub-vpc-main-flow-log"
+  role   = "${aws_iam_role.vpc_main_flow_log.id}"
+  policy =  "${data.aws_iam_policy_document.vpc_main_flow_log.json}"
+}
+
+data "aws_iam_policy_document" "vpc_main_flow_log" {
+  statement {
+    actions = [
+        "logs:CreateLogStream",
+        "logs:PutLogEvents",
+        "logs:DescribeLogGroups",
+        "logs:DescribeLogStreams",
+    ]
+
+    resources = [
+      "${aws_cloudwatch_log_group.vpc_main_flow_log.arn}",
+    ]
+  }
+}
+
 resource "aws_subnet" "public" {
   count = "${length(var.aws_availability_zones)}"
   vpc_id     = "${aws_vpc.main.id}"
