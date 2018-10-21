@@ -9,7 +9,7 @@ from tornado.httpclient import (
     HTTPRequest,
 )
 
-from utils import aws_headers
+from utils import aws_sig_v4_headers
 
 
 def access_spawn_hooks(notebook_task_role, database_endpoint):
@@ -96,11 +96,11 @@ async def make_iam_request(log, access_key_id, secret_access_key, pre_auth_heade
     host = 'iam.amazonaws.com'
     method = 'POST'
     path = '/'
+    query = {}
 
-    headers = aws_headers(
-        service='iam', access_key_id=access_key_id, secret_access_key=secret_access_key,
-        region='us-east-1', host=host, method='POST', path='/',
-        query={}, pre_auth_headers=pre_auth_headers, payload=payload,
+    headers = aws_sig_v4_headers(
+        access_key_id, secret_access_key, pre_auth_headers,
+        'iam', 'us-east-1', host, 'POST', path, query, payload,
     )
     request = HTTPRequest(f'https://{host}{path}', method=method, headers=headers, body=payload)
 
