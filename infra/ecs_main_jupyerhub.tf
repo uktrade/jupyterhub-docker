@@ -80,7 +80,7 @@ data "template_file" "jupyterhub_container_definitions" {
 
     jupyters3__aws_region = "${aws_s3_bucket.notebooks.region}"
     jupyters3__aws_s3_bucket = "${aws_s3_bucket.notebooks.id}"
-    jupyters3__aws_s3_host = "${aws_s3_bucket.notebooks.bucket_regional_domain_name}"
+    jupyters3__aws_s3_host = "s3-${aws_s3_bucket.notebooks.region}.amazonaws.com"
   }
 }
 
