@@ -45,6 +45,11 @@ variable "notebook_container_image" {}
 variable "alb_access_logs_bucket" {}
 variable "alb_logs_account" {}
 
+variable "logstash_container_image" {}
+variable "logstash_internal_domain" {}
+variable "logstash_downstream_url" {}
+variable "logstash_downstream_authorization_header" {}
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "443"
@@ -74,4 +79,10 @@ locals {
 
   notebook_task_role_prefix      = "jupyterhub-notebook-user-"
   notebook_task_role_policy_name = "jupyterhub-notebook-task"
+
+  logstash_container_name   = "jupyterhub-logstash"
+  logstash_alb_port         = "443"
+  logstash_container_memory = 8192
+  logstash_container_cpu    = 2048
+  logstash_container_port   = "8889"
 }

@@ -1,3 +1,72 @@
+resource "aws_security_group" "logstash_alb" {
+  name        = "jupyterhub-logstash-alb"
+  description = "jupyterhub-logstash-alb"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-logstash-alb"
+  }
+}
+
+resource "aws_security_group_rule" "logstash_alb_ingress_https_from_notebooks" {
+  description = "ingress-https-from-notebooks"
+
+  security_group_id = "${aws_security_group.logstash_alb.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "ingress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "logstash_alb_egress_https_to_service" {
+  description = "egress-https-to-service"
+
+  security_group_id = "${aws_security_group.logstash_alb.id}"
+  source_security_group_id = "${aws_security_group.logstash_service.id}"
+
+  type        = "egress"
+  from_port   = "${local.logstash_container_port}"
+  to_port     = "${local.logstash_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "logstash_service" {
+  name        = "jupyterhub-logstash-service"
+  description = "jupyterhub-logstash-service"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-logstash-service"
+  }
+}
+
+resource "aws_security_group_rule" "logstash_service_ingress_https_from_alb" {
+  description = "ingress-https-from-alb"
+
+  security_group_id = "${aws_security_group.logstash_service.id}"
+  source_security_group_id = "${aws_security_group.logstash_alb.id}"
+
+  type        = "ingress"
+  from_port   = "${local.logstash_container_port}"
+  to_port     = "${local.logstash_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "logstash_service_egress_https_to_everywhere" {
+  description = "egress-https-to-everywhere"
+
+  security_group_id = "${aws_security_group.logstash_service.id}"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group" "registry_alb" {
   name        = "jupyterhub-registry-alb"
   description = "jupyterhub-registry-alb"
@@ -557,6 +626,18 @@ resource "aws_security_group_rule" "logs_ingress_https_from_registry_service" {
 
   security_group_id        = "${aws_security_group.logs.id}"
   source_security_group_id = "${aws_security_group.registry_service.id}"
+
+  type      = "ingress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "logs_ingress_https_from_logstash_service" {
+  description = "ingress-https-from-registry-service"
+
+  security_group_id        = "${aws_security_group.logs.id}"
+  source_security_group_id = "${aws_security_group.logstash_service.id}"
 
   type      = "ingress"
   from_port = "443"

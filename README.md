@@ -29,3 +29,13 @@ docker build -t jupyterhub-registry -f Dockerfile-registry . && \
 docker tag jupyterhub-registry:latest  quay.io/uktrade/jupyterhub-registry:latest && \
 docker push quay.io/uktrade/jupyterhub-registry:latest
 ```
+
+## Logstash
+
+For logs from the notebook servers, we run a logstash instance inside the VPC that proxies to our public logstash service.
+
+```bash
+docker build -t jupyterhub-logstash -f Dockerfile-logstash . && \
+docker tag jupyterhub-logstash:latest  quay.io/uktrade/jupyterhub-logstash:latest && \
+docker push quay.io/uktrade/jupyterhub-logstash:latest
+```

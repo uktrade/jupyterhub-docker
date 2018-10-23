@@ -1,8 +1,27 @@
+import logging
+from logging.handlers import HTTPHandler
 import os
 import subprocess
 from jupyters3 import JupyterS3, JupyterS3ECSRoleAuthentication
 from jupyterhub.services.auth import HubOAuth
 from tornado.httpclient import AsyncHTTPClient
+
+http_handler = HTTPHandler(
+	host=f"{os.environ['LOGSTASH_HOST']}:{os.environ['LOGSTASH_PORT']}",
+	url="/",
+	secure=True,
+)
+loggers = [
+	logging.getLogger(),
+	logging.getLogger('urllib3'),
+	logging.getLogger('tornado'),
+	logging.getLogger('tornado.access'),
+	logging.getLogger('tornado.application'),
+	logging.getLogger('tornado.general'),
+]
+for logger in loggers:
+	logger.addHandler(http_handler)
+
 c = get_config()
 
 c.NotebookApp.ip = '0.0.0.0'

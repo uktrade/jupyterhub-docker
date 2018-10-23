@@ -1,0 +1,51 @@
+
+FROM alpine:3.8
+
+ENV \
+    LC_ALL=en_US.UTF-8 \
+    LANG=en_US.UTF-8 \
+    LANGUAGE=en_US.UTF-8 \
+    PATH=/usr/share/logstash/bin:$PATH
+
+RUN \
+	apk add --no-cache \
+		bash=4.4.19-r1 \
+		libc6-compat=1.1.19-r10 \
+		openjdk8-jre-base=8.181.13-r0 \
+		openssl=1.0.2p-r0 \
+		tini=0.18.0-r0
+
+RUN	\
+	VERSION=6.4.2 && \
+	BASE=https://artifacts.elastic.co && \
+	TARBALL=logstash-${VERSION}.tar.gz && \
+	TARBALL_ASC=logstash-${VERSION}.tar.gz.asc && \
+	GPG_KEY=GPG-KEY-elasticsearch && \
+	GPG_KEY_FINGERPRINT="4609 5ACC 8548 582C 1A26  99A9 D27D 666C D88E 42B4" && \
+	apk add --no-cache --virtual .build-deps \
+        wget=1.19.5-r0  \
+        gnupg=2.2.8-r0 && \
+	wget "${BASE}/downloads/logstash/${TARBALL}" && \
+	wget "${BASE}/downloads/logstash/${TARBALL_ASC}" && \
+	wget "${BASE}/${GPG_KEY}" && \
+	export GNUPGHOME="$(mktemp -d)" && \
+	gpg --import "${GPG_KEY}" && \
+	gpg --fingerprint | grep "${GPG_KEY_FINGERPRINT}" && \
+	gpg --batch --verify "${TARBALL_ASC}" "${TARBALL}" && \
+	tar -xzf "${TARBALL}" && \
+	mv "logstash-${VERSION}" /usr/share/logstash && \
+	rm -rf "${GNUPGHOME}" "${TARBALL}" "${TARBALL_ASC}" && \
+	apk del --purge .build-deps
+
+COPY logstash.conf /logstash.conf
+COPY logstash-entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["/entrypoint.sh"]
+CMD ["logstash", "-f", "logstash.conf"]
+
+RUN \
+	adduser -S logstash && \
+	mkdir -p /usr/share/logstash/logs /usr/share/logstash/data && \
+	chown -R logstash /usr/share/logstash/logs /usr/share/logstash/data
+
+USER logstash
