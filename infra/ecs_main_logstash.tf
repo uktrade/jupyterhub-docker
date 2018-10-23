@@ -37,11 +37,12 @@ data "template_file" "logstash_container_definitions" {
   template = "${file("${path.module}/ecs_main_logstash_container_definitions.json")}"
 
   vars {
-    container_image  = "${var.logstash_container_image}"
-    container_name   = "${local.logstash_container_name}"
-    container_port   = "${local.logstash_container_port}"
-    container_cpu    = "${local.logstash_container_cpu}"
-    container_memory = "${local.logstash_container_memory}"
+    container_image    = "${var.logstash_container_image}"
+    container_name     = "${local.logstash_container_name}"
+    container_port     = "${local.logstash_container_port}"
+    container_api_port = "${local.logstash_container_api_port}"
+    container_cpu      = "${local.logstash_container_cpu}"
+    container_memory   = "${local.logstash_container_memory}"
 
     log_group  = "${aws_cloudwatch_log_group.logstash.name}"
     log_region = "${data.aws_region.aws_region.name}"
@@ -151,6 +152,13 @@ resource "aws_alb_target_group" "logstash" {
   protocol    = "HTTPS"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
+
+  health_check {
+    port = "${local.logstash_container_api_port}"
+    protocol = "HTTP"
+    healthy_threshold = 5
+    unhealthy_threshold = 3
+  }
 
   lifecycle {
     create_before_destroy = true

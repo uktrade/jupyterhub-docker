@@ -80,9 +80,10 @@ locals {
   notebook_task_role_prefix      = "jupyterhub-notebook-user-"
   notebook_task_role_policy_name = "jupyterhub-notebook-task"
 
-  logstash_container_name   = "jupyterhub-logstash"
-  logstash_alb_port         = "443"
-  logstash_container_memory = 8192
-  logstash_container_cpu    = 2048
-  logstash_container_port   = "8889"
+  logstash_container_name       = "jupyterhub-logstash"
+  logstash_alb_port             = "443"
+  logstash_container_memory     = 8192
+  logstash_container_cpu        = 2048
+  logstash_container_port       = "8889"
+  logstash_container_api_port   = "9600"
 }

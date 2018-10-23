@@ -41,7 +41,7 @@ COPY logstash.conf /logstash.conf
 COPY logstash-entrypoint.sh /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["logstash", "-f", "logstash.conf"]
+CMD ["logstash", "-f", "logstash.conf", "--http.port", "9600", "--http.host", "0.0.0.0"]
 
 RUN \
 	adduser -S logstash && \
