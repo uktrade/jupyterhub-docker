@@ -11,8 +11,9 @@ from tornado.httpclient import AsyncHTTPClient
 
 # API requests to the hub are via the proxy and HTTPS, which uses a self
 # signed certificate. Strangly, some requests use Tornado's AsyncHTTPClient
-# (but not the version that uses pycurl like the Hub proper does)...
-AsyncHTTPClient.configure(None, defaults=dict(validate_cert=False))
+AsyncHTTPClient.configure(
+    'tornado.curl_httpclient.CurlAsyncHTTPClient', defaults=dict(validate_cert=False),
+)
 
 # ... and some seem to use requests, with no apparent way to pass in extra
 # arguments other than monkey patching
