@@ -2,25 +2,46 @@ import logging
 from logging.handlers import HTTPHandler
 import os
 import subprocess
+
+from async_http_logging_handler import AsyncHTTPLoggingHandler
 from jupyters3 import JupyterS3, JupyterS3ECSRoleAuthentication
 from jupyterhub.services.auth import HubOAuth
+from tornado.ioloop import IOLoop
 from tornado.httpclient import AsyncHTTPClient
 
-http_handler = HTTPHandler(
-	host=f"{os.environ['LOGSTASH_HOST']}:{os.environ['LOGSTASH_PORT']}",
-	url="/",
-	secure=True,
+# API requests to the hub are via the proxy and HTTPS, which uses a self
+# signed certificate. Strangly, some requests use Tornado's AsyncHTTPClient
+# (but not the version that uses pycurl like the Hub proper does)...
+AsyncHTTPClient.configure(None, defaults=dict(validate_cert=False))
+
+# ... and some seem to use requests, with no apparent way to pass in extra
+# arguments other than monkey patching
+_api_request_original = HubOAuth._api_request
+def _api_request(self, method, url, **kwargs):
+    args_verify_false = {
+        **kwargs,
+        'verify': False,
+    }
+    return _api_request_original(self, method, url, **args_verify_false)
+HubOAuth._api_request = _api_request
+
+http_handler = AsyncHTTPLoggingHandler(
+    ioloop=IOLoop.current(),
+    client=AsyncHTTPClient(),
+    host=os.environ['LOGSTASH_HOST'],
+    port=os.environ['LOGSTASH_PORT'],
+    path="/",
 )
 loggers = [
-	logging.getLogger(),
-	logging.getLogger('urllib3'),
-	logging.getLogger('tornado'),
-	logging.getLogger('tornado.access'),
-	logging.getLogger('tornado.application'),
-	logging.getLogger('tornado.general'),
+    logging.getLogger(),
+    logging.getLogger('urllib3'),
+    logging.getLogger('tornado'),
+    logging.getLogger('tornado.access'),
+    logging.getLogger('tornado.application'),
+    logging.getLogger('tornado.general'),
 ]
 for logger in loggers:
-	logger.addHandler(http_handler)
+    logger.addHandler(http_handler)
 
 c = get_config()
 
@@ -41,19 +62,3 @@ subprocess.check_call([
 ], env={'RANDFILE': os.environ['HOME'] + '/openssl_rnd'})
 c.NotebookApp.keyfile = keyfile
 c.NotebookApp.certfile = certfile
-
-# API requests to the hub are via the proxy and HTTPS, which uses a self
-# signed certificate. Strangly, some requests use Tornado's AsyncHTTPClient
-# (but not the version that uses pycurl like the Hub proper does)...
-AsyncHTTPClient.configure(None, defaults=dict(validate_cert=False))
-
-# ... and some seem to use requests, with no apparent way to pass in extra
-# arguments other than monkey patching
-_api_request_original = HubOAuth._api_request
-def _api_request(self, method, url, **kwargs):
-    args_verify_false = {
-        **kwargs,
-        'verify': False,
-    }
-    return _api_request_original(self, method, url, **args_verify_false)
-HubOAuth._api_request = _api_request

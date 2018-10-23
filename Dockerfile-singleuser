@@ -91,6 +91,7 @@ RUN \
     node /opt/conda/lib/python3.6/site-packages/jupyterlab/staging/yarn.js cache clean
 
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
+COPY config/async_http_logging_handler.py /opt/conda/lib/python3.6/site-packages/
 
 ENTRYPOINT ["tini", "-g", "--"]
 
