@@ -28,7 +28,7 @@ HubOAuth._api_request = _api_request
 
 http_handler = AsyncHTTPLoggingHandler(
     ioloop=IOLoop.current(),
-    client=AsyncHTTPClient(),
+    client=AsyncHTTPClient(force_instance=True),
     host=os.environ['LOGSTASH_HOST'],
     port=os.environ['LOGSTASH_PORT'],
     path="/",
