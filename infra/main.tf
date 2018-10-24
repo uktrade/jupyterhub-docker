@@ -52,7 +52,7 @@ variable "logstash_downstream_authorization_header" {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"
-  registry_container_port    = "443"
+  registry_container_port    = "5000"
   registry_container_memory  = 2048
   registry_container_cpu     = 1024
   registry_alb_port          = "443"
