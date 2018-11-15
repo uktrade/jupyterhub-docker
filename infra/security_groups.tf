@@ -264,6 +264,18 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
   protocol    = "tcp"
 }
 
+resource "aws_security_group_rule" "admin_service_egress_postgres_to_tiva_db" {
+  description = "egress-postgres-to-test-1-db"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.tiva_db.id}"
+
+  type        = "egress"
+  from_port   = "${aws_db_instance.tiva.port}"
+  to_port     = "${aws_db_instance.tiva.port}"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" {
   description = "egress-postgres-to-test-1-db"
 
@@ -307,6 +319,40 @@ resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service
   type        = "ingress"
   from_port   = "${aws_db_instance.admin.port}"
   to_port     = "${aws_db_instance.admin.port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "tiva_db" {
+  name        = "jupyterhub-tiva-db"
+  description = "jupyterhub-tiva-db"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-tiva-db"
+  }
+}
+
+resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_admin_service" {
+  description = "ingress-postgres-from-admin-service"
+
+  security_group_id = "${aws_security_group.tiva_db.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
+
+  type        = "ingress"
+  from_port   = "${aws_db_instance.tiva.port}"
+  to_port     = "${aws_db_instance.tiva.port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_notebooks" {
+  description = "ingress-postgres-from-notebooks"
+
+  security_group_id        = "${aws_security_group.tiva_db.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type      = "ingress"
+  from_port = "${aws_db_instance.tiva.port}"
+  to_port   = "${aws_db_instance.tiva.port}"
   protocol    = "tcp"
 }
 
@@ -571,6 +617,18 @@ resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service
   type      = "egress"
   from_port = "${local.jupyterhub_container_port}"
   to_port   = "${local.jupyterhub_container_port}"
+  protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "notebooks_egress_postgres_to_tiva" {
+  description = "egress-postgres-to-test-1"
+
+  security_group_id        = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.tiva_db.id}"
+
+  type      = "egress"
+  from_port = "${aws_db_instance.tiva.port}"
+  to_port   = "${aws_db_instance.tiva.port}"
   protocol  = "tcp"
 }
 
