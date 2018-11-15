@@ -5,7 +5,9 @@ resource "aws_db_instance" "admin" {
   storage_type = "gp2"
   engine = "postgres"
   engine_version = "10.4"
-  instance_class = "db.t2.micro"
+  instance_class = "db.t2.medium"
+
+  apply_immediately = true
 
   name = "jupyterhub_admin"
   username = "jupyterhub_admin_master"
