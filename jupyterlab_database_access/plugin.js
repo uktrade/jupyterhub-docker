@@ -64,10 +64,10 @@ const code = {
     '  return(con)',
     '}',
     'isDsn <- function(name) {',
-    '    return(startsWith(name, "DATABASE_DSN__"))',
+    '  return(startsWith(name, "DATABASE_DSN__"))',
     '}',
     'niceName <- function(name) {',
-    '    return(substring(name, 15))',
+    '  return(substring(name, 15))',
     '}',
     'env = Sys.getenv(names=TRUE)',
     'dsns <- env[Vectorize(isDsn)(names(env))]',
@@ -75,9 +75,11 @@ const code = {
     'names(conn) <- Vectorize(niceName)(names(dsns))',
     'print(paste("You now have", as.character(length(conn)), "database connections:", sep=" "))',
     'for (name in names(conn)) {',
-    '    print(paste("  conn[c(\'", name ,"\')]", sep=""))',
+    '  var_name <- paste("conn", name, sep="_")',
+    '  assign(var_name, conn[[c(name)]])',
+    '  print(paste(" ", var_name, sep=""))',
     '}',
-    'rm(getConn,isDsn,niceName,env,dsns)'
+    'rm(conn,getConn,isDsn,niceName,env,dsns)'
   ].join('\n'),
   'python3': [
     'from os import environ as __environ',
