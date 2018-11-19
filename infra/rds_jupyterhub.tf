@@ -9,6 +9,9 @@ resource "aws_db_instance" "jupyterhub" {
 
   apply_immediately = true
 
+  backup_retention_period = 31
+  backup_window = "03:29-03:59"
+
   name = "jupyterhub"
   username = "jupyterhub_master"
   password = "${random_string.aws_db_instance_jupyterhub_password.result}"

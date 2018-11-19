@@ -18,6 +18,7 @@ variable "subnets_num_bits" {}
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
 variable "jupyterhub_domain" {}
+variable "jupyterhub_secondary_domain" {}
 
 variable "registry_container_image" {}
 variable "registry_proxy_remoteurl" {}

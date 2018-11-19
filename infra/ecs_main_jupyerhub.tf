@@ -53,7 +53,7 @@ data "template_file" "jupyterhub_container_definitions" {
     jpy_cookie_secret = "${random_id.jupyterhub_container_jpy_cookie_secret.hex}"
     jupyterhub_crypt_key = "${random_id.jupyterhub_container_jupyterhub_crypt_key.hex}"
 
-    oauth_callback_url = "https://${var.jupyterhub_domain}${local.jupyterhub_oauth_callback_path}"
+    oauth_callback_url = "https://${var.jupyterhub_secondary_domain}${local.jupyterhub_oauth_callback_path}"
     oauth_client_id = "${var.jupyterhub_oauth_client_id}"
     oauth_client_secret = "${var.jupyterhub_oauth_client_secret}"
     oauth2_authorize_url = "${var.jupyterhub_oauth_authorize_url}"
