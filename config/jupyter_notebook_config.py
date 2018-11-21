@@ -50,7 +50,7 @@ c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.terminals_enabled = False
 c.NotebookApp.contents_manager_class = JupyterS3
 
-c.JupyterS3.prefix = os.environ['JUPYTERHUB_USER'] + '/'
+c.JupyterS3.prefix = os.environ['S3_PREFIX']
 c.JupyterS3.authentication_class = JupyterS3ECSRoleAuthentication
 
 keyfile = os.environ['HOME'] + '/ssl.key'

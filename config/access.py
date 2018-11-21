@@ -1,3 +1,4 @@
+import hashlib
 import json
 import os
 import re
@@ -31,10 +32,12 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             )
             for database in json.loads(http_response.body)['databases']
         ]
+        s3_prefix = 'user/federated/' + hashlib.sha256(email_address.encode('utf-8')).hexdigest() + '/'
 
         spawner.environment = {
             **spawner.environment,
             **dict(database_dsns),
+            'S3_PREFIX': s3_prefix,
         }
 
         spawner.log.debug('User (%s) setting up database DSNs... done (%s)', email_address, database_dsns)
@@ -69,7 +72,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             'Version': '2010-05-08',
             'RoleName': role_name,
             'PolicyName': notebook_task_role['policy_name'],
-            'PolicyDocument': notebook_task_role['policy_document_template'].replace('__JUPYTERHUB_USER__', email_address),
+            'PolicyDocument': notebook_task_role['policy_document_template'].replace('__S3_PREFIX__', s3_prefix),
         }).encode('utf-8')
         await make_iam_request(spawner.log, access_key_id, secret_access_key, pre_auth_headers,
                                payload_put_role_policy)

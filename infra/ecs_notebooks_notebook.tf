@@ -97,7 +97,7 @@ data "aws_iam_policy_document" "notebook_s3_access_template" {
       test = "StringLike"
       variable = "s3:prefix"
       values = [
-        "__JUPYTERHUB_USER__/*"
+        "__S3_PREFIX__*"
       ]
     }
 
@@ -118,7 +118,7 @@ data "aws_iam_policy_document" "notebook_s3_access_template" {
     ]
 
     resources = [
-      "${aws_s3_bucket.notebooks.arn}/__JUPYTERHUB_USER__/*",
+      "${aws_s3_bucket.notebooks.arn}/__S3_PREFIX__*",
     ]
 
     condition {
