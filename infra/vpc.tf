@@ -89,7 +89,7 @@ resource "aws_subnet" "private_without_egress" {
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
   tags {
-    Name = "jupyterhub-private-with-egress-${var.aws_availability_zones_short[count.index]}"
+    Name = "jupyterhub-private-without-egress-${var.aws_availability_zones_short[count.index]}"
   }
 }
 
