@@ -7,7 +7,7 @@ ENV \
 
 RUN \
 	apk add --no-cache \
-		libcurl=7.61.1-r0 \
+		libcurl=7.61.1-r1 \
 		npm=8.11.4-r0 \
 		openssl=1.0.2p-r0 \
 		py-cryptography=2.1.4-r1 \
