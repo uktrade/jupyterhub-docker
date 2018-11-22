@@ -19,7 +19,10 @@ class AsyncHTTPLoggingHandler(logging.Handler):
 
     def emit(self, record):
 
-        message = record.getMessage()
+        try:
+            message = self.format(record)
+        except BaseException:
+            self.handleError(record)
 
         # Bit of a fudge to avoid infinite loops, since
         # we're using Tornado to log Tornado messages
@@ -31,7 +34,7 @@ class AsyncHTTPLoggingHandler(logging.Handler):
             try:
                 request = HTTPRequest(
                     f'https://{self.host}:{self.port}{self.path}', method='POST',
-                    body=message.encode('utf-8'),
+                    body=message.encode('utf-8') + b'\n',
                 )
                 yield self.client.fetch(request)
             except BaseException:

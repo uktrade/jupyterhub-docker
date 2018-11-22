@@ -49,6 +49,7 @@ c = get_config()
 c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.terminals_enabled = False
 c.NotebookApp.contents_manager_class = JupyterS3
+c.NotebookApp.log_level = 'DEBUG'
 
 c.JupyterS3.prefix = os.environ['S3_PREFIX']
 c.JupyterS3.authentication_class = JupyterS3ECSRoleAuthentication
