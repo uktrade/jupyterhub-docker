@@ -15,7 +15,6 @@ from tornado.httpclient import AsyncHTTPClient
 
 env = normalise_environment(os.environ)
 
-c.JupyterHub.log_level = 'DEBUG'
 c.JupyterHub.db_url = env['DB_URL']
 
 # The interface that the hub listens on, 0.0.0.0 == all
@@ -90,7 +89,6 @@ c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = access_spawn_
     notebook_task_role,
     database_access_url,
 )
-c.FargateSpawner.debug = True
 c.FargateSpawner.start_timeout = 480
 c.FargateSpawner.env_keep = ['DATABASE_URL']
 c.FargateSpawner.cmd = ['jupyter-labhub']
