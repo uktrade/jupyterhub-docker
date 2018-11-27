@@ -1,0 +1,138 @@
+[
+  {
+    "name": "${container_name}",
+    "image": "${container_image}",
+    "memoryReservation": ${container_memory},
+    "cpu": ${container_cpu},
+    "essential": true,
+    "portMappings": [{
+        "containerPort": ${container_port}
+    }],
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${log_region}",
+        "awslogs-stream-prefix": "${container_name}"
+      }
+    },
+    "environment": [
+      {
+        "name": "DB_URL",
+        "value": "${db_url}"
+      },
+      {
+        "name": "CONFIGPROXY_AUTH_TOKEN",
+        "value": "${configproxy_auth_token}"
+      },
+      {
+        "name": "JPY_COOKIE_SECRET",
+        "value": "${jpy_cookie_secret}"
+      },
+      {
+        "name": "JUPYTERHUB_CRYPT_KEY",
+        "value": "${jupyterhub_crypt_key}"
+      },
+      {
+        "name": "ADMIN_USERS",
+        "value": "${admin_users}"
+      },
+      {
+        "name": "OAUTH_CALLBACK_URL",
+        "value": "${oauth_callback_url}"
+      },
+      {
+        "name": "OAUTH_CLIENT_ID",
+        "value": "${oauth_client_id}"
+      },
+      {
+        "name": "OAUTH_CLIENT_SECRET",
+        "value": "${oauth_client_secret}"
+      },
+      {
+        "name": "OAUTH2_AUTHORIZE_URL",
+        "value": "${oauth2_authorize_url}"
+      },
+      {
+        "name": "OAUTH2_TOKEN_URL",
+        "value": "${oauth2_token_url}"
+      },
+      {
+        "name": "OAUTH2_USERDATA_URL",
+        "value": "${oauth2_userdata_url}"
+      },
+      {
+        "name": "OAUTH2_USERNAME_KEY",
+        "value": "${oauth2_username_key}"
+      },
+      {
+        "name": "DATABASE_ACCESS__URL",
+        "value": "${database_access__url}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__ROLE_PREFIX",
+        "value": "${notebook_task_role__role_prefix}"
+      },
+        {
+        "name": "NOTEBOOK_TASK_ROLE__POLICY_NAME",
+        "value": "${notebook_task_role__policy_name}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__PERMISSIONS_BOUNDARY_ARN",
+        "value": "${notebook_task_role__permissions_boundary_arn}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__POLICY_DOCUMENT_TEMPLATE_BASE64",
+        "value": "${notebook_task_role__policy_document_template_base64}"
+      },
+      {
+        "name": "NOTEBOOK_TASK_ROLE__ASSUME_ROLE_POLICY_DOCUMENT_BASE64",
+        "value": "${notebook_task_role__assume_role_policy_document_base64}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_ECS_HOST",
+        "value": "${fargate_spawner__aws_ecs_host}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__AWS_REGION",
+        "value": "${fargate_spawner__aws_region}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__NOTEBOOK_PORT",
+        "value": "${fargate_spawner__notebook_port}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_CUSTER_NAME",
+        "value": "${fargate_spawner__task_custer_name}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_CONTAINER_NAME",
+        "value": "${fargate_spawner__task_container_name}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_DEFINITION_ARN",
+        "value": "${fargate_spawner__task_definition_arn}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_SECURITY_GROUP",
+        "value": "${fargate_spawner__task_security_group}"
+      },
+      {
+        "name": "FARGATE_SPAWNER__TASK_SUBNET",
+        "value": "${fargate_spawner__task_subnet}"
+      },
+      {
+        "name": "JUPYTERS3__AWS_REGION",
+        "value": "${jupyters3__aws_region}"
+      },
+      {
+        "name": "JUPYTERS3__AWS_S3_BUCKET",
+        "value": "${jupyters3__aws_s3_bucket}"
+      },
+      {
+        "name": "JUPYTERS3__AWS_S3_HOST",
+        "value": "${jupyters3__aws_s3_host}"
+      }
+    ]
+  }
+]

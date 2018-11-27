@@ -1,0 +1,16 @@
+[
+  {
+    "name": "${container_name}",
+    "image": "${container_image}",
+    "memoryReservation": ${container_memory},
+    "cpu": ${container_cpu},
+    "essential": true,
+    "environment": [{
+        "name": "LOGSTASH_HOST",
+        "value": "${logstash_host}"
+    },{
+        "name": "LOGSTASH_PORT",
+        "value": "${logstash_port}"
+    }]
+  }
+]

@@ -1,24 +1,66 @@
+import logging
+from logging.handlers import HTTPHandler
 import os
-from s3contents import S3ContentsManager
+import subprocess
+
+from async_http_logging_handler import AsyncHTTPLoggingHandler
+from jupyters3 import JupyterS3, JupyterS3ECSRoleAuthentication
+from jupyterhub.services.auth import HubOAuth
+from tornado.ioloop import IOLoop
+from tornado.httpclient import AsyncHTTPClient
+
+# API requests to the hub are via the proxy and HTTPS, which uses a self
+# signed certificate. Strangly, some requests use Tornado's AsyncHTTPClient
+AsyncHTTPClient.configure(
+    'tornado.curl_httpclient.CurlAsyncHTTPClient', defaults=dict(validate_cert=False),
+)
+
+# ... and some seem to use requests, with no apparent way to pass in extra
+# arguments other than monkey patching
+_api_request_original = HubOAuth._api_request
+def _api_request(self, method, url, **kwargs):
+    args_verify_false = {
+        **kwargs,
+        'verify': False,
+    }
+    return _api_request_original(self, method, url, **args_verify_false)
+HubOAuth._api_request = _api_request
+
+http_handler = AsyncHTTPLoggingHandler(
+    ioloop=IOLoop.current(),
+    client=AsyncHTTPClient(force_instance=True),
+    host=os.environ['LOGSTASH_HOST'],
+    port=os.environ['LOGSTASH_PORT'],
+    path="/",
+)
+loggers = [
+    logging.getLogger(),
+    logging.getLogger('urllib3'),
+    logging.getLogger('tornado'),
+    logging.getLogger('tornado.access'),
+    logging.getLogger('tornado.application'),
+    logging.getLogger('tornado.general'),
+]
+for logger in loggers:
+    logger.addHandler(http_handler)
+
 c = get_config()
 
+c.NotebookApp.ip = '0.0.0.0'
 c.NotebookApp.terminals_enabled = False
-c.NotebookApp.contents_manager_class = S3ContentsManager
-c.S3ContentsManager.access_key_id = "__JPYNB_S3_ACCESS_KEY_ID__"
-c.S3ContentsManager.secret_access_key = "__JPYNB_S3_SECRET_ACCESS_KEY__"
-c.S3ContentsManager.region_name= "__JPYNB_S3_REGION_NAME__"
-c.S3ContentsManager.bucket = "__JPYNB_S3_BUCKET_NAME__"
-c.S3ContentsManager.prefix = os.environ['JUPYTERHUB_USER']
-c.S3ContentsManager.sse = "AES256"
+c.NotebookApp.contents_manager_class = JupyterS3
+c.NotebookApp.log_level = 'DEBUG'
 
-import dj_database_url
-db_url = dj_database_url.parse(url=os.environ['DATABASE_URL'])
-file = open(os.environ['HOME'] + "/.odbc.ini", "w")
-file.write("[TiVA]" + "\n")
-file.write("Driver = PostgreSQL Unicode" + "\n")
-file.write("Servername = " + db_url['HOST'] + "\n")
-file.write("Port = " + str(db_url['PORT']) + "\n")
-file.write("Database = " + db_url['NAME'] + "\n")
-file.write("UserName = " + db_url['USER'] + "\n")
-file.write("Password = " + db_url['PASSWORD'] + "\n")
-file.close()
+c.JupyterS3.prefix = os.environ['S3_PREFIX']
+c.JupyterS3.authentication_class = JupyterS3ECSRoleAuthentication
+
+keyfile = os.environ['HOME'] + '/ssl.key'
+certfile = os.environ['HOME'] + '/ssl.crt'
+subprocess.check_call([
+    os.environ['CONDA_DIR'] + '/bin/openssl', 'req', '-new', '-newkey', 'rsa:2048', '-days', '3650', '-nodes', '-x509',
+    '-subj', '/CN=selfsigned',
+    '-keyout', keyfile,
+    '-out', certfile,
+], env={'RANDFILE': os.environ['HOME'] + '/openssl_rnd'})
+c.NotebookApp.keyfile = keyfile
+c.NotebookApp.certfile = certfile

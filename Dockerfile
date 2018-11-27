@@ -1,19 +1,36 @@
-ARG JUPYTERHUB_VER=1.0
-FROM jupyterhub/jupyterhub:$JUPYTERHUB_VER
+FROM alpine:3.8
 
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends apt-utils && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends curl rsync && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+ENV \
+	LC_ALL=en_US.UTF-8 \
+	LANG=en_US.UTF-8 \
+	LANGUAGE=en_US.UTF-8
 
-ENV DOCKER_VER=18.03.1
-RUN pip install --upgrade pip oauthenticator dockerspawner psycopg2-binary
-RUN wget -q -O - "https://download.docker.com/linux/static/stable/x86_64/docker-${DOCKER_VER}-ce.tgz" | tar -xzvf - -C /usr/bin --strip-components=1
+RUN \
+	apk add --no-cache \
+		libcurl=7.61.1-r1 \
+		npm=8.11.4-r0 \
+		openssl=1.0.2q-r0 \
+		py-cryptography=2.1.4-r1 \
+		py-psycopg2=2.7.5-r0 \
+		py3-curl=7.43.0-r5 \
+		python3=3.6.6-r0 \
+		tini=0.18.0-r0 && \
+	python3 -m ensurepip && \
+	pip3 install pip==18.01 && \
+	pip3 install \
+		fargatespawner==0.0.20 \
+		jupyterhub==0.9.2 \
+		oauthenticator==0.8.0 && \
+	npm install -g \
+		configurable-http-proxy@3.1.1 && \
+	npm cache clean --force
 
-COPY config/jupyterhub_config.py /usr/local/etc/jupyter/jupyterhub_config.py
-COPY config/jupyter_notebook_config.py /usr/local/etc/jupyter/jupyter_notebook_config.py
-COPY config/spawner-init.sh /usr/local/etc/jupyter/spawner-init.sh
-COPY entrypoint.sh /entrypoint.sh
+COPY config/jupyterhub_config.py /etc/jupyter/jupyterhub_config.py
+COPY config/access.py /usr/lib/python3.6/site-packages/access.py
+COPY config/utils.py /usr/lib/python3.6/site-packages/utils.py
 
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["tini", "--"]
+CMD ["jupyterhub", "--config=/etc/jupyter/jupyterhub_config.py"]
+
+RUN adduser -S jovyan
+USER jovyan
