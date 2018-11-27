@@ -51,6 +51,8 @@ variable "logstash_internal_domain" {}
 variable "logstash_downstream_url" {}
 variable "logstash_downstream_authorization_header" {}
 
+variable "cloudwatch_destination_arn" {}
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"

@@ -107,6 +107,13 @@ resource "aws_cloudwatch_log_group" "admin" {
   retention_in_days = "3653"
 }
 
+resource "aws_cloudwatch_log_subscription_filter" "admin" {
+  name            = "jupyterhub-admin"
+  log_group_name  = "${aws_cloudwatch_log_group.admin.name}"
+  filter_pattern  = ""
+  destination_arn = "${var.cloudwatch_destination_arn}"
+}
+
 resource "aws_iam_role" "admin_task_execution" {
   name               = "admin-task-execution"
   path               = "/"

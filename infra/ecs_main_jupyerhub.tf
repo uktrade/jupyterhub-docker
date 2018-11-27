@@ -102,6 +102,13 @@ resource "aws_cloudwatch_log_group" "jupyterhub" {
   retention_in_days = "3653"
 }
 
+resource "aws_cloudwatch_log_subscription_filter" "jupyterhub" {
+  name            = "jupyterhub"
+  log_group_name  = "${aws_cloudwatch_log_group.jupyterhub.name}"
+  filter_pattern  = ""
+  destination_arn = "${var.cloudwatch_destination_arn}"
+}
+
 resource "aws_iam_role" "jupyterhub_task_execution" {
   name               = "jupyterhub-task-execution"
   path               = "/"

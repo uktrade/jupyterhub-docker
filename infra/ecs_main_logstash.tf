@@ -57,6 +57,13 @@ resource "aws_cloudwatch_log_group" "logstash" {
   retention_in_days = "3653"
 }
 
+resource "aws_cloudwatch_log_subscription_filter" "logstash" {
+  name            = "jupyterhub-logstash"
+  log_group_name  = "${aws_cloudwatch_log_group.logstash.name}"
+  filter_pattern  = ""
+  destination_arn = "${var.cloudwatch_destination_arn}"
+}
+
 resource "aws_iam_role" "logstash_task_execution" {
   name               = "logstash-task-execution"
   path               = "/"
