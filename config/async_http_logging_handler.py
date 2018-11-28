@@ -26,7 +26,7 @@ class AsyncHTTPLoggingHandler(logging.Handler):
 
         # Bit of a fudge to avoid infinite loops, since
         # we're using Tornado to log Tornado messages
-        if 'max_clients limit reached' in message or self.host in message:
+        if 'max_clients limit reached' in message or self.host in message or 'Exception in callback' in message:
             return
 
         @gen.coroutine
