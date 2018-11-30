@@ -16,8 +16,10 @@ from utils import aws_sig_v4_headers
 def access_spawn_hooks(notebook_task_role, database_endpoint):
 
     async def pre_spawn_hook(spawner):
+        auth_state = await spawner.user.get_auth_state()
+        user_id = auth_state['oauth_user']['user_id']
         email_address = spawner.user.name
-        spawner.log.debug('User (%s) setting up database DSNs..', email_address)
+        spawner.log.debug('User (%s,%s) setting up database DSNs..', user_id, email_address)
 
         token = (await spawner.user.get_auth_state())['access_token']
         http_client = AsyncHTTPClient()
@@ -32,7 +34,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
             )
             for database in json.loads(http_response.body)['databases']
         ]
-        s3_prefix = 'user/federated/' + hashlib.sha256(email_address.encode('utf-8')).hexdigest() + '/'
+        s3_prefix = 'user/federated/' + hashlib.sha256(user_id.encode('utf-8')).hexdigest() + '/'
 
         spawner.environment = {
             **spawner.environment,
