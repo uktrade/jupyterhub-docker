@@ -64,6 +64,7 @@ RUN \
         'r-tidyverse=1.2.1' \
         'scikit-learn=0.20.0' \
         'scipy=1.1.0' \
+        'scikit-learn' \
         'seaborn=0.9.0' \
         'spacy=2.0.12' \
         'tensorboard=1.10.0' \
@@ -71,6 +72,7 @@ RUN \
         'theano=1.0.3' \
         'tini=0.18.0' \
         'toolz=0.9.0' \
+        'wordcloud=1.5.0' \
         'xgboost=0.80' \
         'xorg-libxext=1.3.3' \
         'xorg-libxrender=0.9.10' && \
@@ -79,6 +81,7 @@ RUN \
         pip==18.1 && \
     pip install \
         jupyters3==0.0.29 \
+        lda==1.1.0 \
         pattern3==3.0.0 \
         -e git+git://github.com/aboSamoor/polyglot@d0d2aa8d06cec4e03bd96618ae960030f7069a17#egg=polyglot && \
     apk del .build-deps
