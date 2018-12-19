@@ -87,7 +87,8 @@ RUN \
     apk del .build-deps
 
 RUN \
-    python -m spacy download en
+    python -m spacy download en && \
+    python -m nltk.downloader all
 
 COPY jupyterlab_database_access /jupyterlab_database_access
 RUN \
