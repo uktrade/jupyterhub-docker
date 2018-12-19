@@ -86,6 +86,9 @@ RUN \
         -e git+git://github.com/aboSamoor/polyglot@d0d2aa8d06cec4e03bd96618ae960030f7069a17#egg=polyglot && \
     apk del .build-deps
 
+RUN \
+    python -m spacy download en
+
 COPY jupyterlab_database_access /jupyterlab_database_access
 RUN \
     jupyter labextension install \
