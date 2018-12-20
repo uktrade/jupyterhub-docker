@@ -88,7 +88,7 @@ RUN \
 
 RUN \
     python -m spacy download en && \
-    python -m nltk.downloader all
+    python -m nltk.downloader wordnet stopwords gutenberg
 
 COPY jupyterlab_database_access /jupyterlab_database_access
 RUN \
