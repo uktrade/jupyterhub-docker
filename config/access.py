@@ -45,7 +45,7 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
         spawner.log.debug('User (%s) setting up database DSNs... done (%s)', email_address, database_dsns)
         spawner.log.debug('User (%s) setting up AWS role...', email_address)
 
-        request = HTTPRequest('http://169.254.170.2/' + os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'], method='GET')
+        request = HTTPRequest('http://169.254.170.2' + os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'], method='GET')
         creds = json.loads((await AsyncHTTPClient().fetch(request)).body.decode('utf-8'))
         access_key_id = creds['AccessKeyId']
         secret_access_key = creds['SecretAccessKey']
