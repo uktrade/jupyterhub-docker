@@ -80,7 +80,7 @@ RUN \
     pip install \
         pip==18.1 && \
     pip install \
-        jupyters3==0.0.29 \
+        jupyters3==0.0.30 \
         lda==1.1.0 \
         pattern3==3.0.0 \
         -e git+git://github.com/aboSamoor/polyglot@d0d2aa8d06cec4e03bd96618ae960030f7069a17#egg=polyglot && \

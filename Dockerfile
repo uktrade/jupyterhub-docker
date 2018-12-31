@@ -8,7 +8,7 @@ ENV \
 RUN \
 	apk add --no-cache \
 		libcurl=7.61.1-r1 \
-		npm=8.11.4-r0 \
+		npm=8.14.0-r0 \
 		openssl=1.0.2q-r0 \
 		py-cryptography=2.1.4-r1 \
 		py-psycopg2=2.7.5-r0 \
@@ -18,7 +18,7 @@ RUN \
 	python3 -m ensurepip && \
 	pip3 install pip==18.01 && \
 	pip3 install \
-		fargatespawner==0.0.20 \
+		fargatespawner==0.0.21 \
 		jupyterhub==0.9.2 \
 		oauthenticator==0.8.0 && \
 	npm install -g \
