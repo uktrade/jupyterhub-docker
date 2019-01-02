@@ -30,6 +30,13 @@ docker tag jupyterhub-registry:latest  quay.io/uktrade/jupyterhub-registry:lates
 docker push quay.io/uktrade/jupyterhub-registry:latest
 ```
 
+## DNS Server
+
+docker build -t jupyterhub-dnsmasq -f Dockerfile-dnsmasq . && \
+docker tag jupyterhub-dnsmasq:latest  quay.io/uktrade/jupyterhub-dnsmasq:latest && \
+docker push quay.io/uktrade/jupyterhub-dnsmasq:latest
+
+
 ## Logstash
 
 For logs from the notebook servers, we run a logstash instance inside the VPC that proxies to our public logstash service.

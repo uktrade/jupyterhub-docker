@@ -14,6 +14,8 @@ variable "ip_whitelist" {
 
 variable "vpc_cidr" {}
 variable "subnets_num_bits" {}
+variable "vpc_notebooks_cidr" {}
+variable "vpc_notebooks_subnets_num_bits" {}
 
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
@@ -50,6 +52,8 @@ variable "logstash_container_image" {}
 variable "logstash_internal_domain" {}
 variable "logstash_downstream_url" {}
 variable "logstash_downstream_authorization_header" {}
+
+variable "dnsmasq_container_image" {}
 
 variable "cloudwatch_destination_arn" {}
 
@@ -89,4 +93,8 @@ locals {
   logstash_container_cpu        = 2048
   logstash_container_port       = "8889"
   logstash_container_api_port   = "9600"
+
+  dnsmasq_container_name       = "jupyterhub-dnsmasq"
+  dnsmasq_container_memory     = 512
+  dnsmasq_container_cpu        = 256
 }

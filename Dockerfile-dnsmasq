@@ -1,0 +1,9 @@
+FROM alpine:3.8
+
+RUN apk --no-cache add \
+	dnsmasq==2.79-r3
+
+COPY dnsmasq-entrypoint.sh /entrypoint.sh
+
+ENTRYPOINT ["sh"]
+CMD ["entrypoint.sh"]
