@@ -60,8 +60,8 @@ variable "cloudwatch_destination_arn" {}
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
-  registry_container_memory  = 2048
-  registry_container_cpu     = 1024
+  registry_container_memory  = 30720
+  registry_container_cpu     = 4096
   registry_alb_port          = "443"
 
   admin_container_name    = "jupyterhub-admin"
@@ -81,8 +81,8 @@ locals {
 
   notebook_container_name   = "jupyterhub-notebook"
   notebook_container_port   = "8888"
-  notebook_container_memory = 16384
-  notebook_container_cpu    = 2048
+  notebook_container_memory = 30720
+  notebook_container_cpu    = 4096
 
   notebook_task_role_prefix      = "jupyterhub-notebook-user-"
   notebook_task_role_policy_name = "jupyterhub-notebook-task"
