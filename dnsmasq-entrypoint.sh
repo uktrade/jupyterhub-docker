@@ -2,6 +2,8 @@
 
 set -e
 
+python3 dnsmasq-set-dhcp.py
+
 dnsmasq -k \
 	--user=root \
 	--no-hosts \

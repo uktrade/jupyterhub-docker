@@ -34,7 +34,10 @@ data "template_file" "dnsmasq_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.dnsmasq.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
-    dns_server = "${cidrhost(aws_vpc.main.cidr_block, 2)}"
+    dns_server   = "${cidrhost(aws_vpc.main.cidr_block, 2)}"
+    aws_region   = "${data.aws_region.aws_region.name}"
+    aws_ec2_host = "ec2.${data.aws_region.aws_region.name}.amazonaws.com"
+    vpc_id       = "${aws_vpc.notebooks.id}"
   }
 }
 
@@ -95,6 +98,33 @@ resource "aws_iam_role" "dnsmasq_task" {
   name               = "jupyterhub-dnsmasq-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.dnsmasq_task_ecs_tasks_assume_role.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "dnsmasq" {
+  role       = "${aws_iam_role.dnsmasq_task.name}"
+  policy_arn = "${aws_iam_policy.dnsmasq_task.arn}"
+}
+
+resource "aws_iam_policy" "dnsmasq_task" {
+  name        = "jupyterhub-dnsmasq-task"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.dnsmasq_task.json}"
+}
+
+data "aws_iam_policy_document" "dnsmasq_task" {
+  statement {
+    actions = [
+      "ec2:AssociateDhcpOptions",
+      "ec2:CreateDhcpOptions",
+      "ec2:CreateTags",
+      "ec2:DeleteDhcpOptions",
+      "ec2:DescribeVpcs",
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "dnsmasq_task_ecs_tasks_assume_role" {

@@ -27,20 +27,6 @@ resource "aws_vpc" "notebooks" {
   }
 }
 
-resource "aws_vpc_dhcp_options" "notebooks" {
-  domain_name_servers = ["172.32.95.235"]
-  domain_name = "eu-west-2.compute.internal"
-
-  tags {
-    Name = "jupyterhub-notebooks"
-  }
-}
-
-resource "aws_vpc_dhcp_options_association" "notebooks" {
-  vpc_id          = "${aws_vpc.notebooks.id}"
-  dhcp_options_id = "${aws_vpc_dhcp_options.notebooks.id}"
-}
-
 resource "aws_flow_log" "notebooks" {
   log_group_name = "${aws_cloudwatch_log_group.vpc_main_flow_log.name}"
   iam_role_arn   = "${aws_iam_role.vpc_notebooks_flow_log.arn}"
