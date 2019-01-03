@@ -11,4 +11,5 @@ dnsmasq -k \
 	--log-queries \
 	--log-facility=- \
 	--server=/notebook.uktrade.io/${DNS_SERVER} \
-	--server=/amazonaws.com/${DNS_SERVER}
+	--server=/amazonaws.com/${DNS_SERVER} \
+	--server=/jupyterhub/${DNS_SERVER}
