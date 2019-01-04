@@ -16,10 +16,33 @@ resource "aws_ecs_service" "jupyterhub" {
     container_name   = "${local.jupyterhub_container_name}"
   }
 
+  service_registries {
+    registry_arn   = "${aws_service_discovery_service.jupyterhub.arn}"
+  }
+
   depends_on = [
     # The target group must have been associated with the listener first
     "aws_alb_listener.jupyterhub",
   ]
+}
+
+resource "aws_service_discovery_service" "jupyterhub" {
+  name = "jupyterhub"
+
+  dns_config {
+    namespace_id = "${aws_service_discovery_private_dns_namespace.jupyterhub.id}"
+    dns_records {
+      ttl = 10
+      type = "A"
+    }
+  }
+
+  # Needed for a service to be able to register instances with a target group,
+  # but only if it has a service_registries, which we do
+  # https://forums.aws.amazon.com/thread.jspa?messageID=852407&tstart=0
+  health_check_custom_config {
+    failure_threshold = 1
+  }
 }
 
 resource "aws_ecs_task_definition" "jupyterhub" {
@@ -45,6 +68,8 @@ data "template_file" "jupyterhub_container_definitions" {
 
     log_group  = "${aws_cloudwatch_log_group.jupyterhub.name}"
     log_region = "${data.aws_region.aws_region.name}"
+
+    private_domain = "${aws_service_discovery_service.jupyterhub.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}"
 
     db_url      = "postgres://${aws_db_instance.jupyterhub.username}:${aws_db_instance.jupyterhub.password}@${aws_db_instance.jupyterhub.endpoint}/${aws_db_instance.jupyterhub.name}?sslmode=require"
     admin_users = "${var.jupyterhub_admin_users}"

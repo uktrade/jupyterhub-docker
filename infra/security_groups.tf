@@ -1,3 +1,49 @@
+resource "aws_security_group" "dnsmasq" {
+  name        = "jupyterhub-dnsmasq"
+  description = "jupyterhub-dnsmasq"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-dnsmasq"
+  }
+}
+
+resource "aws_security_group_rule" "dnsmasq_egress_https" {
+  description = "egress-dns-tcp"
+
+  security_group_id = "${aws_security_group.dnsmasq.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "dnsmasq_ingress_dns_tcp_notebooks" {
+  description = "ingress-dns-tcp"
+
+  security_group_id = "${aws_security_group.dnsmasq.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "ingress"
+  from_port   = "53"
+  to_port     = "53"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "dnsmasq_ingress_dns_udp_notebooks" {
+  description = "ingress-dns-udp"
+
+  security_group_id = "${aws_security_group.dnsmasq.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "ingress"
+  from_port   = "53"
+  to_port     = "53"
+  protocol    = "udp"
+}
+
 resource "aws_security_group" "logstash_alb" {
   name        = "jupyterhub-logstash-alb"
   description = "jupyterhub-logstash-alb"
@@ -577,7 +623,7 @@ resource "aws_security_group_rule" "jupyterhub_service_ingress_https_from_jupyte
 resource "aws_security_group" "notebooks" {
   name        = "jupyterhub-notebooks"
   description = "jupyterhub-notebooks"
-  vpc_id      = "${aws_vpc.main.id}"
+  vpc_id      = "${aws_vpc.notebooks.id}"
 
   tags {
     Name = "jupyterhub-notebooks"
@@ -654,4 +700,28 @@ resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
   from_port = "${aws_db_instance.test_2.port}"
   to_port   = "${aws_db_instance.test_2.port}"
   protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "notebooks_egress_dns_tcp" {
+  description = "egress-dns-tcp"
+
+  security_group_id = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.dnsmasq.id}"
+
+  type        = "egress"
+  from_port   = "53"
+  to_port     = "53"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "notebooks_egress_dns_udp" {
+  description = "egress-dns-udp"
+
+  security_group_id = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.dnsmasq.id}"
+
+  type        = "egress"
+  from_port   = "53"
+  to_port     = "53"
+  protocol    = "udp"
 }

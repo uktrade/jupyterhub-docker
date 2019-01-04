@@ -132,7 +132,7 @@ data "aws_iam_policy_document" "notebook_s3_access_template" {
 }
 
 resource "aws_vpc_endpoint" "s3" {
-  vpc_id            = "${aws_vpc.main.id}"
+  vpc_id            = "${aws_vpc.notebooks.id}"
   service_name      = "com.amazonaws.${data.aws_region.aws_region.name}.s3"
   vpc_endpoint_type = "Gateway"
 

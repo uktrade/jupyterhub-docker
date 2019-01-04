@@ -18,6 +18,10 @@
     },
     "environment": [
       {
+        "name": "PRIVATE_DOMAIN",
+        "value": "${private_domain}"
+      },
+      {
         "name": "DB_URL",
         "value": "${db_url}"
       },

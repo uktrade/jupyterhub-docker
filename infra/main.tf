@@ -14,6 +14,8 @@ variable "ip_whitelist" {
 
 variable "vpc_cidr" {}
 variable "subnets_num_bits" {}
+variable "vpc_notebooks_cidr" {}
+variable "vpc_notebooks_subnets_num_bits" {}
 
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
@@ -51,13 +53,15 @@ variable "logstash_internal_domain" {}
 variable "logstash_downstream_url" {}
 variable "logstash_downstream_authorization_header" {}
 
+variable "dnsmasq_container_image" {}
+
 variable "cloudwatch_destination_arn" {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
-  registry_container_memory  = 2048
-  registry_container_cpu     = 1024
+  registry_container_memory  = 30720
+  registry_container_cpu     = 4096
   registry_alb_port          = "443"
 
   admin_container_name    = "jupyterhub-admin"
@@ -77,8 +81,8 @@ locals {
 
   notebook_container_name   = "jupyterhub-notebook"
   notebook_container_port   = "8888"
-  notebook_container_memory = 16384
-  notebook_container_cpu    = 2048
+  notebook_container_memory = 30720
+  notebook_container_cpu    = 4096
 
   notebook_task_role_prefix      = "jupyterhub-notebook-user-"
   notebook_task_role_policy_name = "jupyterhub-notebook-task"
@@ -89,4 +93,8 @@ locals {
   logstash_container_cpu        = 2048
   logstash_container_port       = "8889"
   logstash_container_api_port   = "9600"
+
+  dnsmasq_container_name       = "jupyterhub-dnsmasq"
+  dnsmasq_container_memory     = 512
+  dnsmasq_container_cpu        = 256
 }
