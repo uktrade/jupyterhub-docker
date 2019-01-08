@@ -25,6 +25,10 @@ resource "aws_vpc" "notebooks" {
   tags {
     Name = "jupyterhub-notebooks"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_flow_log" "notebooks" {
@@ -62,6 +66,10 @@ resource "aws_vpc" "main" {
 
   tags {
     Name = "jupyterhub"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -137,6 +145,10 @@ resource "aws_subnet" "public" {
   tags {
     Name = "jupyterhub-public-${var.aws_availability_zones_short[count.index]}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "private_with_egress" {
@@ -149,17 +161,25 @@ resource "aws_subnet" "private_with_egress" {
   tags {
     Name = "jupyterhub-private-with-egress-${var.aws_availability_zones_short[count.index]}"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_subnet" "private_without_egress" {
   count      = "${length(var.aws_availability_zones)}"
   vpc_id     = "${aws_vpc.notebooks.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.notebooks.cidr_block, var.vpc_notebooks_subnets_num_bits, 2 * length(var.aws_availability_zones) + count.index)}"
+  cidr_block = "${cidrsubnet(aws_vpc.notebooks.cidr_block, var.vpc_notebooks_subnets_num_bits, count.index)}"
 
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
   tags {
     Name = "jupyterhub-private-without-egress-${var.aws_availability_zones_short[count.index]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -255,4 +275,33 @@ resource "aws_service_discovery_private_dns_namespace" "jupyterhub" {
   name = "jupyterhub"
   description = "jupyterhub"
   vpc = "${aws_vpc.main.id}"
+}
+
+resource "aws_subnet" "appstream" {
+  count      = "${length(var.aws_availability_zones)}"
+  vpc_id     = "${aws_vpc.main.id}"
+  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, 2 * length(var.aws_availability_zones) + count.index)}"
+
+  availability_zone = "${var.aws_availability_zones[count.index]}"
+
+  tags {
+    Name = "appstream-${var.aws_availability_zones_short[count.index]}"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_route_table" "appstream" {
+  vpc_id = "${aws_vpc.main.id}"
+  tags {
+    Name = "appstream"
+  }
+}
+
+resource "aws_route" "appstream_nat_gateway_ipv4" {
+  route_table_id         = "${aws_route_table.appstream.id}"
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = "${aws_nat_gateway.main.id}"
 }

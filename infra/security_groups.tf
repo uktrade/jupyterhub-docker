@@ -6,6 +6,10 @@ resource "aws_security_group" "dnsmasq" {
   tags {
     Name = "jupyterhub-dnsmasq"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "dnsmasq_egress_https" {
@@ -52,6 +56,10 @@ resource "aws_security_group" "logstash_alb" {
   tags {
     Name = "jupyterhub-logstash-alb"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "logstash_alb_ingress_https_from_notebooks" {
@@ -97,6 +105,10 @@ resource "aws_security_group" "logstash_service" {
 
   tags {
     Name = "jupyterhub-logstash-service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -145,6 +157,10 @@ resource "aws_security_group" "registry_alb" {
   tags {
     Name = "jupyterhub-registry-alb"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "registry_alb_ingress_https_from_notebooks" {
@@ -178,6 +194,10 @@ resource "aws_security_group" "registry_service" {
 
   tags {
     Name = "jupyterhub-registry-service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -213,6 +233,10 @@ resource "aws_security_group" "admin_alb" {
 
   tags {
     Name = "jupyterhub-admin-alb"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -259,6 +283,10 @@ resource "aws_security_group" "admin_service" {
 
   tags {
     Name = "jupyterhub-admin-service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -354,6 +382,10 @@ resource "aws_security_group" "admin_db" {
   tags {
     Name = "jupyterhub-admin-db"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service" {
@@ -375,6 +407,10 @@ resource "aws_security_group" "tiva_db" {
 
   tags {
     Name = "jupyterhub-tiva-db"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -410,6 +446,10 @@ resource "aws_security_group" "test_1_db" {
   tags {
     Name = "jupyterhub-test-1-db"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_admin_service" {
@@ -444,6 +484,10 @@ resource "aws_security_group" "test_2_db" {
   tags {
     Name = "jupyterhub-test-2-db"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
@@ -477,6 +521,10 @@ resource "aws_security_group" "jupyterhub_alb" {
 
   tags {
     Name = "jupyterhub-alb"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -524,6 +572,10 @@ resource "aws_security_group" "jupyterhub_db" {
   tags {
     Name = "jupyterhub-db"
   }
+
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_security_group_rule" "jupyterhub_db_ingress_postgres_from_jupyterhub_service" {
@@ -545,6 +597,10 @@ resource "aws_security_group" "jupyterhub_service" {
 
   tags {
     Name = "jupyterhub"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
@@ -627,6 +683,10 @@ resource "aws_security_group" "notebooks" {
 
   tags {
     Name = "jupyterhub-notebooks"
+  }
+
+  lifecycle {
+    create_before_destroy = true
   }
 }
 
