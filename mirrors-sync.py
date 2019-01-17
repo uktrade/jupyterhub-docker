@@ -196,8 +196,8 @@ async def async_main(loop, logger):
     session = aiohttp.ClientSession(loop=loop)
 
     # Source
-    source_base_url = 'https://conda.anaconda.org/conda-forge/linux-64/'
-    repodata_key = 'repodata.json'
+    source_base_url = 'https://conda.anaconda.org/conda-forge/'
+    arch_dirs = ['noarch/', 'linux-64/']
 
     # Target
     credentials = get_ecs_role_credentials('http://169.254.170.2' + os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'])
@@ -215,15 +215,23 @@ async def async_main(loop, logger):
     conda_forge_prefix = 'conda-forge/'
 
     try:
-        async with session.get(source_base_url + repodata_key) as response:
-            response.raise_for_status()
-            source_repodata_raw = await response.read()
-            source_repodata = json.loads(source_repodata_raw)
-
+        repodatas = []
         queue = asyncio.Queue()
 
-        for package_suffix, _ in source_repodata['packages'].items():
-            await queue.put(package_suffix)
+        for arch_dir in arch_dirs:
+            async with session.get(source_base_url + arch_dir + 'repodata.json') as response:
+                response.raise_for_status()
+                source_repodata_raw = await response.read()
+                source_repodata = json.loads(source_repodata_raw)
+
+                for package_suffix, _ in source_repodata['packages'].items():
+                    await queue.put(arch_dir + package_suffix)
+
+                repodatas.append((arch_dir + 'repodata.json', source_repodata_raw))
+
+            async with session.get(source_base_url + arch_dir + 'repodata.json.bz2') as response:
+                response.raise_for_status()
+                repodatas.append((arch_dir + 'repodata.json.bz2', await response.read()))
 
         async def transfer_task():
             while True:
@@ -250,11 +258,12 @@ async def async_main(loop, logger):
         ]
         await queue.join()
 
-        target_repodata_key = conda_forge_prefix + repodata_key
-        response, _ = await s3_request_full(
-                logger, s3_context, 'PUT', '/' + target_repodata_key, {}, {},
-                source_repodata_raw, s3_hash(source_repodata_raw))
-        response.raise_for_status()
+        for path, data in repodatas:
+            target_repodata_key = conda_forge_prefix + path
+            response, _ = await s3_request_full(
+                    logger, s3_context, 'PUT', '/' + target_repodata_key, {}, {},
+                    data, s3_hash(data))
+            response.raise_for_status()
 
     finally:
         for task in tasks:
