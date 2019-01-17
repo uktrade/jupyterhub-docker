@@ -785,3 +785,29 @@ resource "aws_security_group_rule" "notebooks_egress_dns_udp" {
   to_port     = "53"
   protocol    = "udp"
 }
+
+resource "aws_security_group" "mirrors_sync" {
+  name        = "jupyterhub-mirrors-sync"
+  description = "jupyterhub-mirrors-sync"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-mirrors-sync"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "mirrors_sync_egress_https_to_everywhere" {
+  description = "egress-https-to-everywhere"
+
+  security_group_id = "${aws_security_group.mirrors_sync.id}"
+  cidr_blocks       = ["0.0.0.0/0"]
+
+  type      = "egress"
+  from_port = "443"
+  to_port   = "443"
+  protocol  = "tcp"
+}

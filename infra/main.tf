@@ -57,11 +57,14 @@ variable "dnsmasq_container_image" {}
 
 variable "cloudwatch_destination_arn" {}
 
+variable "mirrors_bucket_name" {}
+variable "mirrors_sync_container_image" {}
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
-  registry_container_memory  = 30720
-  registry_container_cpu     = 4096
+  registry_container_memory  = 15360
+  registry_container_cpu     = 2048
   registry_alb_port          = "443"
 
   admin_container_name    = "jupyterhub-admin"
@@ -97,4 +100,8 @@ locals {
   dnsmasq_container_name       = "jupyterhub-dnsmasq"
   dnsmasq_container_memory     = 512
   dnsmasq_container_cpu        = 256
+
+  mirrors_sync_container_name    = "jupyterhub-mirrors-sync"
+  mirrors_sync_container_memory  = 8192
+  mirrors_sync_container_cpu     = 1024
 }
