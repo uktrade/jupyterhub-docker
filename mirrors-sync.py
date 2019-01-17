@@ -195,11 +195,6 @@ def get_ecs_role_credentials(url):
 async def async_main(loop, logger):
     session = aiohttp.ClientSession(loop=loop)
 
-    # Source
-    source_base_url = 'https://conda.anaconda.org/conda-forge/'
-    arch_dirs = ['noarch/', 'linux-64/']
-
-    # Target
     credentials = get_ecs_role_credentials('http://169.254.170.2' + os.environ['AWS_CONTAINER_CREDENTIALS_RELATIVE_URI'])
     bucket = S3Bucket(
       region=os.environ['MIRRORS_BUCKET_REGION'],
@@ -212,64 +207,73 @@ async def async_main(loop, logger):
         credentials=credentials,
         bucket=bucket,
     )
+
+    conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
+
+    await conda_task
+    await session.close()
+    await asyncio.sleep(0)
+
+
+async def conda_forge_mirror(logger, session, s3_context):
+    source_base_url = 'https://conda.anaconda.org/conda-forge/'
+    arch_dirs = ['noarch/', 'linux-64/']
     conda_forge_prefix = 'conda-forge/'
 
-    try:
-        repodatas = []
-        queue = asyncio.Queue()
+    repodatas = []
+    queue = asyncio.Queue()
 
-        for arch_dir in arch_dirs:
-            async with session.get(source_base_url + arch_dir + 'repodata.json') as response:
-                response.raise_for_status()
-                source_repodata_raw = await response.read()
-                source_repodata = json.loads(source_repodata_raw)
-
-                for package_suffix, _ in source_repodata['packages'].items():
-                    await queue.put(arch_dir + package_suffix)
-
-                repodatas.append((arch_dir + 'repodata.json', source_repodata_raw))
-
-            async with session.get(source_base_url + arch_dir + 'repodata.json.bz2') as response:
-                response.raise_for_status()
-                repodatas.append((arch_dir + 'repodata.json.bz2', await response.read()))
-
-        async def transfer_task():
-            while True:
-                package_suffix = await queue.get()
-
-                try:
-                    source_package_url = source_base_url + package_suffix
-                    target_package_key = conda_forge_prefix + package_suffix
-
-                    async with session.get(source_package_url) as response:
-                        response.raise_for_status()
-                        data = await response.read()
-
-                    response, _ = await s3_request_full(
-                        logger, s3_context, 'PUT', '/' + target_package_key, {}, {}, data, s3_hash(data))
-                    response.raise_for_status()
-                except:
-                    logger.exception('Exception transferring %s', package_suffix)
-                finally:
-                    queue.task_done()
-
-        tasks = [
-            asyncio.ensure_future(transfer_task()) for _ in range(0, 10)
-        ]
-        await queue.join()
-
-        for path, data in repodatas:
-            target_repodata_key = conda_forge_prefix + path
-            response, _ = await s3_request_full(
-                    logger, s3_context, 'PUT', '/' + target_repodata_key, {}, {},
-                    data, s3_hash(data))
+    for arch_dir in arch_dirs:
+        async with session.get(source_base_url + arch_dir + 'repodata.json') as response:
             response.raise_for_status()
+            source_repodata_raw = await response.read()
+            source_repodata = json.loads(source_repodata_raw)
 
+            for package_suffix, _ in source_repodata['packages'].items():
+                await queue.put(arch_dir + package_suffix)
+
+            repodatas.append((arch_dir + 'repodata.json', source_repodata_raw))
+
+        async with session.get(source_base_url + arch_dir + 'repodata.json.bz2') as response:
+            response.raise_for_status()
+            repodatas.append((arch_dir + 'repodata.json.bz2', await response.read()))
+
+    async def transfer_task():
+        while True:
+            package_suffix = await queue.get()
+
+            try:
+                source_package_url = source_base_url + package_suffix
+                target_package_key = conda_forge_prefix + package_suffix
+
+                async with session.get(source_package_url) as response:
+                    response.raise_for_status()
+                    data = await response.read()
+
+                response, _ = await s3_request_full(
+                    logger, s3_context, 'PUT', '/' + target_package_key, {}, {}, data, s3_hash(data))
+                response.raise_for_status()
+            except:
+                logger.exception('Exception transferring %s', package_suffix)
+            finally:
+                queue.task_done()
+
+    tasks = [
+        asyncio.ensure_future(transfer_task()) for _ in range(0, 10)
+    ]
+    try:
+        await queue.join()
     finally:
         for task in tasks:
             task.cancel()
-        await session.close()
         await asyncio.sleep(0)
+
+    for path, data in repodatas:
+        target_repodata_key = conda_forge_prefix + path
+        response, _ = await s3_request_full(
+                logger, s3_context, 'PUT', '/' + target_repodata_key, {}, {},
+                data, s3_hash(data))
+        response.raise_for_status()
 
 
 def main():
