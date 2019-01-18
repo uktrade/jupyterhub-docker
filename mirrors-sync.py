@@ -17,7 +17,9 @@ import urllib
 
 
 import aiohttp
-
+from bs4 import (
+    BeautifulSoup,
+)
 
 AwsCredentials = namedtuple('AwsCredentials', [
     'access_key_id', 'secret_access_key', 'pre_auth_headers',
@@ -208,11 +210,65 @@ async def async_main(loop, logger):
         bucket=bucket,
     )
 
+    cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
     conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
-
+    
+    await cran_task
     await conda_task
+
     await session.close()
     await asyncio.sleep(0)
+
+
+async def cran_mirror(logger, session, s3_context):
+    source_base_url = 'https://cran.ma.imperial.ac.uk/web/packages/available_packages_by_name.html'
+    source_base_parsed = urllib.parse.urlparse(source_base_url)
+    cran_prefix = 'cran/'
+
+    done = set()
+    queue = asyncio.Queue()
+    await queue.put(source_base_url)
+
+    async def transfer_task():
+        while True:
+            url = await queue.get()
+
+            try:
+                async with session.get(url) as response:
+                    response.raise_for_status()
+                    content_type = response.headers['Content-Type']
+                    data = await response.read()
+
+                key_suffix = urllib.parse.urlparse(url).path[1:]  # Without leading /
+                target_key = cran_prefix + key_suffix
+                response, _ = await s3_request_full(
+                    logger, s3_context, 'PUT', '/' + target_key, {}, {}, data, s3_hash(data))
+                response.raise_for_status()
+
+                if content_type == 'text/html':
+                    soup = BeautifulSoup(data, 'html.parser')
+                    links = soup.find_all('a')
+                    for link in links:
+                        absolute = urllib.parse.urljoin(source_base_url, link.get('href'))
+                        absolute_no_frag = absolute.split('#')[0]
+                        if urllib.parse.urlparse(absolute_no_frag).netloc == source_base_parsed.netloc and absolute_no_frag not in done:
+                            await queue.put(absolute_no_frag)
+                            done.add(absolute_no_frag)
+
+            except:
+                logger.exception('Exception crawling %s', url)
+            finally:
+                queue.task_done()
+
+    tasks = [
+        asyncio.ensure_future(transfer_task()) for _ in range(0, 10)
+    ]
+    try:
+        await queue.join()
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.sleep(0)
 
 
 async def conda_forge_mirror(logger, session, s3_context):
