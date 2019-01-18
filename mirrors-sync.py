@@ -221,13 +221,23 @@ async def async_main(loop, logger):
 
 
 async def cran_mirror(logger, session, s3_context):
-    source_base_url = 'https://cran.ma.imperial.ac.uk/web/packages/available_packages_by_name.html'
+    source_base = 'https://cran.ma.imperial.ac.uk/'
+    source_base_url = source_base + 'web/packages/available_packages_by_name.html'
     source_base_parsed = urllib.parse.urlparse(source_base_url)
     cran_prefix = 'cran/'
 
     done = set()
     queue = asyncio.Queue()
     await queue.put(source_base_url)
+
+    # Main package file. Maybe better parsing this than crawling HTML?
+    package_index = 'src/contrib/PACKAGES'
+    async with session.get(source_base + package_index) as response:
+        response.raise_for_status()
+        data = await response.read()
+    response, _ = await s3_request_full(
+        logger, s3_context, 'PUT', '/' + cran_prefix + package_index, {}, {}, data, s3_hash(data))
+    response.raise_for_status()
 
     async def transfer_task():
         while True:
