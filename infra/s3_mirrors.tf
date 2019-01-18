@@ -36,4 +36,28 @@ data "aws_iam_policy_document" "mirrors" {
       ]
     }
   }
+
+  # Permission is granted here rather via the notebook role to allow the
+  # non-AWS-aware conda cli to GET
+  statement {
+    principals {
+      type        = "*"
+      identifiers = ["*"]
+    }
+    actions = [
+        "s3:GetObject",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.mirrors.arn}/*",
+    ]
+
+    condition {
+      test = "StringEquals"
+      variable = "aws:sourceVpce"
+      values = [
+        "${aws_vpc_endpoint.s3.id}"
+      ]
+    }
+  }
 }

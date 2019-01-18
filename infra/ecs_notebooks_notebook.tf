@@ -129,24 +129,6 @@ data "aws_iam_policy_document" "notebook_s3_access_template" {
       ]
     }
   }
-
-  statement {
-    actions = [
-        "s3:GetObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.mirrors.arn}/*",
-    ]
-
-    condition {
-      test = "StringEquals"
-      variable = "aws:sourceVpce"
-      values = [
-        "${aws_vpc_endpoint.s3.id}"
-      ]
-    }
-  }
 }
 
 resource "aws_vpc_endpoint" "s3" {
@@ -192,7 +174,7 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
 
   statement {
     principals {
-      type = "AWS"
+      type = "*"
       identifiers = ["*"]
     }
 
@@ -239,24 +221,6 @@ data "aws_iam_policy_document" "jupyterhub_notebook_task_boundary" {
 
     resources = [
       "${aws_s3_bucket.notebooks.arn}/*",
-    ]
-
-    condition {
-      test = "StringEquals"
-      variable = "aws:sourceVpce"
-      values = [
-        "${aws_vpc_endpoint.s3.id}"
-      ]
-    }
-  }
-
-  statement {
-    actions = [
-        "s3:GetObject",
-    ]
-
-    resources = [
-      "${aws_s3_bucket.mirrors.arn}/*",
     ]
 
     condition {
