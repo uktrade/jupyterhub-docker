@@ -249,7 +249,7 @@ async def cran_mirror(logger, session, s3_context):
                     soup = BeautifulSoup(data, 'html.parser')
                     links = soup.find_all('a')
                     for link in links:
-                        absolute = urllib.parse.urljoin(source_base_url, link.get('href'))
+                        absolute = urllib.parse.urljoin(url, link.get('href'))
                         absolute_no_frag = absolute.split('#')[0]
                         if urllib.parse.urlparse(absolute_no_frag).netloc == source_base_parsed.netloc and absolute_no_frag not in done:
                             await queue.put(absolute_no_frag)
