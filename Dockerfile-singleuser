@@ -108,6 +108,10 @@ RUN \
 COPY config/jupyter_notebook_config.py /etc/jupyter/jupyter_notebook_config.py
 COPY config/async_http_logging_handler.py /opt/conda/lib/python3.6/site-packages/
 
+RUN \
+    echo '[global]' > /etc/pip.conf && \
+    echo 'index-url = https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/pypi/' >> /etc/pip.conf
+
 ENTRYPOINT ["tini", "-g", "--"]
 
 USER jovyan
