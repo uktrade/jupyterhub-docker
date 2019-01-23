@@ -216,12 +216,12 @@ async def async_main(loop, logger):
     )
 
     pypi_task = asyncio.ensure_future(pypi_mirror(logger, session, s3_context))
-    # cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
-    # conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
+    cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
+    conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
     
     await pypi_task
-    # await cran_task
-    # await conda_task
+    await cran_task
+    await conda_task
 
     await session.close()
     await asyncio.sleep(0)
