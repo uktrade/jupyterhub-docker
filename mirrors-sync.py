@@ -217,11 +217,12 @@ async def async_main(loop, logger):
 
     pypi_task = asyncio.ensure_future(pypi_mirror(logger, session, s3_context))
     cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
-    conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
+    conda_forge_task = asyncio.ensure_future(conda_mirror(logger, session, s3_context,
+        'https://conda.anaconda.org/conda-forge/', 'conda-forge/'))
     
     await pypi_task
     await cran_task
-    await conda_task
+    await conda_forge_task
 
     await session.close()
     await asyncio.sleep(0)
@@ -400,11 +401,8 @@ async def cran_mirror(logger, session, s3_context):
         await asyncio.sleep(0)
 
 
-async def conda_forge_mirror(logger, session, s3_context):
-    source_base_url = 'https://conda.anaconda.org/conda-forge/'
+async def conda_mirror(logger, session, s3_context, source_base_url, s3_prefix):
     arch_dirs = ['noarch/', 'linux-64/']
-    conda_forge_prefix = 'conda-forge/'
-
     repodatas = []
     queue = asyncio.Queue()
 
@@ -429,7 +427,7 @@ async def conda_forge_mirror(logger, session, s3_context):
 
             try:
                 source_package_url = source_base_url + package_suffix
-                target_package_key = conda_forge_prefix + package_suffix
+                target_package_key = s3_prefix + package_suffix
 
                 async with session.get(source_package_url) as response:
                     response.raise_for_status()
@@ -454,7 +452,7 @@ async def conda_forge_mirror(logger, session, s3_context):
         await asyncio.sleep(0)
 
     for path, data in repodatas:
-        target_repodata_key = conda_forge_prefix + path
+        target_repodata_key = s3_prefix + path
         response, _ = await s3_request_full(
                 logger, s3_context, 'PUT', '/' + target_repodata_key, {}, {},
                 data, s3_hash(data))
