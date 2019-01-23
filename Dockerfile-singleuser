@@ -110,7 +110,12 @@ COPY config/async_http_logging_handler.py /opt/conda/lib/python3.6/site-packages
 
 RUN \
     echo '[global]' > /etc/pip.conf && \
-    echo 'index-url = https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/pypi/' >> /etc/pip.conf
+    echo 'index-url = https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/pypi/' >> /etc/pip.conf && \
+    echo 'local({' > /opt/conda/lib/R/etc/Rprofile.site && \
+    echo '  r = getOption("repos")' >> /opt/conda/lib/R/etc/Rprofile.site && \
+    echo '  r["CRAN"] = "https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/cran/"' >> /opt/conda/lib/R/etc/Rprofile.site && \
+    echo '  options(repos = r)' >> /opt/conda/lib/R/etc/Rprofile.site && \
+    echo '})' >> /opt/conda/lib/R/etc/Rprofile.site
 
 ENTRYPOINT ["tini", "-g", "--"]
 
