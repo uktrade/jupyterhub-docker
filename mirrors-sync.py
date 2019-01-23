@@ -8,6 +8,7 @@ from datetime import (
 )
 import hashlib
 import hmac
+import html
 import json
 import logging
 import os
@@ -18,7 +19,6 @@ from time import (
     time,
 )
 import urllib
-
 
 import aiohttp
 import aioxmlrpc.client
@@ -284,6 +284,9 @@ async def pypi_mirror(logger, session, s3_context):
                     absolute_no_frag, frag = absolute.split('#')
                     filename = str(link.string)
                     python_version = link.get('data-requires-python')
+                    python_version_attr = \
+                        ' data-requires-python="' + html.escape(python_version) + '"' if python_version is not None else \
+                        ''
 
                     async with session.get(absolute_no_frag) as response:
                         response.raise_for_status()
@@ -294,22 +297,23 @@ async def pypi_mirror(logger, session, s3_context):
                         logger, s3_context, 'PUT', s3_path, {}, {}, file_data, s3_hash(file_data))
                     response.raise_for_status()
 
-                    link_data.append((filename,frag,python_version))
+                    link_data.append((s3_path, filename, frag, python_version_attr))
 
-                html = \
+                html_str = \
                     '<!DOCTYPE html>' + \
                     '<html>' + \
                     '<body>' + \
                     ''.join([
-                        f'<a href="https://{s3_context.bucket.host}{s3_path}#{frag}" data-requires-python="{python_version}">{filename}</a>'
-                        for filename, frag, python_version in link_data
+                        f'<a href="https://{s3_context.bucket.host}/{s3_context.bucket.name}{s3_path}#{frag}"{python_version_attr}>{filename}</a>'
+                        for s3_path, filename, frag, python_version_attr in link_data
                     ]) + \
                     '</body>' + \
                     '</html>'
-                html_bytes = html.encode('ascii')
+                html_bytes = html_str.encode('ascii')
                 s3_path = f'/{pypi_prefix}{project_name}/'
+                headers = {'Content-Type': 'text/html'}
                 response, _ = await s3_request_full(
-                        logger, s3_context, 'PUT', s3_path, {}, {}, html_bytes, s3_hash(html_bytes))
+                        logger, s3_context, 'PUT', s3_path, {}, headers, html_bytes, s3_hash(html_bytes))
                 response.raise_for_status()
 
             except:
