@@ -11,12 +11,17 @@ import hmac
 import json
 import logging
 import os
+import re
 import sys
 import signal
+from time import (
+    time,
+)
 import urllib
 
 
 import aiohttp
+import aioxmlrpc.client
 from bs4 import (
     BeautifulSoup,
 )
@@ -210,15 +215,125 @@ async def async_main(loop, logger):
         bucket=bucket,
     )
 
-    cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
-    conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
+    pypi_task = asyncio.ensure_future(pypi_mirror(logger, session, s3_context))
+    # cran_task = asyncio.ensure_future(cran_mirror(logger, session, s3_context))
+    # conda_task = asyncio.ensure_future(conda_forge_mirror(logger, session, s3_context))
     
-    await cran_task
-    await conda_task
+    await pypi_task
+    # await cran_task
+    # await conda_task
 
     await session.close()
     await asyncio.sleep(0)
 
+
+async def pypi_mirror(logger, session, s3_context):
+
+    def normalise(name):
+        return re.sub(r'[-_.]+', '-', name).lower()
+
+    source_base = 'https://pypi.python.org'
+    xmlrpc_client = aioxmlrpc.client.ServerProxy(source_base + '/pypi')
+
+    pypi_prefix = 'pypi/'
+
+    # We may have overlap, but that's fine
+    sync_changes_after_key = '__sync_changes_after'
+    # Paranoia: the reference implementation at https://bitbucket.org/loewis/pep381client has -1
+    started = int(time()) - 1 
+
+    # Determine after when to fetch changes. There is an eventual consistency issue storing this
+    # on S3, but at worst we'll be unnecessarily re-fetching updates, rather than missing them.
+    # Plus, given the time to run a sync and frequency, this is unlikely anyway
+    response, data = await s3_request_full(
+        logger, s3_context, 'GET', '/' + pypi_prefix + sync_changes_after_key, {}, {}, b'', s3_hash(b''))
+    sync_changes_after = \
+        int(data) if response.status == 200 else \
+        0
+
+    # changelog doesn't seem to have changes older than two years, so for all projects on initial
+    # import, we need to call list_packages
+    project_names_with_duplicates = \
+        (await xmlrpc_client.list_packages()) if sync_changes_after == 0 else \
+        [change[0] for change in await xmlrpc_client.changelog(sync_changes_after)]
+    project_names = sorted(list(set(project_names_with_duplicates)))
+
+    queue = asyncio.Queue()
+
+    for project_name in project_names:
+        normalised_project_name = normalise(project_name)
+        await queue.put((normalised_project_name, source_base + f'/simple/{normalised_project_name}/'))
+
+    async def transfer_task():
+        while True:
+            project_name, project_url = await queue.get()
+            logger.debug('Transferring project %s %s', project_name, project_url)
+
+            try:
+                async with session.get(project_url) as response:
+                    response.raise_for_status()
+                    content_type = response.headers['Content-Type']
+                    data = await response.read()
+
+                soup = BeautifulSoup(data, 'html.parser')
+                links = soup.find_all('a')
+                link_data = []
+
+                for link in links:
+                    absolute = link.get('href')
+                    absolute_no_frag, frag = absolute.split('#')
+                    filename = str(link.string)
+                    python_version = link.get('data-requires-python')
+
+                    async with session.get(absolute_no_frag) as response:
+                        response.raise_for_status()
+                        file_data = await response.read()
+
+                    s3_path = f'/{pypi_prefix}{project_name}/{filename}'
+                    response, _ = await s3_request_full(
+                        logger, s3_context, 'PUT', s3_path, {}, {}, file_data, s3_hash(file_data))
+                    response.raise_for_status()
+
+                    link_data.append((filename,frag,python_version))
+
+                html = \
+                    '<!DOCTYPE html>' + \
+                    '<html>' + \
+                    '<body>' + \
+                    ''.join([
+                        f'<a href="https://{s3_context.bucket.host}{s3_path}#{frag}" data-requires-python="{python_version}">{filename}</a>'
+                        for filename, frag, python_version in link_data
+                    ]) + \
+                    '</body>' + \
+                    '</html>'
+                html_bytes = html.encode('ascii')
+                s3_path = f'/{pypi_prefix}{project_name}/'
+                response, _ = await s3_request_full(
+                        logger, s3_context, 'PUT', s3_path, {}, {}, html_bytes, s3_hash(html_bytes))
+                response.raise_for_status()
+
+            except:
+                logger.exception('Exception crawling %s', project_url)
+            finally:
+                queue.task_done()
+
+    tasks = [
+        asyncio.ensure_future(transfer_task()) for _ in range(0, 10)
+    ]
+    try:
+        await queue.join()
+    finally:
+        for task in tasks:
+            task.cancel()
+        await asyncio.sleep(0)
+
+    await xmlrpc_client.close()
+
+    started_bytes = str(started).encode('ascii')
+    response, _ = await s3_request_full(
+        logger, s3_context, 'PUT', '/' + pypi_prefix + sync_changes_after_key, {}, {},
+        started_bytes, s3_hash(started_bytes))
+    response.raise_for_status()
 
 async def cran_mirror(logger, session, s3_context):
     source_base = 'https://cran.ma.imperial.ac.uk/'
