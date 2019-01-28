@@ -19,7 +19,6 @@ RUN \
         build-base=0.5-r1 \
         gfortran=6.4.0-r9 && \
     apk add --no-cache --virtual .build-deps \
-        git=2.18.1-r0 \
         wget=1.20.1-r0 && \
     wget https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub -O /etc/apk/keys/sgerrand.rsa.pub && \
     echo "8d6f142f06af51fa5533245d48f2248f  /etc/apk/keys/sgerrand.rsa.pub" | md5sum -c && \
@@ -81,10 +80,7 @@ RUN \
     pip install \
         pip==18.1 && \
     pip install \
-        jupyters3==0.0.30 \
-        lda==1.1.0 \
-        pattern3==3.0.0 \
-        -e git+git://github.com/aboSamoor/polyglot@d0d2aa8d06cec4e03bd96618ae960030f7069a17#egg=polyglot && \
+        jupyters3==0.0.30 && \
     apk del .build-deps && \
     chown -R jovyan $CONDA_DIR
 
