@@ -34,12 +34,18 @@ RUN \
     mkdir -p "$CONDA_DIR" && \
     bash miniconda.sh -f -b -p "$CONDA_DIR" && \
     rm miniconda.sh && \
-    conda config --system --prepend channels conda-forge && \
-    conda config --system --set auto_update_conda false && \
-    conda config --system --set show_channel_urls true && \
-    conda install --yes \
+    echo 'channels:' > /opt/conda/.condarc && \
+    echo '  - https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/conda-forge/' >> /opt/conda/.condarc && \
+    echo '  - https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/anaconda/' >> /opt/conda/.condarc && \
+    echo '  - https://s3-eu-west-2.amazonaws.com/mirrors.notebook.uktrade.io/r/' >> /opt/conda/.condarc && \
+    echo 'allow_other_channels: false' >> /opt/conda/.condarc && \
+    echo 'auto_update_conda: false' >> /opt/conda/.condarc && \
+    echo 'always_yes: true' >> /opt/conda/.condarc && \
+    echo 'show_channel_urls: true' >> /opt/conda/.condarc && \
+    conda install \
         'basemap=1.2.0' \
         'bokeh=0.13.0' \
+        'conda=4.5.11' \
         'dask=0.19.3' \
         'font-ttf-dejavu-sans-mono==2.37' \
         'gensim=3.5.0' \
