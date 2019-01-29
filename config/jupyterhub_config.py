@@ -91,7 +91,7 @@ c.FargateSpawner.pre_spawn_hook, c.FargateSpawner.post_stop_hook = access_spawn_
     notebook_task_role,
     database_access_url,
 )
-c.FargateSpawner.start_timeout = 300
+c.FargateSpawner.start_timeout = 150
 c.FargateSpawner.env_keep = ['DATABASE_URL']
 c.FargateSpawner.cmd = ['jupyter-labhub']
 
