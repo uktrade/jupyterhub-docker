@@ -84,10 +84,6 @@ RUN \
     apk del .build-deps && \
     chown -R jovyan $CONDA_DIR
 
-RUN \
-    python -m spacy download en && \
-    python -m nltk.downloader wordnet stopwords gutenberg
-
 COPY jupyterlab_database_access /jupyterlab_database_access
 RUN \
     jupyter labextension install \
@@ -111,4 +107,9 @@ RUN \
 ENTRYPOINT ["tini", "-g", "--"]
 
 USER jovyan
+
+RUN \
+    python -m spacy download en && \
+    python -m nltk.downloader wordnet stopwords gutenberg
+
 WORKDIR /home/jovyan
