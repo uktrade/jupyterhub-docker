@@ -50,7 +50,10 @@ JupyterHub.init_pycurl = init_pycurl
 c.ConfigurableHTTPProxy.command = ['configurable-http-proxy', '--insecure']
 c.ConfigurableHTTPProxy.pid_file = env['HOME'] + '/proxy.pid'
 
-c.JupyterHub.authenticator_class = GenericOAuthenticator
+class StaffSSOAuthenticator(GenericOAuthenticator):
+    pass
+
+c.JupyterHub.authenticator_class = StaffSSOAuthenticator
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set(env['ADMIN_USERS'].split())
