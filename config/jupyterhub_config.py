@@ -11,7 +11,11 @@ from fargatespawner import (
 )
 from jupyterhub.app import JupyterHub
 from oauthenticator.generic import GenericOAuthenticator
-from tornado.httpclient import AsyncHTTPClient
+from tornado.httpclient import (
+    AsyncHTTPClient,
+    HTTPError,
+    HTTPRequest,
+)
 
 env = normalise_environment(os.environ)
 
@@ -50,7 +54,33 @@ JupyterHub.init_pycurl = init_pycurl
 c.ConfigurableHTTPProxy.command = ['configurable-http-proxy', '--insecure']
 c.ConfigurableHTTPProxy.pid_file = env['HOME'] + '/proxy.pid'
 
-c.JupyterHub.authenticator_class = GenericOAuthenticator
+class StaffSSOAuthenticator(GenericOAuthenticator):
+
+    async def refresh_user(self, user, handler=None):
+        self.log.error("Refreshing user...")
+
+        http_client = AsyncHTTPClient()
+        token = (await user.get_auth_state())['access_token']
+        http_request = HTTPRequest(self.userdata_url, method='GET', headers={
+            'Authorization': f'Bearer {token}',
+        })
+
+        try:
+            await http_client.fetch(http_request)
+        except HTTPError as exception:
+            if exception.code == 401 or exception.code == 403:
+                is_authenticated = False
+            else:
+                raise
+        else:
+            is_authenticated = True
+
+        self.log.error("Refreshing user: is_authenticated %s", is_authenticated)
+
+        return is_authenticated
+
+c.JupyterHub.authenticator_class = StaffSSOAuthenticator
+c.Authenticator.refresh_pre_spawn = True
 c.Authenticator.auto_login = True
 c.Authenticator.enable_auth_state = True
 c.Authenticator.admin_users = set(env['ADMIN_USERS'].split())
