@@ -35,11 +35,12 @@ http_handler = AsyncHTTPLoggingHandler(
 )
 loggers = [
     logging.getLogger(),
-    logging.getLogger('urllib3'),
-    logging.getLogger('tornado'),
-    logging.getLogger('tornado.access'),
-    logging.getLogger('tornado.application'),
-    logging.getLogger('tornado.general'),
+    # These can result in a lot of log messages
+    # logging.getLogger('urllib3'),
+    # logging.getLogger('tornado'),
+    # logging.getLogger('tornado.access'),
+    # logging.getLogger('tornado.application'),
+    # logging.getLogger('tornado.general'),
 ]
 for logger in loggers:
     logger.addHandler(http_handler)
