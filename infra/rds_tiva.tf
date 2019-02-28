@@ -4,7 +4,7 @@ resource "aws_db_instance" "tiva" {
   allocated_storage = 100
   storage_type = "gp2"
   engine = "postgres"
-  engine_version = "9.6.9"
+  engine_version = "9.6.11"
   instance_class = "db.t2.medium"
   storage_encrypted = true
 
