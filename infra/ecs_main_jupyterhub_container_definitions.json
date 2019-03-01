@@ -18,6 +18,10 @@
     },
     "environment": [
       {
+        "name": "SENTRY_DSN",
+        "value": "${sentry_dsn}"
+      },
+      {
         "name": "PRIVATE_DOMAIN",
         "value": "${private_domain}"
       },

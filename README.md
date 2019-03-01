@@ -37,6 +37,13 @@ docker tag jupyterhub-dnsmasq:latest  quay.io/uktrade/jupyterhub-dnsmasq:latest 
 docker push quay.io/uktrade/jupyterhub-dnsmasq:latest
 
 
+## Sentry (Reverse) Proxy
+
+docker build -t jupyterhub-sentryproxy -f Dockerfile-sentryproxy . && \
+docker tag jupyterhub-sentryproxy:latest  quay.io/uktrade/jupyterhub-sentryproxy:latest && \
+docker push quay.io/uktrade/jupyterhub-sentryproxy:latest
+
+
 ## Logstash
 
 For logs from the notebook servers, we run a logstash instance inside the VPC that proxies to our public logstash service.

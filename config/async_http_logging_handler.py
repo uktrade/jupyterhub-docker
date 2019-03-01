@@ -18,29 +18,30 @@ class AsyncHTTPLoggingHandler(logging.Handler):
         self.path = path
 
     def emit(self, record):
-
         try:
             message = self.format(record)
         except BaseException:
-            self.handleError(record)
+            return
 
         # Bit of a fudge to avoid infinite loops, since
         # we're using Tornado to log Tornado messages
-        if 'max_clients limit reached' in message or self.host in message or 'Exception in callback' in message:
+        if 'max_clients limit reached' in message or self.host in message:
             return
 
-        @gen.coroutine
-        def post_record():
-            try:
-                request = HTTPRequest(
-                    f'https://{self.host}:{self.port}{self.path}', method='POST',
-                    body=message.encode('utf-8') + b'\n',
-                )
-                yield self.client.fetch(request)
-            except BaseException:
-                self.handleError(record)
-
         try:
-            self.ioloop.add_callback(post_record)
+            url = f'https://{self.host}:{self.port}{self.path}'
+            self.ioloop.add_callback(post_record, self.client, url, message)
         except BaseException:
             self.handleError(record)
+
+@gen.coroutine
+def post_record(client, url, message):
+    try:
+        request = HTTPRequest(
+            url, method='POST',
+            body=message.encode('utf-8') + b'\n',
+            request_timeout=2,
+        )
+        yield client.fetch(request)
+    except BaseException:
+        pass

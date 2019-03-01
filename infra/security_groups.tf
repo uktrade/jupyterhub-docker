@@ -48,6 +48,44 @@ resource "aws_security_group_rule" "dnsmasq_ingress_dns_udp_notebooks" {
   protocol    = "udp"
 }
 
+resource "aws_security_group" "sentryproxy_service" {
+  name        = "jupyterhub-sentryproxy"
+  description = "jupyterhub-sentryproxy"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "jupyterhub-sentryproxy"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "sentryproxy_egress_https" {
+  description = "egress-https"
+
+  security_group_id = "${aws_security_group.sentryproxy_service.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "sentryproxy_ingress_http_notebooks" {
+  description = "ingress-http"
+
+  security_group_id = "${aws_security_group.sentryproxy_service.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "ingress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group" "logstash_alb" {
   name        = "jupyterhub-logstash-alb"
   description = "jupyterhub-logstash-alb"

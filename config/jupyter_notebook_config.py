@@ -1,3 +1,17 @@
+import sentry_sdk
+import sentry_sdk.transport
+from sentry_sdk.integrations.tornado import TornadoIntegration
+
+# We use self-signed certs in the proxy
+def _get_pool_options(self, ca_certs):
+    return {
+        'num_pools': 2,
+        'cert_reqs': 'CERT_NONE'
+    }
+sentry_sdk.transport.HttpTransport._get_pool_options = _get_pool_options
+sentry_sdk.init()
+# sentry_sdk.init(integrations=[TornadoIntegration()])
+
 import logging
 from logging.handlers import HTTPHandler
 import os
@@ -39,7 +53,8 @@ loggers = [
     # logging.getLogger('urllib3'),
     # logging.getLogger('tornado'),
     # logging.getLogger('tornado.access'),
-    # logging.getLogger('tornado.application'),
+    # For logging exceptions
+    logging.getLogger('tornado.application'),
     # logging.getLogger('tornado.general'),
 ]
 for logger in loggers:

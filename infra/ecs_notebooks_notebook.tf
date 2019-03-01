@@ -23,6 +23,8 @@ data "template_file" "notebook_container_definitions" {
 
     logstash_host = "${var.logstash_internal_domain}"
     logstash_port = "${local.logstash_alb_port}"
+
+    sentry_dsn = "${var.sentry_dsn}"
   }
 }
 

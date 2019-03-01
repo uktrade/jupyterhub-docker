@@ -11,6 +11,9 @@
     },{
         "name": "LOGSTASH_PORT",
         "value": "${logstash_port}"
+    },{
+        "name": "SENTRY_DSN",
+        "value": "${sentry_dsn}"
     }]
   }
 ]

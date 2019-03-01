@@ -54,11 +54,14 @@ variable "logstash_downstream_url" {}
 variable "logstash_downstream_authorization_header" {}
 
 variable "dnsmasq_container_image" {}
+variable "sentryproxy_container_image" {}
 
 variable "cloudwatch_destination_arn" {}
 
 variable "mirrors_bucket_name" {}
 variable "mirrors_sync_container_image" {}
+
+variable "sentry_dsn" {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"
@@ -100,6 +103,10 @@ locals {
   dnsmasq_container_name       = "jupyterhub-dnsmasq"
   dnsmasq_container_memory     = 512
   dnsmasq_container_cpu        = 256
+
+  sentryproxy_container_name       = "jupyterhub-sentryproxy"
+  sentryproxy_container_memory     = 512
+  sentryproxy_container_cpu        = 256
 
   mirrors_sync_container_name    = "jupyterhub-mirrors-sync"
   mirrors_sync_container_memory  = 8192
