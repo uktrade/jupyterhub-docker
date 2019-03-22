@@ -30,16 +30,16 @@ c.JupyterHub.hub_ip = '0.0.0.0'
 with urllib.request.urlopen('http://169.254.170.2/v2/metadata') as response:
    c.JupyterHub.hub_connect_ip = json.loads(response.read().decode('utf-8'))['Containers'][0]['Networks'][0]['IPv4Addresses'][0]
 
-ssl_cert = env['HOME'] + '/ssl.crt'
-ssl_key = env['HOME'] + '/ssl.key'
-subprocess.check_call([
-    'openssl', 'req', '-new', '-newkey', 'rsa:2048', '-days', '3650', '-nodes', '-x509',
-    '-subj', '/CN=selfsigned',
-    '-keyout', ssl_key,
-    '-out', ssl_cert,
-], env={'RANDFILE': env['HOME'] + '/openssl_rnd'})
-c.JupyterHub.ssl_cert = ssl_cert
-c.JupyterHub.ssl_key = ssl_key
+# ssl_cert = env['HOME'] + '/ssl.crt'
+# ssl_key = env['HOME'] + '/ssl.key'
+# subprocess.check_call([
+#     'openssl', 'req', '-new', '-newkey', 'rsa:2048', '-days', '3650', '-nodes', '-x509',
+#     '-subj', '/CN=selfsigned',
+#     '-keyout', ssl_key,
+#     '-out', ssl_cert,
+# ], env={'RANDFILE': env['HOME'] + '/openssl_rnd'})
+# c.JupyterHub.ssl_cert = ssl_cert
+# c.JupyterHub.ssl_key = ssl_key
 
 # The Notebook uses a self signed cert, which is presented both to the hub
 # and to the proxy. Note:
@@ -95,13 +95,13 @@ c.FargateSpawner.task_definition_arn = env['FARGATE_SPAWNER']['TASK_DEFINITION_A
 c.FargateSpawner.task_security_groups = [env['FARGATE_SPAWNER']['TASK_SECURITY_GROUP']]
 c.FargateSpawner.task_subnets = [env['FARGATE_SPAWNER']['TASK_SUBNET']]
 c.FargateSpawner.notebook_port = int(env['FARGATE_SPAWNER']['NOTEBOOK_PORT'])
-c.FargateSpawner.notebook_scheme = 'https'
+c.FargateSpawner.notebook_scheme = 'http'
 c.FargateSpawner.notebook_args = [
     '--config=/etc/jupyter/jupyter_notebook_config.py',
     # The default behaviour is that the Notebook connects to the Hub directly by HTTP.
     # We connect via the proxy, which is on the same IP as the hub, and which is
     # listening on HTTPS
-    '--SingleUserNotebookApp.hub_api_url=' + f'https://{private_domain}:8000/hub/api',
+    '--SingleUserNotebookApp.hub_api_url=' + f'http://{private_domain}:8000/hub/api',
     '--JupyterS3.aws_region=' + env['JUPYTERS3']['AWS_REGION'],
     '--JupyterS3.aws_s3_host=' + env['JUPYTERS3']['AWS_S3_HOST'],
     '--JupyterS3.aws_s3_bucket=' + env['JUPYTERS3']['AWS_S3_BUCKET'],
