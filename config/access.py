@@ -9,6 +9,9 @@ from tornado.httpclient import (
     HTTPError,
     HTTPRequest,
 )
+from tornado import (
+    gen,
+)
 
 from utils import aws_sig_v4_headers
 
@@ -68,6 +71,10 @@ def access_spawn_hooks(notebook_task_role, database_endpoint):
         except HTTPError as exception:
             if exception.response.code != 409 or b'<Code>EntityAlreadyExists</Code>' not in exception.response.body:
                 raise
+            else:
+                # Creating a role is eventually consistent. Should have something
+                # better, but this should be enough for most cases
+                await gen.sleep(3)
 
         payload_put_role_policy = urllib.parse.urlencode({
             'Action': 'PutRolePolicy',
