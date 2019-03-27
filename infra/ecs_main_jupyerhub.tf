@@ -86,7 +86,7 @@ data "template_file" "jupyterhub_container_definitions" {
     oauth2_userdata_url = "${var.jupyterhub_oauth_userdata_url}"
     oauth2_username_key = "${local.jupyterhub_oauth_username_key}"
 
-    database_access__url = "https://${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}:${local.admin_container_port}${local.admin_api_path}"
+    database_access__url = "http://${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}:${local.admin_container_port}${local.admin_api_path}"
 
     notebook_task_role__role_prefix                        = "${local.notebook_task_role_prefix}"
     notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
@@ -337,13 +337,13 @@ resource "aws_alb_listener" "jupyterhub" {
 resource "aws_alb_target_group" "jupyterhub" {
   name_prefix = "jh-"
   port        = "${local.jupyterhub_container_port}"
-  protocol    = "HTTPS"
+  protocol    = "HTTP"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
 
   health_check {
     path = "/favicon.ico"
-    protocol = "HTTPS"
+    protocol = "HTTP"
     healthy_threshold = 3
     unhealthy_threshold = 2
   }

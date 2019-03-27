@@ -209,13 +209,13 @@ resource "aws_alb_listener" "admin" {
 resource "aws_alb_target_group" "admin" {
   name_prefix = "jhadm-"
   port        = "${local.admin_container_port}"
-  protocol    = "HTTPS"
+  protocol    = "HTTP"
   vpc_id      = "${aws_vpc.main.id}"
   target_type = "ip"
 
   health_check {
     path = "/healthcheck"
-    protocol = "HTTPS"
+    protocol = "HTTP"
     healthy_threshold = 3
     unhealthy_threshold = 2
   }

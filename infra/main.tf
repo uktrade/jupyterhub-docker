@@ -92,7 +92,7 @@ locals {
   notebook_container_memory = 30720
   notebook_container_cpu    = 4096
 
-  notebook_task_role_prefix      = "jupyterhub-notebook-user-"
+  notebook_task_role_prefix      = "jhub-"
   notebook_task_role_policy_name = "jupyterhub-notebook-task"
 
   logstash_container_name       = "jupyterhub-logstash"

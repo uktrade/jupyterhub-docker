@@ -21,6 +21,9 @@
       }
     },
     "environment": [{
+      "name": "AWS_ROUTE53_ZONE",
+      "value": "${aws_route53_zone}"
+    }, {
       "name": "DNS_SERVER",
       "value": "${dns_server}"
     }, {

@@ -38,6 +38,7 @@ data "template_file" "dnsmasq_container_definitions" {
     aws_region   = "${data.aws_region.aws_region.name}"
     aws_ec2_host = "ec2.${data.aws_region.aws_region.name}.amazonaws.com"
     vpc_id       = "${aws_vpc.notebooks.id}"
+    aws_route53_zone = "${var.aws_route53_zone}"
   }
 }
 
