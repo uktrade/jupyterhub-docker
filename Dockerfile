@@ -10,12 +10,12 @@ RUN \
 		build-base=0.5-r1 \
 		git=2.18.1-r0 && \
 	apk add --no-cache \
-		libcurl=7.61.1-r1 \
+		libcurl=7.61.1-r2 \
 		libffi-dev=3.2.1-r4 \
 		libffi=3.2.1-r4 \
 		npm=8.14.0-r0 \
-		openssl-dev=1.0.2q-r0 \
-		openssl=1.0.2q-r0 \
+		openssl-dev=1.0.2r-r0 \
+		openssl=1.0.2r-r0 \
 		py-cryptography=2.1.4-r1 \
 		py-psycopg2=2.7.5-r0 \
 		py3-curl=7.43.0-r5 \
