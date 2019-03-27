@@ -5,6 +5,11 @@
     "memoryReservation": ${container_memory},
     "cpu": ${container_cpu},
     "essential": true,
+    "ulimits": [{
+          "softLimit": 4096,
+          "hardLimit": 4096,
+          "name": "nofile"
+    }],
     "environment": [{
         "name": "LOGSTASH_HOST",
         "value": "${logstash_host}"
