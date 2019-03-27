@@ -37,8 +37,7 @@ data "aws_iam_policy_document" "mirrors" {
     }
   }
 
-  # Permission is granted here rather via the notebook role to allow the
-  # non-AWS-aware conda cli to GET
+  # We are happy with public GET
   statement {
     principals {
       type        = "*"
@@ -51,13 +50,5 @@ data "aws_iam_policy_document" "mirrors" {
     resources = [
       "${aws_s3_bucket.mirrors.arn}/*",
     ]
-
-    condition {
-      test = "StringEquals"
-      variable = "aws:sourceVpce"
-      values = [
-        "${aws_vpc_endpoint.s3.id}"
-      ]
-    }
   }
 }

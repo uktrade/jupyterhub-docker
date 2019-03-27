@@ -119,6 +119,15 @@
     {
       "name": "SECRET_KEY",
       "value": "${secret_key}"
+    }, {
+      "name": "NOTEBOOKS_URL",
+      "value": "${notebooks_url}"
+    }, {
+      "name": "APPSTREAM_URL",
+      "value": "${appstream_url}"
+    }, {
+      "name": "SUPPORT_URL",
+      "value": "${support_url}"
     }]
   }
 ]

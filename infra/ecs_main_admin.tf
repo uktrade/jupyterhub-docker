@@ -94,6 +94,10 @@ data "template_file" "admin_container_definitions" {
     data_db__test_2__port     = "${aws_db_instance.test_2.port}"
     data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
+
+    notebooks_url = "https://${var.jupyterhub_domain}/"
+    appstream_url = "https://${var.appstream_domain}/"
+    support_url = "https://${var.support_domain}/"
   }
 }
 
