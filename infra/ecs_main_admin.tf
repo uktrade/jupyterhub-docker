@@ -59,11 +59,12 @@ data "template_file" "admin_container_definitions" {
   template = "${file("${path.module}/ecs_main_admin_container_definitions.json")}"
 
   vars {
-    container_image  = "${var.admin_container_image}"
-    container_name   = "${local.admin_container_name}"
-    container_port   = "${local.admin_container_port}"
-    container_cpu    = "${local.admin_container_cpu}"
-    container_memory = "${local.admin_container_memory}"
+    container_image   = "${var.admin_container_image}"
+    container_name    = "${local.admin_container_name}"
+    container_command = "[\"/start.sh\"]"
+    container_port    = "${local.admin_container_port}"
+    container_cpu     = "${local.admin_container_cpu}"
+    container_memory  = "${local.admin_container_memory}"
 
     log_group  = "${aws_cloudwatch_log_group.admin.name}"
     log_region = "${data.aws_region.aws_region.name}"
@@ -95,11 +96,74 @@ data "template_file" "admin_container_definitions" {
     data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
 
+    notebooks_bucket = "${var.appstream_bucket}"
+
     notebooks_url = "https://${var.jupyterhub_domain}/"
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
   }
 }
+
+resource "aws_ecs_task_definition" "admin_store_db_creds_in_s3" {
+  family                   = "jupyterhub-admin-store-db-creds-in-s3"
+  container_definitions    = "${data.template_file.admin_store_db_creds_in_s3_container_definitions.rendered}"
+  execution_role_arn       = "${aws_iam_role.admin_task_execution.arn}"
+  task_role_arn            = "${aws_iam_role.admin_store_db_creds_in_s3_task.arn}"
+  network_mode             = "awsvpc"
+  cpu                      = "${local.admin_container_cpu}"
+  memory                   = "${local.admin_container_memory}"
+  requires_compatibilities = ["FARGATE"]
+}
+
+data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
+  template = "${file("${path.module}/ecs_main_admin_container_definitions.json")}"
+
+  vars {
+    container_image   = "${var.admin_container_image}"
+    container_name    = "${local.admin_container_name}"
+    container_command = "[\"django-admin\", \"store_db_creds_in_s3\"]"
+    container_port    = "${local.admin_container_port}"
+    container_cpu     = "${local.admin_container_cpu}"
+    container_memory  = "${local.admin_container_memory}"
+
+    log_group  = "${aws_cloudwatch_log_group.admin.name}"
+    log_region = "${data.aws_region.aws_region.name}"
+
+    admin_db__host            = "${aws_db_instance.admin.address}"
+    admin_db__name            = "${aws_db_instance.admin.name}"
+    admin_db__password        = "${random_string.aws_db_instance_admin_password.result}"
+    admin_db__port            = "${aws_db_instance.admin.port}"
+    admin_db__user            = "${aws_db_instance.admin.username}"
+    allowed_hosts_1           = "${var.admin_domain}"
+    allowed_hosts_2           = "${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}"
+    authbroker_client_id      = "${var.admin_authbroker_client_id}"
+    authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
+    authbroker_url            = "${var.admin_authbroker_url}"
+    data_db__tiva__host       = "${aws_db_instance.tiva.address}"
+    data_db__tiva__name       = "${aws_db_instance.tiva.name}"
+    data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
+    data_db__tiva__port       = "${aws_db_instance.tiva.port}"
+    data_db__tiva__user       = "${aws_db_instance.tiva.username}"
+    data_db__test_1__host     = "${aws_db_instance.test_1.address}"
+    data_db__test_1__name     = "${aws_db_instance.test_1.name}"
+    data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
+    data_db__test_1__port     = "${aws_db_instance.test_1.port}"
+    data_db__test_1__user     = "${aws_db_instance.test_1.username}"
+    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
+    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
+    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
+    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
+    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
+    secret_key                = "${random_string.admin_secret_key.result}"
+
+    notebooks_bucket = "${var.appstream_bucket}"
+
+    notebooks_url = "https://${var.jupyterhub_domain}/"
+    appstream_url = "https://${var.appstream_domain}/"
+    support_url = "https://${var.support_domain}/"
+  }
+}
+
 
 resource "random_string" "admin_secret_key" {
   length = 256
@@ -163,6 +227,42 @@ resource "aws_iam_role" "admin_task" {
   name               = "jupyterhub-admin-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "admin_admin_store_db_creds_in_s3_task" {
+  role       = "${aws_iam_role.admin_task.name}"
+  policy_arn = "${aws_iam_policy.admin_store_db_creds_in_s3_task.arn}"
+}
+
+resource "aws_iam_role" "admin_store_db_creds_in_s3_task" {
+  name               = "jupyterhub-admin-store-db-creds-in-s3-task"
+  path               = "/"
+  assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
+}
+
+resource "aws_iam_role_policy_attachment" "admin_store_db_creds_in_s3_task" {
+  role       = "${aws_iam_role.admin_store_db_creds_in_s3_task.name}"
+  policy_arn = "${aws_iam_policy.admin_store_db_creds_in_s3_task.arn}"
+}
+
+resource "aws_iam_policy" "admin_store_db_creds_in_s3_task" {
+  name        = "jupyterhub-admin-store-db-creds-in-s3-task"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.admin_store_db_creds_in_s3_task.json}"
+}
+
+data "aws_iam_policy_document" "admin_store_db_creds_in_s3_task" {
+  statement {
+    actions = [
+        "s3:PutObject",
+        "s3:PutObjectAcl",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.notebooks.arn}/*",
+      "arn:aws:s3:::appstream2-36fb080bb8-eu-west-1-664841488776/*",
+    ]
+  }
 }
 
 data "aws_iam_policy_document" "admin_task_ecs_tasks_assume_role" {

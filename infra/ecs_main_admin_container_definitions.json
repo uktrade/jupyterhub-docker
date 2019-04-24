@@ -2,6 +2,7 @@
   {
     "name": "${container_name}",
     "image": "${container_image}",
+    "command": ${container_command},
     "memoryReservation": ${container_memory},
     "cpu": ${container_cpu},
     "essential": true,
@@ -119,6 +120,9 @@
     {
       "name": "SECRET_KEY",
       "value": "${secret_key}"
+    }, {
+      "name": "NOTEBOOKS_BUCKET",
+      "value": "${notebooks_bucket}"
     }, {
       "name": "NOTEBOOKS_URL",
       "value": "${notebooks_url}"

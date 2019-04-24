@@ -44,6 +44,7 @@ variable "jupyterhub_oauth_authorize_url" {}
 variable "jupyterhub_oauth_token_url" {}
 variable "jupyterhub_oauth_userdata_url" {}
 
+variable "appstream_bucket" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
 
