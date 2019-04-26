@@ -57,6 +57,7 @@
       "name": "AUTHBROKER_URL",
       "value": "${authbroker_url}"
     },
+    ${environment}
     {
       "name": "DATA_DB__tiva__HOST",
       "value": "${data_db__tiva__host}"

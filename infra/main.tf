@@ -35,6 +35,7 @@ variable "admin_container_image" {}
 variable "admin_authbroker_client_id" {}
 variable "admin_authbroker_client_secret" {}
 variable "admin_authbroker_url" {}
+variable "admin_environment" {}
 
 variable "jupyterhub_container_image" {}
 variable "jupyterhub_admin_users" {}
