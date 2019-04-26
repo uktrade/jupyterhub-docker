@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "admin" {
-  name            = "jupyterhub-admin"
+  name            = "${var.prefix}-admin"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.admin.arn}"
   desired_count   = 1
@@ -27,7 +27,7 @@ resource "aws_ecs_service" "admin" {
 }
 
 resource "aws_service_discovery_service" "admin" {
-  name = "jupyterhub-admin"
+  name = "${var.prefix}-admin"
   dns_config {
     namespace_id = "${aws_service_discovery_private_dns_namespace.jupyterhub.id}"
     dns_records {
@@ -45,7 +45,7 @@ resource "aws_service_discovery_service" "admin" {
 }
 
 resource "aws_ecs_task_definition" "admin" {
-  family                   = "jupyterhub-admin"
+  family                   = "${var.prefix}-admin"
   container_definitions    = "${data.template_file.admin_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.admin_task_execution.arn}"
   task_role_arn            = "${aws_iam_role.admin_task.arn}"
@@ -79,21 +79,21 @@ data "template_file" "admin_container_definitions" {
     authbroker_client_id      = "${var.admin_authbroker_client_id}"
     authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
     authbroker_url            = "${var.admin_authbroker_url}"
-    data_db__tiva__host       = "${aws_db_instance.tiva.address}"
-    data_db__tiva__name       = "${aws_db_instance.tiva.name}"
-    data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
-    data_db__tiva__port       = "${aws_db_instance.tiva.port}"
-    data_db__tiva__user       = "${aws_db_instance.tiva.username}"
+    # data_db__tiva__host       = "${aws_db_instance.tiva.address}"
+    # data_db__tiva__name       = "${aws_db_instance.tiva.name}"
+    # data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
+    # data_db__tiva__port       = "${aws_db_instance.tiva.port}"
+    # data_db__tiva__user       = "${aws_db_instance.tiva.username}"
     data_db__test_1__host     = "${aws_db_instance.test_1.address}"
     data_db__test_1__name     = "${aws_db_instance.test_1.name}"
     data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
     data_db__test_1__port     = "${aws_db_instance.test_1.port}"
     data_db__test_1__user     = "${aws_db_instance.test_1.username}"
-    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
-    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
-    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
-    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
-    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
+    # data_db__test_2__host     = "${aws_db_instance.test_2.address}"
+    # data_db__test_2__name     = "${aws_db_instance.test_2.name}"
+    # data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
+    # data_db__test_2__port     = "${aws_db_instance.test_2.port}"
+    # data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
 
     environment = "${var.admin_environment}"
@@ -107,7 +107,7 @@ data "template_file" "admin_container_definitions" {
 }
 
 resource "aws_ecs_task_definition" "admin_store_db_creds_in_s3" {
-  family                   = "jupyterhub-admin-store-db-creds-in-s3"
+  family                   = "${var.prefix}-admin-store-db-creds-in-s3"
   container_definitions    = "${data.template_file.admin_store_db_creds_in_s3_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.admin_task_execution.arn}"
   task_role_arn            = "${aws_iam_role.admin_store_db_creds_in_s3_task.arn}"
@@ -141,21 +141,21 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     authbroker_client_id      = "${var.admin_authbroker_client_id}"
     authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
     authbroker_url            = "${var.admin_authbroker_url}"
-    data_db__tiva__host       = "${aws_db_instance.tiva.address}"
-    data_db__tiva__name       = "${aws_db_instance.tiva.name}"
-    data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
-    data_db__tiva__port       = "${aws_db_instance.tiva.port}"
-    data_db__tiva__user       = "${aws_db_instance.tiva.username}"
+    # data_db__tiva__host       = "${aws_db_instance.tiva.address}"
+    # data_db__tiva__name       = "${aws_db_instance.tiva.name}"
+    # data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
+    # data_db__tiva__port       = "${aws_db_instance.tiva.port}"
+    # data_db__tiva__user       = "${aws_db_instance.tiva.username}"
     data_db__test_1__host     = "${aws_db_instance.test_1.address}"
     data_db__test_1__name     = "${aws_db_instance.test_1.name}"
     data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
     data_db__test_1__port     = "${aws_db_instance.test_1.port}"
     data_db__test_1__user     = "${aws_db_instance.test_1.username}"
-    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
-    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
-    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
-    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
-    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
+    # data_db__test_2__host     = "${aws_db_instance.test_2.address}"
+    # data_db__test_2__name     = "${aws_db_instance.test_2.name}"
+    # data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
+    # data_db__test_2__port     = "${aws_db_instance.test_2.port}"
+    # data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
 
     environment = "${var.admin_environment}"
@@ -175,19 +175,19 @@ resource "random_string" "admin_secret_key" {
 }
 
 resource "aws_cloudwatch_log_group" "admin" {
-  name              = "jupyterhub-admin"
+  name              = "${var.prefix}-admin"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "admin" {
-  name            = "jupyterhub-admin"
+  name            = "${var.prefix}-admin"
   log_group_name  = "${aws_cloudwatch_log_group.admin.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "admin_task_execution" {
-  name               = "admin-task-execution"
+  name               = "${var.prefix}-admin-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -209,7 +209,7 @@ resource "aws_iam_role_policy_attachment" "admin_task_execution" {
 }
 
 resource "aws_iam_policy" "admin_task_execution" {
-  name        = "jupyterhub-admin-task-execution"
+  name        = "${var.prefix}-admin-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.admin_task_execution.json}"
 }
@@ -228,7 +228,7 @@ data "aws_iam_policy_document" "admin_task_execution" {
 }
 
 resource "aws_iam_role" "admin_task" {
-  name               = "jupyterhub-admin-task"
+  name               = "${var.prefix}-admin-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
 }
@@ -239,7 +239,7 @@ resource "aws_iam_role_policy_attachment" "admin_admin_store_db_creds_in_s3_task
 }
 
 resource "aws_iam_role" "admin_store_db_creds_in_s3_task" {
-  name               = "jupyterhub-admin-store-db-creds-in-s3-task"
+  name               = "${var.prefix}-admin-store-db-creds-in-s3-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
 }
@@ -250,7 +250,7 @@ resource "aws_iam_role_policy_attachment" "admin_store_db_creds_in_s3_task" {
 }
 
 resource "aws_iam_policy" "admin_store_db_creds_in_s3_task" {
-  name        = "jupyterhub-admin-store-db-creds-in-s3-task"
+  name        = "${var.prefix}-admin-store-db-creds-in-s3-task"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.admin_store_db_creds_in_s3_task.json}"
 }
@@ -281,7 +281,7 @@ data "aws_iam_policy_document" "admin_task_ecs_tasks_assume_role" {
 }
 
 resource "aws_alb" "admin" {
-  name            = "jupyterhub-admin"
+  name            = "${var.prefix}-admin"
   subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.admin_alb.id}"]
 

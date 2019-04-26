@@ -1,4 +1,5 @@
 resource "aws_ecs_task_definition" "mirrors_sync" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   family                = "jupyterhub-mirrors-sync"
   container_definitions = "${data.template_file.mirrors_sync_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.mirrors_sync_task_execution.arn}"
@@ -10,6 +11,7 @@ resource "aws_ecs_task_definition" "mirrors_sync" {
 }
 
 data "template_file" "mirrors_sync_container_definitions" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   template = "${file("${path.module}/ecs_main_mirrors_sync_container_definitions.json")}"
 
   vars {
@@ -28,11 +30,13 @@ data "template_file" "mirrors_sync_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "mirrors_sync" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name              = "jupyterhub-mirrors-sync"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "mirrors_sync" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name            = "jupyterhub-mirrors-sync"
   log_group_name  = "${aws_cloudwatch_log_group.mirrors_sync.name}"
   filter_pattern  = ""
@@ -40,12 +44,14 @@ resource "aws_cloudwatch_log_subscription_filter" "mirrors_sync" {
 }
 
 resource "aws_iam_role" "mirrors_sync_task_execution" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name               = "mirrors-sync-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.mirrors_sync_task_execution_ecs_tasks_assume_role.json}"
 }
 
 data "aws_iam_policy_document" "mirrors_sync_task_execution_ecs_tasks_assume_role" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -57,17 +63,20 @@ data "aws_iam_policy_document" "mirrors_sync_task_execution_ecs_tasks_assume_rol
 }
 
 resource "aws_iam_role_policy_attachment" "mirrors_sync_task_execution" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   role       = "${aws_iam_role.mirrors_sync_task_execution.name}"
   policy_arn = "${aws_iam_policy.mirrors_sync_task_execution.arn}"
 }
 
 resource "aws_iam_policy" "mirrors_sync_task_execution" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name        = "jupyterhub-mirrors-sync-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.mirrors_sync_task_execution.json}"
 }
 
 data "aws_iam_policy_document" "mirrors_sync_task_execution" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   statement {
     actions = [
       "logs:CreateLogStream",
@@ -81,12 +90,14 @@ data "aws_iam_policy_document" "mirrors_sync_task_execution" {
 }
 
 resource "aws_iam_role" "mirrors_sync_task" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name               = "jupyterhub-mirrors-sync-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.mirrors_sync_task_ecs_tasks_assume_role.json}"
 }
 
 data "aws_iam_policy_document" "mirrors_sync_task_ecs_tasks_assume_role" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   statement {
     actions = ["sts:AssumeRole"]
 
@@ -98,17 +109,20 @@ data "aws_iam_policy_document" "mirrors_sync_task_ecs_tasks_assume_role" {
 }
 
 resource "aws_iam_role_policy_attachment" "mirrors_sync" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   role       = "${aws_iam_role.mirrors_sync_task.name}"
   policy_arn = "${aws_iam_policy.mirrors_sync_task.arn}"
 }
 
 resource "aws_iam_policy" "mirrors_sync_task" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   name        = "jupyterhub-mirrors-sync-task"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.mirrors_sync_task.json}"
 }
 
 data "aws_iam_policy_document" "mirrors_sync_task" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   statement {
     actions = [
         "s3:PutObject",

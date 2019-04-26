@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "dnsmasq" {
-  name            = "jupyterhub-dnsmasq"
+  name            = "${var.prefix}-dnsmasq"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.dnsmasq.arn}"
   desired_count   = 1
@@ -12,7 +12,7 @@ resource "aws_ecs_service" "dnsmasq" {
 }
 
 resource "aws_ecs_task_definition" "dnsmasq" {
-  family                = "jupyterhub-dnsmasq"
+  family                = "${var.prefix}-dnsmasq"
   container_definitions = "${data.template_file.dnsmasq_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.dnsmasq_task_execution.arn}"
   task_role_arn         = "${aws_iam_role.dnsmasq_task.arn}"
@@ -43,19 +43,19 @@ data "template_file" "dnsmasq_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "dnsmasq" {
-  name              = "jupyterhub-dnsmasq"
+  name              = "${var.prefix}-dnsmasq"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "dnsmasq" {
-  name            = "jupyterhub-dnsmasq"
+  name            = "${var.prefix}-dnsmasq"
   log_group_name  = "${aws_cloudwatch_log_group.dnsmasq.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "dnsmasq_task_execution" {
-  name               = "dnsmasq-task-execution"
+  name               = "${var.prefix}-dnsmasq-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.dnsmasq_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -77,7 +77,7 @@ resource "aws_iam_role_policy_attachment" "dnsmasq_task_execution" {
 }
 
 resource "aws_iam_policy" "dnsmasq_task_execution" {
-  name        = "jupyterhub-dnsmasq-task-execution"
+  name        = "${var.prefix}-dnsmasq-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.dnsmasq_task_execution.json}"
 }
@@ -96,7 +96,7 @@ data "aws_iam_policy_document" "dnsmasq_task_execution" {
 }
 
 resource "aws_iam_role" "dnsmasq_task" {
-  name               = "jupyterhub-dnsmasq-task"
+  name               = "${var.prefix}-dnsmasq-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.dnsmasq_task_ecs_tasks_assume_role.json}"
 }
@@ -107,7 +107,7 @@ resource "aws_iam_role_policy_attachment" "dnsmasq" {
 }
 
 resource "aws_iam_policy" "dnsmasq_task" {
-  name        = "jupyterhub-dnsmasq-task"
+  name        = "${var.prefix}-dnsmasq-task"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.dnsmasq_task.json}"
 }

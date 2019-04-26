@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "logstash" {
-  name            = "jupyterhub-logstash"
+  name            = "${var.prefix}-logstash"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.logstash.arn}"
   desired_count   = 1
@@ -23,7 +23,7 @@ resource "aws_ecs_service" "logstash" {
 }
 
 resource "aws_ecs_task_definition" "logstash" {
-  family                = "jupyterhub-logstash"
+  family                = "${var.prefix}-logstash"
   container_definitions = "${data.template_file.logstash_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.logstash_task_execution.arn}"
   task_role_arn         = "${aws_iam_role.logstash_task.arn}"
@@ -53,19 +53,19 @@ data "template_file" "logstash_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "logstash" {
-  name              = "jupyterhub-logstash"
+  name              = "${var.prefix}-logstash"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "logstash" {
-  name            = "jupyterhub-logstash"
+  name            = "${var.prefix}-logstash"
   log_group_name  = "${aws_cloudwatch_log_group.logstash.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "logstash_task_execution" {
-  name               = "logstash-task-execution"
+  name               = "${var.prefix}-logstash-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.logstash_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "logstash_task_execution" {
 }
 
 resource "aws_iam_policy" "logstash_task_execution" {
-  name        = "jupyterhub-logstash-task-execution"
+  name        = "${var.prefix}-logstash-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.logstash_task_execution.json}"
 }
@@ -106,7 +106,7 @@ data "aws_iam_policy_document" "logstash_task_execution" {
 }
 
 resource "aws_iam_role" "logstash_task" {
-  name               = "jupyterhub-logstash-task"
+  name               = "${var.prefix}-logstash-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.logstash_task_ecs_tasks_assume_role.json}"
 }
@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "logstash_task_ecs_tasks_assume_role" {
 }
 
 resource "aws_alb" "logstash" {
-  name            = "jupyterhub-logstash"
+  name            = "${var.prefix}-logstash"
   subnets         = ["${aws_subnet.private_with_egress.*.id}"]
   security_groups = ["${aws_security_group.logstash_alb.id}"]
   internal        = true

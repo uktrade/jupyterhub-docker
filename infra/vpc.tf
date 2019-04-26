@@ -12,7 +12,7 @@ resource "aws_vpc_peering_connection" "jupyterhub" {
   }
 
   tags = {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 }
 
@@ -23,7 +23,7 @@ resource "aws_vpc" "notebooks" {
   enable_dns_hostnames = false
 
   tags {
-    Name = "jupyterhub-notebooks"
+    Name = "${var.prefix}-notebooks"
   }
 
   lifecycle {
@@ -39,12 +39,12 @@ resource "aws_flow_log" "notebooks" {
 }
 
 resource "aws_cloudwatch_log_group" "vpc_notebooks_flow_log" {
-  name              = "jupyterhub-vpc-notebooks-flow-log"
+  name              = "${var.prefix}-vpc-notebooks-flow-log"
   retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "vpc_notebooks_flow_log" {
-  name = "jupyterhub-vpc-notebooks-flow-log"
+  name = "${var.prefix}-vpc-notebooks-flow-log"
   assume_role_policy = "${data.aws_iam_policy_document.vpc_notebooks_flow_log_vpc_flow_logs_assume_role.json}"
 }
 
@@ -65,7 +65,7 @@ resource "aws_vpc" "main" {
   enable_dns_hostnames = true
 
   tags {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 
   lifecycle {
@@ -78,7 +78,7 @@ resource "aws_vpc_dhcp_options" "main" {
   domain_name = "eu-west-2.compute.internal"
 
   tags {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 }
 
@@ -95,12 +95,12 @@ resource "aws_flow_log" "main" {
 }
 
 resource "aws_cloudwatch_log_group" "vpc_main_flow_log" {
-  name              = "jupyterhub-vpc-main-flow-log"
+  name              = "${var.prefix}-vpc-main-flow-log"
   retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "vpc_main_flow_log" {
-  name = "jupyterhub-vpc-main-flow-log"
+  name = "${var.prefix}-vpc-main-flow-log"
   assume_role_policy = "${data.aws_iam_policy_document.vpc_main_flow_log_vpc_flow_logs_assume_role.json}"
 }
 
@@ -115,7 +115,7 @@ data "aws_iam_policy_document" "vpc_main_flow_log_vpc_flow_logs_assume_role" {
 }
 
 resource "aws_iam_role_policy" "vpc_main_flow_log" {
-  name   = "jupyterhub-vpc-main-flow-log"
+  name   = "${var.prefix}-vpc-main-flow-log"
   role   = "${aws_iam_role.vpc_main_flow_log.id}"
   policy =  "${data.aws_iam_policy_document.vpc_main_flow_log.json}"
 }
@@ -143,7 +143,7 @@ resource "aws_subnet" "public" {
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
   tags {
-    Name = "jupyterhub-public-${var.aws_availability_zones_short[count.index]}"
+    Name = "${var.prefix}-public-${var.aws_availability_zones_short[count.index]}"
   }
 
   lifecycle {
@@ -159,7 +159,7 @@ resource "aws_subnet" "private_with_egress" {
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
   tags {
-    Name = "jupyterhub-private-with-egress-${var.aws_availability_zones_short[count.index]}"
+    Name = "${var.prefix}-private-with-egress-${var.aws_availability_zones_short[count.index]}"
   }
 
   lifecycle {
@@ -277,31 +277,31 @@ resource "aws_service_discovery_private_dns_namespace" "jupyterhub" {
   vpc = "${aws_vpc.main.id}"
 }
 
-resource "aws_subnet" "appstream" {
-  count      = "${length(var.aws_availability_zones)}"
-  vpc_id     = "${aws_vpc.main.id}"
-  cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, 2 * length(var.aws_availability_zones) + count.index)}"
+# resource "aws_subnet" "appstream" {
+#   count      = "${length(var.aws_availability_zones)}"
+#   vpc_id     = "${aws_vpc.main.id}"
+#   cidr_block = "${cidrsubnet(aws_vpc.main.cidr_block, var.subnets_num_bits, 2 * length(var.aws_availability_zones) + count.index)}"
 
-  availability_zone = "${var.aws_availability_zones[count.index]}"
+#   availability_zone = "${var.aws_availability_zones[count.index]}"
 
-  tags {
-    Name = "appstream-${var.aws_availability_zones_short[count.index]}"
-  }
+#   tags {
+#     Name = "appstream-${var.aws_availability_zones_short[count.index]}"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_route_table" "appstream" {
-  vpc_id = "${aws_vpc.main.id}"
-  tags {
-    Name = "appstream"
-  }
-}
+# resource "aws_route_table" "appstream" {
+#   vpc_id = "${aws_vpc.main.id}"
+#   tags {
+#     Name = "appstream"
+#   }
+# }
 
-resource "aws_route" "appstream_nat_gateway_ipv4" {
-  route_table_id         = "${aws_route_table.appstream.id}"
-  destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${aws_nat_gateway.main.id}"
-}
+# resource "aws_route" "appstream_nat_gateway_ipv4" {
+#   route_table_id         = "${aws_route_table.appstream.id}"
+#   destination_cidr_block = "0.0.0.0/0"
+#   nat_gateway_id         = "${aws_nat_gateway.main.id}"
+# }

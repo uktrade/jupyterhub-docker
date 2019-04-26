@@ -109,9 +109,9 @@ resource "aws_acm_certificate" "jupyterhub" {
   domain_name       = "${aws_route53_record.jupyterhub.name}"
   validation_method = "DNS"
 
-  subject_alternative_names = [
-    "${var.jupyterhub_secondary_domain}",
-  ]
+  # subject_alternative_names = [
+  #   "${var.jupyterhub_secondary_domain}",
+  # ]
 
   lifecycle {
     create_before_destroy = true

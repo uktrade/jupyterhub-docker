@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "registry" {
-  name            = "jupyterhub-registry"
+  name            = "${var.prefix}-registry"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.registry.arn}"
   desired_count   = 1
@@ -23,7 +23,7 @@ resource "aws_ecs_service" "registry" {
 }
 
 resource "aws_ecs_task_definition" "registry" {
-  family                = "jupyterhub-registry"
+  family                = "${var.prefix}-registry"
   container_definitions = "${data.template_file.registry_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.registry_task_execution.arn}"
   task_role_arn         = "${aws_iam_role.registry_task.arn}"
@@ -53,19 +53,19 @@ data "template_file" "registry_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "registry" {
-  name              = "jupyterhub-registry"
+  name              = "${var.prefix}-registry"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "registry" {
-  name            = "jupyterhub-registry"
+  name            = "${var.prefix}-registry"
   log_group_name  = "${aws_cloudwatch_log_group.registry.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "registry_task_execution" {
-  name               = "registry-task-execution"
+  name               = "${var.prefix}-registry-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.registry_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -87,7 +87,7 @@ resource "aws_iam_role_policy_attachment" "registry_task_execution" {
 }
 
 resource "aws_iam_policy" "registry_task_execution" {
-  name        = "jupyterhub-registry-task-execution"
+  name        = "${var.prefix}-registry-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.registry_task_execution.json}"
 }
@@ -106,7 +106,7 @@ data "aws_iam_policy_document" "registry_task_execution" {
 }
 
 resource "aws_iam_role" "registry_task" {
-  name               = "jupyterhub-registry-task"
+  name               = "${var.prefix}-registry-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.registry_task_ecs_tasks_assume_role.json}"
 }
@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "registry_task_ecs_tasks_assume_role" {
 }
 
 resource "aws_alb" "registry" {
-  name            = "jupyterhub-registry"
+  name            = "${var.prefix}-registry"
   subnets         = ["${aws_subnet.private_with_egress.*.id}"]
   security_groups = ["${aws_security_group.registry_alb.id}"]
   internal        = true

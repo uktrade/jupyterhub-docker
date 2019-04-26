@@ -1,4 +1,5 @@
 resource "aws_s3_bucket" "mirrors" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   bucket = "${var.mirrors_bucket_name}"
 
   server_side_encryption_configuration {
@@ -11,11 +12,13 @@ resource "aws_s3_bucket" "mirrors" {
 }
 
 resource "aws_s3_bucket_policy" "mirrors" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   bucket = "${aws_s3_bucket.mirrors.id}"
   policy = "${data.aws_iam_policy_document.mirrors.json}"
 }
 
 data "aws_iam_policy_document" "mirrors" {
+  count = "${var.mirrors_bucket_name != "" ? 1 : 0}"
   statement {
     effect = "Deny"
     principals {

@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "jupyterhub" {
-  name            = "jupyterhub"
+  name            = "${var.prefix}-jupyterhub"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.jupyterhub.arn}"
   desired_count   = 1
@@ -27,7 +27,7 @@ resource "aws_ecs_service" "jupyterhub" {
 }
 
 resource "aws_service_discovery_service" "jupyterhub" {
-  name = "jupyterhub"
+  name = "${var.prefix}-jupyterhub"
 
   dns_config {
     namespace_id = "${aws_service_discovery_private_dns_namespace.jupyterhub.id}"
@@ -46,7 +46,7 @@ resource "aws_service_discovery_service" "jupyterhub" {
 }
 
 resource "aws_ecs_task_definition" "jupyterhub" {
-  family                   = "jupyterhub"
+  family                   = "${var.prefix}-jupyterhub"
   container_definitions    = "${data.template_file.jupyterhub_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.jupyterhub_task_execution.arn}"
   task_role_arn            = "${aws_iam_role.jupyterhub_task.arn}"
@@ -78,7 +78,7 @@ data "template_file" "jupyterhub_container_definitions" {
     jpy_cookie_secret = "${random_id.jupyterhub_container_jpy_cookie_secret.hex}"
     jupyterhub_crypt_key = "${random_id.jupyterhub_container_jupyterhub_crypt_key.hex}"
 
-    oauth_callback_url = "https://${var.jupyterhub_secondary_domain}${local.jupyterhub_oauth_callback_path}"
+    oauth_callback_url = "https://${var.jupyterhub_domain}${local.jupyterhub_oauth_callback_path}"
     oauth_client_id = "${var.jupyterhub_oauth_client_id}"
     oauth_client_secret = "${var.jupyterhub_oauth_client_secret}"
     oauth2_authorize_url = "${var.jupyterhub_oauth_authorize_url}"
@@ -88,10 +88,10 @@ data "template_file" "jupyterhub_container_definitions" {
 
     database_access__url = "http://${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}:${local.admin_container_port}${local.admin_api_path}"
 
-    notebook_task_role__role_prefix                        = "${local.notebook_task_role_prefix}"
+    notebook_task_role__role_prefix                        = "${var.notebook_task_role_prefix}"
     notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
     notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
-    notebook_task_role__policy_name                        = "${local.notebook_task_role_policy_name}"
+    notebook_task_role__policy_name                        = "${var.notebook_task_role_policy_name}"
     notebook_task_role__policy_document_template_base64    = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_template.json)}"
 
     fargate_spawner__aws_region            = "${data.aws_region.aws_region.name}"
@@ -125,19 +125,19 @@ resource "random_id" "jupyterhub_container_jupyterhub_crypt_key" {
 }
 
 resource "aws_cloudwatch_log_group" "jupyterhub" {
-  name              = "jupyterhub"
+  name              = "${var.prefix}"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "jupyterhub" {
-  name            = "jupyterhub"
+  name            = "${var.prefix}"
   log_group_name  = "${aws_cloudwatch_log_group.jupyterhub.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "jupyterhub_task_execution" {
-  name               = "jupyterhub-task-execution"
+  name               = "${var.prefix}-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.jupyterhub_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -159,7 +159,7 @@ resource "aws_iam_role_policy_attachment" "jupyterhub_task_execution" {
 }
 
 resource "aws_iam_policy" "jupyterhub_task_execution" {
-  name        = "jupyterhub-task-execution"
+  name        = "${var.prefix}-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.jupyterhub_task_execution.json}"
 }
@@ -178,7 +178,7 @@ data "aws_iam_policy_document" "jupyterhub_task_execution" {
 }
 
 resource "aws_iam_role" "jupyterhub_task" {
-  name               = "jupyterhub-task"
+  name               = "${var.prefix}-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.jupyterhub_task_ecs_tasks_assume_role.json}"
 }
@@ -200,7 +200,7 @@ resource "aws_iam_role_policy_attachment" "jupyterhub_task" {
 }
 
 resource "aws_iam_policy" "jupyterhub_task" {
-  name        = "jupyterhub_task"
+  name        = "${var.prefix}_task"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.jupyterhub_task.json}"
 }
@@ -276,7 +276,7 @@ data "aws_iam_policy_document" "jupyterhub_task" {
     ]
 
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${var.notebook_task_role_prefix}*"
     ]
   }
 
@@ -287,7 +287,7 @@ data "aws_iam_policy_document" "jupyterhub_task" {
     ]
 
     resources = [
-      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${local.notebook_task_role_prefix}*"
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${var.notebook_task_role_prefix}*"
     ]
 
     # The boundary means that JupyterHub can't create abitrary roles:
@@ -305,7 +305,7 @@ data "aws_iam_policy_document" "jupyterhub_task" {
 }
 
 resource "aws_alb" "jupyterhub" {
-  name            = "jupyterhub"
+  name            = "${var.prefix}"
   subnets         = ["${aws_subnet.public.*.id}"]
   security_groups = ["${aws_security_group.jupyterhub_alb.id}"]
 

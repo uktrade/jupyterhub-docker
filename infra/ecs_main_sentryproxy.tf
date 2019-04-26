@@ -1,5 +1,5 @@
 resource "aws_ecs_service" "sentryproxy" {
-  name            = "jupyterhub-sentryproxy"
+  name            = "${var.prefix}-sentryproxy"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.sentryproxy.arn}"
   desired_count   = 1
@@ -16,7 +16,7 @@ resource "aws_ecs_service" "sentryproxy" {
 }
 
 resource "aws_service_discovery_service" "sentryproxy" {
-  name = "sentryproxy"
+  name = "${var.prefix}-sentryproxy"
 
   dns_config {
     namespace_id = "${aws_service_discovery_private_dns_namespace.jupyterhub.id}"
@@ -35,7 +35,7 @@ resource "aws_service_discovery_service" "sentryproxy" {
 }
 
 resource "aws_ecs_task_definition" "sentryproxy" {
-  family                   = "jupyterhub-sentryproxy"
+  family                   = "${var.prefix}-sentryproxy"
   container_definitions    = "${data.template_file.sentryproxy_container_definitions.rendered}"
   execution_role_arn       = "${aws_iam_role.sentryproxy_task_execution.arn}"
   task_role_arn            = "${aws_iam_role.sentryproxy_task.arn}"
@@ -60,19 +60,19 @@ data "template_file" "sentryproxy_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "sentryproxy" {
-  name              = "jupyterhub-sentryproxy"
+  name              = "${var.prefix}-sentryproxy"
   retention_in_days = "3653"
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "sentryproxy" {
-  name            = "jupyterhub-sentryproxy"
+  name            = "${var.prefix}-sentryproxy"
   log_group_name  = "${aws_cloudwatch_log_group.sentryproxy.name}"
   filter_pattern  = ""
   destination_arn = "${var.cloudwatch_destination_arn}"
 }
 
 resource "aws_iam_role" "sentryproxy_task_execution" {
-  name               = "jupyterhub-sentryproxy-task-execution"
+  name               = "${var.prefix}-sentryproxy-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.sentryproxy_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -94,7 +94,7 @@ resource "aws_iam_role_policy_attachment" "sentryproxy_task_execution" {
 }
 
 resource "aws_iam_policy" "sentryproxy_task_execution" {
-  name        = "jupyterhub-sentryproxy-task-execution"
+  name        = "${var.prefix}-sentryproxy-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.sentryproxy_task_execution.json}"
 }
@@ -113,7 +113,7 @@ data "aws_iam_policy_document" "sentryproxy_task_execution" {
 }
 
 resource "aws_iam_role" "sentryproxy_task" {
-  name               = "jupyterhub-sentryproxy-task"
+  name               = "${var.prefix}-sentryproxy-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.sentryproxy_task_ecs_tasks_assume_role.json}"
 }
