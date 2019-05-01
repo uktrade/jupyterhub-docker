@@ -273,7 +273,6 @@ async def pypi_mirror(logger, session, s3_context):
             try:
                 async with session.get(project_url) as response:
                     response.raise_for_status()
-                    content_type = response.headers['Content-Type']
                     data = await response.read()
 
                 soup = BeautifulSoup(data, 'html.parser')
@@ -366,7 +365,7 @@ async def cran_mirror(logger, session, s3_context):
             try:
                 async with session.get(url) as response:
                     response.raise_for_status()
-                    content_type = response.headers['Content-Type']
+                    content_type = response.headers.get('Content-Type', None)
                     data = await response.read()
 
                 key_suffix = urllib.parse.urlparse(url).path[1:]  # Without leading /
