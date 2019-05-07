@@ -85,7 +85,7 @@ RUN \
     pip install \
         pip==18.1 && \
     pip install \
-        jupyters3==0.0.34 \
+        jupyters3==0.0.35 \
         sentry-sdk==0.7.4 && \
     apk del .build-deps && \
     chown -R jovyan $CONDA_DIR
