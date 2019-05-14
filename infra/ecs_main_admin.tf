@@ -61,7 +61,7 @@ data "template_file" "admin_container_definitions" {
   vars {
     container_image   = "${var.admin_container_image}"
     container_name    = "${local.admin_container_name}"
-    container_command = "[\"/start.sh\"]"
+    container_command = "[\"/app/start.sh\"]"
     container_port    = "${local.admin_container_port}"
     container_cpu     = "${local.admin_container_cpu}"
     container_memory  = "${local.admin_container_memory}"
