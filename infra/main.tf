@@ -12,6 +12,10 @@ variable "ip_whitelist" {
   type = "list"
 }
 
+variable "prefix" {}
+variable "prefix_short" {}
+variable "prefix_underscore" {}
+
 variable "vpc_cidr" {}
 variable "subnets_num_bits" {}
 variable "vpc_notebooks_cidr" {}
@@ -20,7 +24,7 @@ variable "vpc_notebooks_subnets_num_bits" {}
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
 variable "jupyterhub_domain" {}
-variable "jupyterhub_secondary_domain" {}
+# variable "jupyterhub_secondary_domain" {}
 variable "appstream_domain" {}
 variable "support_domain" {}
 
@@ -67,6 +71,9 @@ variable "mirrors_sync_container_image" {}
 
 variable "sentry_dsn" {}
 
+variable "notebook_task_role_prefix" {}
+variable "notebook_task_role_policy_name" {}
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
@@ -93,9 +100,6 @@ locals {
   notebook_container_port   = "8888"
   notebook_container_memory = 30720
   notebook_container_cpu    = 4096
-
-  notebook_task_role_prefix      = "jhub-"
-  notebook_task_role_policy_name = "jupyterhub-notebook-task"
 
   logstash_container_name       = "jupyterhub-logstash"
   logstash_alb_port             = "443"

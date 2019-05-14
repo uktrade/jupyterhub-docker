@@ -1,10 +1,10 @@
 resource "aws_security_group" "dnsmasq" {
-  name        = "jupyterhub-dnsmasq"
-  description = "jupyterhub-dnsmasq"
+  name        = "${var.prefix}-dnsmasq"
+  description = "${var.prefix}-dnsmasq"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-dnsmasq"
+    Name = "${var.prefix}-dnsmasq"
   }
 
   lifecycle {
@@ -49,12 +49,12 @@ resource "aws_security_group_rule" "dnsmasq_ingress_dns_udp_notebooks" {
 }
 
 resource "aws_security_group" "sentryproxy_service" {
-  name        = "jupyterhub-sentryproxy"
-  description = "jupyterhub-sentryproxy"
+  name        = "${var.prefix}-sentryproxy"
+  description = "${var.prefix}-sentryproxy"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-sentryproxy"
+    Name = "${var.prefix}-sentryproxy"
   }
 
   lifecycle {
@@ -87,12 +87,12 @@ resource "aws_security_group_rule" "sentryproxy_ingress_http_notebooks" {
 }
 
 resource "aws_security_group" "logstash_alb" {
-  name        = "jupyterhub-logstash-alb"
-  description = "jupyterhub-logstash-alb"
+  name        = "${var.prefix}-logstash-alb"
+  description = "${var.prefix}-logstash-alb"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-logstash-alb"
+    Name = "${var.prefix}-logstash-alb"
   }
 
   lifecycle {
@@ -137,12 +137,12 @@ resource "aws_security_group_rule" "logstash_alb_egress_http_api_to_service" {
 }
 
 resource "aws_security_group" "logstash_service" {
-  name        = "jupyterhub-logstash-service"
-  description = "jupyterhub-logstash-service"
+  name        = "${var.prefix}-logstash-service"
+  description = "${var.prefix}-logstash-service"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-logstash-service"
+    Name = "${var.prefix}-logstash-service"
   }
 
   lifecycle {
@@ -188,12 +188,12 @@ resource "aws_security_group_rule" "logstash_service_egress_https_to_everywhere"
 }
 
 resource "aws_security_group" "registry_alb" {
-  name        = "jupyterhub-registry-alb"
-  description = "jupyterhub-registry-alb"
+  name        = "${var.prefix}-registry-alb"
+  description = "${var.prefix}-registry-alb"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-registry-alb"
+    Name = "${var.prefix}-registry-alb"
   }
 
   lifecycle {
@@ -226,12 +226,12 @@ resource "aws_security_group_rule" "registry_alb_egress_https_to_service" {
 }
 
 resource "aws_security_group" "registry_service" {
-  name        = "jupyterhub-registry-service"
-  description = "jupyterhub-registry-service"
+  name        = "${var.prefix}-registry-service"
+  description = "${var.prefix}-registry-service"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-registry-service"
+    Name = "${var.prefix}-registry-service"
   }
 
   lifecycle {
@@ -265,12 +265,12 @@ resource "aws_security_group_rule" "registry_service_egress_https_to_everywhere"
 }
 
 resource "aws_security_group" "admin_alb" {
-  name        = "jupyterhub-admin-alb"
-  description = "jupyterhub-admin-alb"
+  name        = "${var.prefix}-admin-alb"
+  description = "${var.prefix}-admin-alb"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-admin-alb"
+    Name = "${var.prefix}-admin-alb"
   }
 
   lifecycle {
@@ -314,19 +314,58 @@ resource "aws_security_group_rule" "admin_alb_egress_https_to_admin_service" {
   protocol    = "tcp"
 }
 
-resource "aws_security_group" "admin_service" {
-  name        = "jupyterhub-admin-service"
-  description = "jupyterhub-admin-service"
+resource "aws_security_group" "admin_redis" {
+  name        = "${var.prefix}-admin-redis"
+  description = "${var.prefix}-admin-redis"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-admin-service"
+    Name = "${var.prefix}-admin-redis"
   }
 
   lifecycle {
     create_before_destroy = true
   }
 }
+
+resource "aws_security_group_rule" "admin_redis_ingress_from_admin_service" {
+  description = "ingress-redis-from-admin-service"
+
+  security_group_id = "${aws_security_group.admin_redis.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
+
+  type        = "ingress"
+  from_port   = "6379"
+  to_port     = "6379"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "admin_service" {
+  name        = "${var.prefix}-admin-service"
+  description = "${var.prefix}-admin-service"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-admin-service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "admin_service_egress_to_admin_service" {
+  description = "egress-redis-to-admin-redis"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.admin_redis.id}"
+
+  type        = "egress"
+  from_port   = "6379"
+  to_port     = "6379"
+  protocol    = "tcp"
+}
+
 
 resource "aws_security_group_rule" "admin_service_ingress_https_from_admin_alb" {
   description = "ingress-https-from-admin-alb"
@@ -413,12 +452,12 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" 
 }
 
 resource "aws_security_group" "admin_db" {
-  name        = "jupyterhub-admin-db"
-  description = "jupyterhub-admin-db"
+  name        = "${var.prefix}-admin-db"
+  description = "${var.prefix}-admin-db"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-admin-db"
+    Name = "${var.prefix}-admin-db"
   }
 
   lifecycle {
@@ -477,12 +516,12 @@ resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_notebooks" {
 }
 
 resource "aws_security_group" "test_1_db" {
-  name        = "jupyterhub-test-1-db"
-  description = "jupyterhub-test-1-db"
+  name        = "${var.prefix}-test-1-db"
+  description = "${var.prefix}-test-1-db"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-test-1-db"
+    Name = "${var.prefix}-test-1-db"
   }
 
   lifecycle {
@@ -553,12 +592,12 @@ resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
 }
 
 resource "aws_security_group" "jupyterhub_alb" {
-  name        = "jupyterhub-alb"
-  description = "jupyterhub-alb"
+  name        = "${var.prefix}-alb"
+  description = "${var.prefix}-alb"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-alb"
+    Name = "${var.prefix}-alb"
   }
 
   lifecycle {
@@ -603,12 +642,12 @@ resource "aws_security_group_rule" "jupyterhub_alb_egress_https_to_jupyterhub_se
 }
 
 resource "aws_security_group" "jupyterhub_db" {
-  name        = "jupyterhub-db"
-  description = "jupyterhub-db"
+  name        = "${var.prefix}-db"
+  description = "${var.prefix}-db"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-db"
+    Name = "${var.prefix}-db"
   }
 
   lifecycle {
@@ -629,12 +668,12 @@ resource "aws_security_group_rule" "jupyterhub_db_ingress_postgres_from_jupyterh
 }
 
 resource "aws_security_group" "jupyterhub_service" {
-  name        = "jupyterhub-service"
-  description = "jupyterhub-service"
+  name        = "${var.prefix}-service"
+  description = "${var.prefix}-service"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 
   lifecycle {
@@ -715,12 +754,12 @@ resource "aws_security_group_rule" "jupyterhub_service_ingress_https_from_jupyte
 }
 
 resource "aws_security_group" "notebooks" {
-  name        = "jupyterhub-notebooks"
-  description = "jupyterhub-notebooks"
+  name        = "${var.prefix}-notebooks"
+  description = "${var.prefix}-notebooks"
   vpc_id      = "${aws_vpc.notebooks.id}"
 
   tags {
-    Name = "jupyterhub-notebooks"
+    Name = "${var.prefix}-notebooks"
   }
 
   lifecycle {
@@ -825,12 +864,12 @@ resource "aws_security_group_rule" "notebooks_egress_dns_udp" {
 }
 
 resource "aws_security_group" "mirrors_sync" {
-  name        = "jupyterhub-mirrors-sync"
-  description = "jupyterhub-mirrors-sync"
+  name        = "${var.prefix}-mirrors-sync"
+  description = "${var.prefix}-mirrors-sync"
   vpc_id      = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub-mirrors-sync"
+    Name = "${var.prefix}-mirrors-sync"
   }
 
   lifecycle {

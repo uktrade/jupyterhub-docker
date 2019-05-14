@@ -19,8 +19,8 @@ RUN \
 		py-cryptography=2.1.4-r1 \
 		py-psycopg2=2.7.5-r0 \
 		py3-curl=7.43.0-r5 \
-		python3-dev=3.6.6-r0 \
-		python3=3.6.6-r0 \
+		python3-dev=3.6.8-r0 \
+		python3=3.6.8-r0 \
 		tini=0.18.0-r0 && \
 	# JupyterHub install requires "python"
 	ln -s /usr/bin/python3 /usr/bin/python && \

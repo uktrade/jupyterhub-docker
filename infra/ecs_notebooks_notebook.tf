@@ -1,5 +1,5 @@
 resource "aws_ecs_task_definition" "notebook" {
-  family                = "jupyterhub-notebook"
+  family                = "${var.prefix}-notebook"
   container_definitions = "${data.template_file.notebook_container_definitions.rendered}"
   execution_role_arn    = "${aws_iam_role.notebook_task_execution.arn}"
   # task_role_arn         = "${aws_iam_role.notebook_task.arn}"
@@ -29,12 +29,12 @@ data "template_file" "notebook_container_definitions" {
 }
 
 resource "aws_cloudwatch_log_group" "notebook" {
-  name              = "jupyterhub-notebook"
+  name              = "${var.prefix}-notebook"
   retention_in_days = "3653"
 }
 
 resource "aws_iam_role" "notebook_task_execution" {
-  name               = "notebook-task-execution"
+  name               = "${var.prefix}-notebook-task-execution"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.notebook_task_execution_ecs_tasks_assume_role.json}"
 }
@@ -56,7 +56,7 @@ resource "aws_iam_role_policy_attachment" "notebook_task_execution" {
 }
 
 resource "aws_iam_policy" "notebook_task_execution" {
-  name        = "jupyterhub-notebook-task-execution"
+  name        = "${var.prefix}-notebook-task-execution"
   path        = "/"
   policy       = "${data.aws_iam_policy_document.notebook_task_execution.json}"
 }
@@ -191,7 +191,7 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
 }
 
 resource "aws_iam_policy" "notebook_task_boundary" {
-  name   = "jupyterhub-notebook-task-boundary"
+  name   = "${var.prefix}-notebook-task-boundary"
   policy = "${data.aws_iam_policy_document.jupyterhub_notebook_task_boundary.json}"
 }
 

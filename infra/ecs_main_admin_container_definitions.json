@@ -38,6 +38,10 @@
       "value": "${admin_db__user}"
     },
     {
+      "name": "REDIS_URL",
+      "value": "${redis_url}"
+    },
+    {
       "name": "ALLOWED_HOSTS__1",
       "value": "${allowed_hosts_1}"
     },
@@ -59,26 +63,6 @@
     },
     ${environment}
     {
-      "name": "DATA_DB__tiva__HOST",
-      "value": "${data_db__tiva__host}"
-    },
-    {
-      "name": "DATA_DB__tiva__NAME",
-      "value": "${data_db__tiva__name}"
-    },
-    {
-      "name": "DATA_DB__tiva__PASSWORD",
-      "value": "${data_db__tiva__password}"
-    },
-    {
-      "name": "DATA_DB__tiva__PORT",
-      "value": "${data_db__tiva__port}"
-    },
-    {
-      "name": "DATA_DB__tiva__USER",
-      "value": "${data_db__tiva__user}"
-    },
-    {
       "name": "DATA_DB__test_1__HOST",
       "value": "${data_db__test_1__host}"
     },
@@ -98,6 +82,7 @@
       "name": "DATA_DB__test_1__USER",
       "value": "${data_db__test_1__user}"
     },
+
     {
       "name": "DATA_DB__test_2__HOST",
       "value": "${data_db__test_2__host}"
@@ -118,6 +103,28 @@
       "name": "DATA_DB__test_2__USER",
       "value": "${data_db__test_2__user}"
     },
+
+    {
+      "name": "DATA_DB__tiva__HOST",
+      "value": "${data_db__tiva__host}"
+    },
+    {
+      "name": "DATA_DB__tiva__NAME",
+      "value": "${data_db__tiva__name}"
+    },
+    {
+      "name": "DATA_DB__tiva__PASSWORD",
+      "value": "${data_db__tiva__password}"
+    },
+    {
+      "name": "DATA_DB__tiva__PORT",
+      "value": "${data_db__tiva__port}"
+    },
+    {
+      "name": "DATA_DB__tiva__USER",
+      "value": "${data_db__tiva__user}"
+    },
+
     {
       "name": "SECRET_KEY",
       "value": "${secret_key}"
