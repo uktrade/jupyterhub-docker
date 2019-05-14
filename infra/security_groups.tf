@@ -415,17 +415,17 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
   protocol    = "tcp"
 }
 
-# resource "aws_security_group_rule" "admin_service_egress_postgres_to_tiva_db" {
-#   description = "egress-postgres-to-test-1-db"
+resource "aws_security_group_rule" "admin_service_egress_postgres_to_tiva_db" {
+  description = "egress-postgres-to-test-1-db"
 
-#   security_group_id = "${aws_security_group.admin_service.id}"
-#   source_security_group_id = "${aws_security_group.tiva_db.id}"
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.tiva_db.id}"
 
-#   type        = "egress"
-#   from_port   = "${aws_db_instance.tiva.port}"
-#   to_port     = "${aws_db_instance.tiva.port}"
-#   protocol    = "tcp"
-# }
+  type        = "egress"
+  from_port   = "${aws_db_instance.tiva.port}"
+  to_port     = "${aws_db_instance.tiva.port}"
+  protocol    = "tcp"
+}
 
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" {
   description = "egress-postgres-to-test-1-db"
@@ -439,17 +439,17 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" 
   protocol    = "tcp"
 }
 
-# resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" {
-#   description = "egress-postgres-to-test-2-db"
+resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" {
+  description = "egress-postgres-to-test-2-db"
 
-#   security_group_id = "${aws_security_group.admin_service.id}"
-#   source_security_group_id = "${aws_security_group.test_2_db.id}"
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.test_2_db.id}"
 
-#   type        = "egress"
-#   from_port   = "${aws_db_instance.test_2.port}"
-#   to_port     = "${aws_db_instance.test_2.port}"
-#   protocol    = "tcp"
-# }
+  type        = "egress"
+  from_port   = "${aws_db_instance.test_2.port}"
+  to_port     = "${aws_db_instance.test_2.port}"
+  protocol    = "tcp"
+}
 
 resource "aws_security_group" "admin_db" {
   name        = "${var.prefix}-admin-db"
@@ -477,43 +477,43 @@ resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service
   protocol    = "tcp"
 }
 
-# resource "aws_security_group" "tiva_db" {
-#   name        = "jupyterhub-tiva-db"
-#   description = "jupyterhub-tiva-db"
-#   vpc_id      = "${aws_vpc.main.id}"
+resource "aws_security_group" "tiva_db" {
+  name        = "jupyterhub-tiva-db"
+  description = "jupyterhub-tiva-db"
+  vpc_id      = "${aws_vpc.main.id}"
 
-#   tags {
-#     Name = "jupyterhub-tiva-db"
-#   }
+  tags {
+    Name = "jupyterhub-tiva-db"
+  }
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
-# resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_admin_service" {
-#   description = "ingress-postgres-from-admin-service"
+resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_admin_service" {
+  description = "ingress-postgres-from-admin-service"
 
-#   security_group_id = "${aws_security_group.tiva_db.id}"
-#   source_security_group_id = "${aws_security_group.admin_service.id}"
+  security_group_id = "${aws_security_group.tiva_db.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
 
-#   type        = "ingress"
-#   from_port   = "${aws_db_instance.tiva.port}"
-#   to_port     = "${aws_db_instance.tiva.port}"
-#   protocol    = "tcp"
-# }
+  type        = "ingress"
+  from_port   = "${aws_db_instance.tiva.port}"
+  to_port     = "${aws_db_instance.tiva.port}"
+  protocol    = "tcp"
+}
 
-# resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_notebooks" {
-#   description = "ingress-postgres-from-notebooks"
+resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_notebooks" {
+  description = "ingress-postgres-from-notebooks"
 
-#   security_group_id        = "${aws_security_group.tiva_db.id}"
-#   source_security_group_id = "${aws_security_group.notebooks.id}"
+  security_group_id        = "${aws_security_group.tiva_db.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
 
-#   type      = "ingress"
-#   from_port = "${aws_db_instance.tiva.port}"
-#   to_port   = "${aws_db_instance.tiva.port}"
-#   protocol    = "tcp"
-# }
+  type      = "ingress"
+  from_port = "${aws_db_instance.tiva.port}"
+  to_port   = "${aws_db_instance.tiva.port}"
+  protocol    = "tcp"
+}
 
 resource "aws_security_group" "test_1_db" {
   name        = "${var.prefix}-test-1-db"
@@ -553,43 +553,43 @@ resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_notebooks" {
   protocol    = "tcp"
 }
 
-# resource "aws_security_group" "test_2_db" {
-#   name        = "jupyterhub-test-2-db"
-#   description = "jupyterhub-test-2-db"
-#   vpc_id      = "${aws_vpc.main.id}"
+resource "aws_security_group" "test_2_db" {
+  name        = "jupyterhub-test-2-db"
+  description = "jupyterhub-test-2-db"
+  vpc_id      = "${aws_vpc.main.id}"
 
-#   tags {
-#     Name = "jupyterhub-test-2-db"
-#   }
+  tags {
+    Name = "jupyterhub-test-2-db"
+  }
 
-#   lifecycle {
-#     create_before_destroy = true
-#   }
-# }
+  lifecycle {
+    create_before_destroy = true
+  }
+}
 
-# resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
-#   description = "ingress-postgres-from-admin-db"
+resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
+  description = "ingress-postgres-from-admin-db"
 
-#   security_group_id = "${aws_security_group.test_2_db.id}"
-#   source_security_group_id = "${aws_security_group.admin_service.id}"
+  security_group_id = "${aws_security_group.test_2_db.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
 
-#   type        = "ingress"
-#   from_port   = "${aws_db_instance.test_2.port}"
-#   to_port     = "${aws_db_instance.test_2.port}"
-#   protocol    = "tcp"
-# }
+  type        = "ingress"
+  from_port   = "${aws_db_instance.test_2.port}"
+  to_port     = "${aws_db_instance.test_2.port}"
+  protocol    = "tcp"
+}
 
-# resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
-#   description = "ingress-postgres-from-notebooks"
+resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
+  description = "ingress-postgres-from-notebooks"
 
-#   security_group_id        = "${aws_security_group.test_2_db.id}"
-#   source_security_group_id = "${aws_security_group.notebooks.id}"
+  security_group_id        = "${aws_security_group.test_2_db.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
 
-#   type      = "ingress"
-#   from_port = "${aws_db_instance.test_2.port}"
-#   to_port   = "${aws_db_instance.test_2.port}"
-#   protocol  = "tcp"
-# }
+  type      = "ingress"
+  from_port = "${aws_db_instance.test_2.port}"
+  to_port   = "${aws_db_instance.test_2.port}"
+  protocol  = "tcp"
+}
 
 resource "aws_security_group" "jupyterhub_alb" {
   name        = "${var.prefix}-alb"
@@ -803,17 +803,17 @@ resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service
   protocol  = "tcp"
 }
 
-# resource "aws_security_group_rule" "notebooks_egress_postgres_to_tiva" {
-#   description = "egress-postgres-to-test-1"
+resource "aws_security_group_rule" "notebooks_egress_postgres_to_tiva" {
+  description = "egress-postgres-to-test-1"
 
-#   security_group_id        = "${aws_security_group.notebooks.id}"
-#   source_security_group_id = "${aws_security_group.tiva_db.id}"
+  security_group_id        = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.tiva_db.id}"
 
-#   type      = "egress"
-#   from_port = "${aws_db_instance.tiva.port}"
-#   to_port   = "${aws_db_instance.tiva.port}"
-#   protocol  = "tcp"
-# }
+  type      = "egress"
+  from_port = "${aws_db_instance.tiva.port}"
+  to_port   = "${aws_db_instance.tiva.port}"
+  protocol  = "tcp"
+}
 
 resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_1" {
   description = "egress-postgres-to-test-1"
@@ -827,17 +827,17 @@ resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_1" {
   protocol  = "tcp"
 }
 
-# resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
-#   description = "egress-postgres-to-test-2"
+resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
+  description = "egress-postgres-to-test-2"
 
-#   security_group_id        = "${aws_security_group.notebooks.id}"
-#   source_security_group_id = "${aws_security_group.test_2_db.id}"
+  security_group_id        = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.test_2_db.id}"
 
-#   type      = "egress"
-#   from_port = "${aws_db_instance.test_2.port}"
-#   to_port   = "${aws_db_instance.test_2.port}"
-#   protocol  = "tcp"
-# }
+  type      = "egress"
+  from_port = "${aws_db_instance.test_2.port}"
+  to_port   = "${aws_db_instance.test_2.port}"
+  protocol  = "tcp"
+}
 
 resource "aws_security_group_rule" "notebooks_egress_dns_tcp" {
   description = "egress-dns-tcp"

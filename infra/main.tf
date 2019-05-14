@@ -24,7 +24,7 @@ variable "vpc_notebooks_subnets_num_bits" {}
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
 variable "jupyterhub_domain" {}
-variable "jupyterhub_secondary_domain" {}
+# variable "jupyterhub_secondary_domain" {}
 variable "appstream_domain" {}
 variable "support_domain" {}
 
