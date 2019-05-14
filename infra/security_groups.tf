@@ -314,6 +314,32 @@ resource "aws_security_group_rule" "admin_alb_egress_https_to_admin_service" {
   protocol    = "tcp"
 }
 
+resource "aws_security_group" "admin_redis" {
+  name        = "${var.prefix}-admin-redis"
+  description = "${var.prefix}-admin-redis"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-admin-redis"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "admin_redis_ingress_from_admin_service" {
+  description = "ingress-redis-from-admin-service"
+
+  security_group_id = "${aws_security_group.admin_redis.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
+
+  type        = "ingress"
+  from_port   = "6379"
+  to_port     = "6379"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group" "admin_service" {
   name        = "${var.prefix}-admin-service"
   description = "${var.prefix}-admin-service"
@@ -327,6 +353,19 @@ resource "aws_security_group" "admin_service" {
     create_before_destroy = true
   }
 }
+
+resource "aws_security_group_rule" "admin_service_egress_to_admin_service" {
+  description = "egress-redis-to-admin-redis"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.admin_redis.id}"
+
+  type        = "egress"
+  from_port   = "6379"
+  to_port     = "6379"
+  protocol    = "tcp"
+}
+
 
 resource "aws_security_group_rule" "admin_service_ingress_https_from_admin_alb" {
   description = "ingress-https-from-admin-alb"

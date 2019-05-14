@@ -13,6 +13,7 @@ variable "ip_whitelist" {
 }
 
 variable "prefix" {}
+variable "prefix_short" {}
 variable "prefix_underscore" {}
 
 variable "vpc_cidr" {}

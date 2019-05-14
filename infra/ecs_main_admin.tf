@@ -103,6 +103,8 @@ data "template_file" "admin_container_definitions" {
     notebooks_url = "https://${var.jupyterhub_domain}/"
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
+
+    redis_url = "${aws_elasticache_cluster.admin.cache_nodes.0.address}"
   }
 }
 
@@ -165,6 +167,8 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     notebooks_url = "https://${var.jupyterhub_domain}/"
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
+
+    redis_url = "${aws_elasticache_cluster.admin.cache_nodes.0.address}"
   }
 }
 
@@ -327,4 +331,21 @@ resource "aws_alb_target_group" "admin" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_elasticache_cluster" "admin" {
+  cluster_id           = "${var.prefix_short}-admin"
+  engine               = "redis"
+  node_type            = "cache.t2.micro"
+  num_cache_nodes      = 1
+  parameter_group_name = "default.redis5.0"
+  engine_version       = "5.0.3"
+  port                 = 6379
+  subnet_group_name    = "${aws_elasticache_subnet_group.admin.name}"
+  security_group_ids   = ["${aws_security_group.admin_redis.id}"]
+}
+
+resource "aws_elasticache_subnet_group" "admin" {
+  name               = "${var.prefix_short}-admin"
+  subnet_ids         = ["${aws_subnet.private_with_egress.*.id}"]
 }

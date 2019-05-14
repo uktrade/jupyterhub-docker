@@ -38,6 +38,10 @@
       "value": "${admin_db__user}"
     },
     {
+      "name": "REDIS_URL",
+      "value": "${redis_url}"
+    },
+    {
       "name": "ALLOWED_HOSTS__1",
       "value": "${allowed_hosts_1}"
     },
