@@ -43,11 +43,11 @@
     },
     {
       "name": "ALLOWED_HOSTS__1",
-      "value": "${allowed_hosts_1}"
+      "value": "${root_domain}"
     },
     {
       "name": "ALLOWED_HOSTS__2",
-      "value": "${allowed_hosts_2}"
+      "value": ".${root_domain}"
     },
     {
       "name": "AUTHBROKER_CLIENT_ID",
@@ -62,47 +62,6 @@
       "value": "${authbroker_url}"
     },
     ${environment}
-    {
-      "name": "DATA_DB__test_1__HOST",
-      "value": "${data_db__test_1__host}"
-    },
-    {
-      "name": "DATA_DB__test_1__NAME",
-      "value": "${data_db__test_1__name}"
-    },
-    {
-      "name": "DATA_DB__test_1__PASSWORD",
-      "value": "${data_db__test_1__password}"
-    },
-    {
-      "name": "DATA_DB__test_1__PORT",
-      "value": "${data_db__test_1__port}"
-    },
-    {
-      "name": "DATA_DB__test_1__USER",
-      "value": "${data_db__test_1__user}"
-    },
-
-    {
-      "name": "DATA_DB__test_2__HOST",
-      "value": "${data_db__test_2__host}"
-    },
-    {
-      "name": "DATA_DB__test_2__NAME",
-      "value": "${data_db__test_2__name}"
-    },
-    {
-      "name": "DATA_DB__test_2__PASSWORD",
-      "value": "${data_db__test_2__password}"
-    },
-    {
-      "name": "DATA_DB__test_2__PORT",
-      "value": "${data_db__test_2__port}"
-    },
-    {
-      "name": "DATA_DB__test_2__USER",
-      "value": "${data_db__test_2__user}"
-    },
 
     {
       "name": "DATA_DB__tiva__HOST",
@@ -126,20 +85,158 @@
     },
 
     {
+      "name": "DATA_DB__test_1__HOST",
+      "value": "${data_db__test_1__host}"
+    },
+    {
+      "name": "DATA_DB__test_1__NAME",
+      "value": "${data_db__test_1__name}"
+    },
+    {
+      "name": "DATA_DB__test_1__PASSWORD",
+      "value": "${data_db__test_1__password}"
+    },
+    {
+      "name": "DATA_DB__test_1__PORT",
+      "value": "${data_db__test_1__port}"
+    },
+    {
+      "name": "DATA_DB__test_1__USER",
+      "value": "${data_db__test_1__user}"
+    },
+    {
+      "name": "APPLICATION_ROOT_DOMAIN",
+      "value": "${root_domain}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__NAME",
+      "value": "jupyterlab"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__NICE_NAME",
+      "value": "JupyterLab"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER",
+      "value": "FARGATE"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__1",
+      "value": "jupyter"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__2",
+      "value": "lab"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__3",
+      "value": "--config=/etc/jupyter/jupyter_notebook_config.py"
+    },
+
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__4",
+      "value": "--NotebookApp.token=''"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__5",
+      "value": "--NotebookApp.ip='0.0.0.0'"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__6",
+      "value": "--NotebookApp.allow_remote_access=True"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__7",
+      "value": "--NotebookApp.port=8888"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CLUSTER_NAME",
+      "value": "${fargate_spawner__task_custer_name}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__DEFINITION_ARN",
+      "value": "${fargate_spawner__task_definition_arn}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CONTAINER_NAME",
+      "value": "jupyterhub-notebook"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__SECURITY_GROUPS__1",
+      "value": "${fargate_spawner__task_security_group}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__SUBNETS__1",
+      "value": "${fargate_spawner__task_subnet}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__ENV__DUMMY",
+      "value": "value"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__PORT",
+      "value": "8888"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__PORT",
+      "value": "8888"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__ROLE_PREFIX",
+      "value": "${notebook_task_role__role_prefix}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__POLICY_NAME",
+      "value": "${notebook_task_role__policy_name}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__PERMISSIONS_BOUNDARY_ARN",
+      "value": "${notebook_task_role__permissions_boundary_arn}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__POLICY_DOCUMENT_TEMPLATE_BASE64",
+      "value": "${notebook_task_role__policy_document_template_base64}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__ASSUME_ROLE_POLICY_DOCUMENT_BASE64",
+      "value": "${notebook_task_role__assume_role_policy_document_base64}"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__S3_REGION",
+      "value": "eu-west-2"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__S3_HOST",
+      "value": "s3-eu-west-2.amazonaws.com"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__S3_BUCKET",
+      "value": "${notebooks_bucket}"
+    },
+    {
       "name": "SECRET_KEY",
       "value": "${secret_key}"
     }, {
       "name": "NOTEBOOKS_BUCKET",
       "value": "${notebooks_bucket}"
     }, {
-      "name": "NOTEBOOKS_URL",
-      "value": "${notebooks_url}"
-    }, {
       "name": "APPSTREAM_URL",
       "value": "${appstream_url}"
     }, {
       "name": "SUPPORT_URL",
       "value": "${support_url}"
+    },
+    {
+        "name": "LOGSTASH_HOST",
+        "value": "${logstash_host}"
+    },
+    {
+        "name": "LOGSTASH_PORT",
+        "value": "${logstash_port}"
+    },
+    {
+        "name": "SENTRY_DSN",
+        "value": "${sentry_dsn}"
     }]
   }
 ]

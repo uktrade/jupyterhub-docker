@@ -379,17 +379,17 @@ resource "aws_security_group_rule" "admin_service_ingress_https_from_admin_alb" 
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_service_ingress_https_from_jupyterhub_service" {
-  description = "ingress-https-from-jupyterhub-service"
+# resource "aws_security_group_rule" "admin_service_ingress_https_from_jupyterhub_service" {
+#   description = "ingress-https-from-jupyterhub-service"
 
-  security_group_id = "${aws_security_group.admin_service.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   security_group_id = "${aws_security_group.admin_service.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
 
-  type        = "ingress"
-  from_port   = "${local.admin_container_port}"
-  to_port     = "${local.admin_container_port}"
-  protocol    = "tcp"
-}
+#   type        = "ingress"
+#   from_port   = "${local.admin_container_port}"
+#   to_port     = "${local.admin_container_port}"
+#   protocol    = "tcp"
+# }
 
 resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere" {
   description = "egress-https-to-everywhere"
@@ -402,6 +402,20 @@ resource "aws_security_group_rule" "admin_service_egress_https_to_everywhere" {
   to_port     = "443"
   protocol    = "tcp"
 }
+
+resource "aws_security_group_rule" "admin_service_egress_http_to_notebooks" {
+  description = "egress-https-to-everywhere"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "egress"
+  from_port   = "${local.notebook_container_port}"
+  to_port     = "${local.notebook_container_port}"
+  protocol    = "tcp"
+}
+
+
 
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
   description = "egress-postgres-to-admin-db"
@@ -439,17 +453,17 @@ resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_1_db" 
   protocol    = "tcp"
 }
 
-resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" {
-  description = "egress-postgres-to-test-2-db"
+# resource "aws_security_group_rule" "admin_service_egress_postgres_to_test_2_db" {
+#   description = "egress-postgres-to-test-2-db"
 
-  security_group_id = "${aws_security_group.admin_service.id}"
-  source_security_group_id = "${aws_security_group.test_2_db.id}"
+#   security_group_id = "${aws_security_group.admin_service.id}"
+#   source_security_group_id = "${aws_security_group.test_2_db.id}"
 
-  type        = "egress"
-  from_port   = "${aws_db_instance.test_2.port}"
-  to_port     = "${aws_db_instance.test_2.port}"
-  protocol    = "tcp"
-}
+#   type        = "egress"
+#   from_port   = "${aws_db_instance.test_2.port}"
+#   to_port     = "${aws_db_instance.test_2.port}"
+#   protocol    = "tcp"
+# }
 
 resource "aws_security_group" "admin_db" {
   name        = "${var.prefix}-admin-db"
@@ -553,205 +567,205 @@ resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_notebooks" {
   protocol    = "tcp"
 }
 
-resource "aws_security_group" "test_2_db" {
-  name        = "jupyterhub-test-2-db"
-  description = "jupyterhub-test-2-db"
-  vpc_id      = "${aws_vpc.main.id}"
+# resource "aws_security_group" "test_2_db" {
+#   name        = "jupyterhub-test-2-db"
+#   description = "jupyterhub-test-2-db"
+#   vpc_id      = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "jupyterhub-test-2-db"
-  }
+#   tags {
+#     Name = "jupyterhub-test-2-db"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
-  description = "ingress-postgres-from-admin-db"
+# resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_admin_db" {
+#   description = "ingress-postgres-from-admin-db"
 
-  security_group_id = "${aws_security_group.test_2_db.id}"
-  source_security_group_id = "${aws_security_group.admin_service.id}"
+#   security_group_id = "${aws_security_group.test_2_db.id}"
+#   source_security_group_id = "${aws_security_group.admin_service.id}"
 
-  type        = "ingress"
-  from_port   = "${aws_db_instance.test_2.port}"
-  to_port     = "${aws_db_instance.test_2.port}"
-  protocol    = "tcp"
-}
+#   type        = "ingress"
+#   from_port   = "${aws_db_instance.test_2.port}"
+#   to_port     = "${aws_db_instance.test_2.port}"
+#   protocol    = "tcp"
+# }
 
-resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
-  description = "ingress-postgres-from-notebooks"
+# resource "aws_security_group_rule" "test_2_db_ingress_postgres_from_notebooks" {
+#   description = "ingress-postgres-from-notebooks"
 
-  security_group_id        = "${aws_security_group.test_2_db.id}"
-  source_security_group_id = "${aws_security_group.notebooks.id}"
+#   security_group_id        = "${aws_security_group.test_2_db.id}"
+#   source_security_group_id = "${aws_security_group.notebooks.id}"
 
-  type      = "ingress"
-  from_port = "${aws_db_instance.test_2.port}"
-  to_port   = "${aws_db_instance.test_2.port}"
-  protocol  = "tcp"
-}
+#   type      = "ingress"
+#   from_port = "${aws_db_instance.test_2.port}"
+#   to_port   = "${aws_db_instance.test_2.port}"
+#   protocol  = "tcp"
+# }
 
-resource "aws_security_group" "jupyterhub_alb" {
-  name        = "${var.prefix}-alb"
-  description = "${var.prefix}-alb"
-  vpc_id      = "${aws_vpc.main.id}"
+# resource "aws_security_group" "jupyterhub_alb" {
+#   name        = "${var.prefix}-alb"
+#   description = "${var.prefix}-alb"
+#   vpc_id      = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "${var.prefix}-alb"
-  }
+#   tags {
+#     Name = "${var.prefix}-alb"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_security_group_rule" "jupyterhub_alb_ingress_https_from_whitelist" {
-  description = "ingress-https-from-whitelist"
+# resource "aws_security_group_rule" "jupyterhub_alb_ingress_https_from_whitelist" {
+#   description = "ingress-https-from-whitelist"
 
-  security_group_id = "${aws_security_group.jupyterhub_alb.id}"
-  cidr_blocks       = ["${var.ip_whitelist}"]
+#   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
+#   cidr_blocks       = ["${var.ip_whitelist}"]
 
-  type      = "ingress"
-  from_port = "443"
-  to_port   = "443"
-  protocol  = "tcp"
-}
+#   type      = "ingress"
+#   from_port = "443"
+#   to_port   = "443"
+#   protocol  = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_alb_ingress_icmp_host_unreachable_for_mtu_discovery" {
-  description = "ingress-icmp-host-unreachable-for-mtu-discovery-from-whitelist"
+# resource "aws_security_group_rule" "jupyterhub_alb_ingress_icmp_host_unreachable_for_mtu_discovery" {
+#   description = "ingress-icmp-host-unreachable-for-mtu-discovery-from-whitelist"
 
-  security_group_id = "${aws_security_group.jupyterhub_alb.id}"
-  cidr_blocks       = ["${var.ip_whitelist}"]
+#   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
+#   cidr_blocks       = ["${var.ip_whitelist}"]
 
-  type      = "ingress"
-  from_port = 3
-  to_port   = 0
-  protocol  = "icmp"
-}
+#   type      = "ingress"
+#   from_port = 3
+#   to_port   = 0
+#   protocol  = "icmp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_alb_egress_https_to_jupyterhub_service" {
-  description = "egress-https-to-jupyterhub_service"
+# resource "aws_security_group_rule" "jupyterhub_alb_egress_https_to_jupyterhub_service" {
+#   description = "egress-https-to-jupyterhub_service"
 
-  security_group_id = "${aws_security_group.jupyterhub_alb.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   security_group_id = "${aws_security_group.jupyterhub_alb.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
 
-  type      = "egress"
-  from_port = "${local.jupyterhub_container_port}"
-  to_port   = "${local.jupyterhub_container_port}"
-  protocol  = "tcp"
-}
+#   type      = "egress"
+#   from_port = "${local.jupyterhub_container_port}"
+#   to_port   = "${local.jupyterhub_container_port}"
+#   protocol  = "tcp"
+# }
 
-resource "aws_security_group" "jupyterhub_db" {
-  name        = "${var.prefix}-db"
-  description = "${var.prefix}-db"
-  vpc_id      = "${aws_vpc.main.id}"
+# resource "aws_security_group" "jupyterhub_db" {
+#   name        = "${var.prefix}-db"
+#   description = "${var.prefix}-db"
+#   vpc_id      = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "${var.prefix}-db"
-  }
+#   tags {
+#     Name = "${var.prefix}-db"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_security_group_rule" "jupyterhub_db_ingress_postgres_from_jupyterhub_service" {
-  description = "ingress-postgres-from-jupyterhub-service"
+# resource "aws_security_group_rule" "jupyterhub_db_ingress_postgres_from_jupyterhub_service" {
+#   description = "ingress-postgres-from-jupyterhub-service"
 
-  security_group_id        = "${aws_security_group.jupyterhub_db.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   security_group_id        = "${aws_security_group.jupyterhub_db.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
 
-  type      = "ingress"
-  from_port = "${aws_db_instance.jupyterhub.port}"
-  to_port   = "${aws_db_instance.jupyterhub.port}"
-  protocol    = "tcp"
-}
+#   type      = "ingress"
+#   from_port = "${aws_db_instance.jupyterhub.port}"
+#   to_port   = "${aws_db_instance.jupyterhub.port}"
+#   protocol    = "tcp"
+# }
 
-resource "aws_security_group" "jupyterhub_service" {
-  name        = "${var.prefix}-service"
-  description = "${var.prefix}-service"
-  vpc_id      = "${aws_vpc.main.id}"
+# resource "aws_security_group" "jupyterhub_service" {
+#   name        = "${var.prefix}-service"
+#   description = "${var.prefix}-service"
+#   vpc_id      = "${aws_vpc.main.id}"
 
-  tags {
-    Name = "${var.prefix}"
-  }
+#   tags {
+#     Name = "${var.prefix}"
+#   }
 
-  lifecycle {
-    create_before_destroy = true
-  }
-}
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
 
-resource "aws_security_group_rule" "jupyterhub_egress_postgres_to_jupyterhub_db" {
-  description = "egress-postgres-to-jupyterhub_db"
+# resource "aws_security_group_rule" "jupyterhub_egress_postgres_to_jupyterhub_db" {
+#   description = "egress-postgres-to-jupyterhub_db"
 
-  security_group_id        = "${aws_security_group.jupyterhub_service.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_db.id}"
+#   security_group_id        = "${aws_security_group.jupyterhub_service.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_db.id}"
 
-  type      = "egress"
-  from_port = "${aws_db_instance.jupyterhub.port}"
-  to_port   = "${aws_db_instance.jupyterhub.port}"
-  protocol    = "tcp"
-}
+#   type      = "egress"
+#   from_port = "${aws_db_instance.jupyterhub.port}"
+#   to_port   = "${aws_db_instance.jupyterhub.port}"
+#   protocol    = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_jupyterhub_admin" {
-  description = "egress-https-to-jupyterhub_admin"
+# resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_jupyterhub_admin" {
+#   description = "egress-https-to-jupyterhub_admin"
 
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  source_security_group_id = "${aws_security_group.admin_service.id}"
+#   security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   source_security_group_id = "${aws_security_group.admin_service.id}"
 
-  type        = "egress"
-  from_port   = "${local.admin_container_port}"
-  to_port     = "${local.admin_container_port}"
-  protocol    = "tcp"
-}
+#   type        = "egress"
+#   from_port   = "${local.admin_container_port}"
+#   to_port     = "${local.admin_container_port}"
+#   protocol    = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywhere" {
-  description = "egress-https-to-everywhere"
+# resource "aws_security_group_rule" "jupyterhub_service_egress_https_to_everywhere" {
+#   description = "egress-https-to-everywhere"
 
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
+#   security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   cidr_blocks       = ["0.0.0.0/0"]
 
-  type        = "egress"
-  from_port   = "443"
-  to_port     = "443"
-  protocol    = "tcp"
-}
+#   type        = "egress"
+#   from_port   = "443"
+#   to_port     = "443"
+#   protocol    = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_egress_https_to_notebooks" {
-  description = "egress-https-to-notebooks"
+# resource "aws_security_group_rule" "jupyterhub_egress_https_to_notebooks" {
+#   description = "egress-https-to-notebooks"
 
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  source_security_group_id = "${aws_security_group.notebooks.id}"
+#   security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   source_security_group_id = "${aws_security_group.notebooks.id}"
 
-  type      = "egress"
-  from_port = "${local.notebook_container_port}"
-  to_port   = "${local.notebook_container_port}"
-  protocol  = "tcp"
-}
+#   type      = "egress"
+#   from_port = "${local.notebook_container_port}"
+#   to_port   = "${local.notebook_container_port}"
+#   protocol  = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_ingress_https_from_notebooks" {
-  description = "ingress-https-from-notebooks"
+# resource "aws_security_group_rule" "jupyterhub_ingress_https_from_notebooks" {
+#   description = "ingress-https-from-notebooks"
 
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  source_security_group_id = "${aws_security_group.notebooks.id}"
+#   security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   source_security_group_id = "${aws_security_group.notebooks.id}"
 
-  type      = "ingress"
-  from_port = "${local.jupyterhub_container_port}"
-  to_port   = "${local.jupyterhub_container_port}"
-  protocol  = "tcp"
-}
+#   type      = "ingress"
+#   from_port = "${local.jupyterhub_container_port}"
+#   to_port   = "${local.jupyterhub_container_port}"
+#   protocol  = "tcp"
+# }
 
-resource "aws_security_group_rule" "jupyterhub_service_ingress_https_from_jupyterhub_alb" {
-  description = "ingress-https-from-jupyterhub-alb"
+# resource "aws_security_group_rule" "jupyterhub_service_ingress_https_from_jupyterhub_alb" {
+#   description = "ingress-https-from-jupyterhub-alb"
 
-  security_group_id = "${aws_security_group.jupyterhub_service.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_alb.id}"
+#   security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_alb.id}"
 
-  type      = "ingress"
-  from_port = "${local.jupyterhub_container_port}"
-  to_port   = "${local.jupyterhub_container_port}"
-  protocol  = "tcp"
-}
+#   type      = "ingress"
+#   from_port = "${local.jupyterhub_container_port}"
+#   to_port   = "${local.jupyterhub_container_port}"
+#   protocol  = "tcp"
+# }
 
 resource "aws_security_group" "notebooks" {
   name        = "${var.prefix}-notebooks"
@@ -767,11 +781,11 @@ resource "aws_security_group" "notebooks" {
   }
 }
 
-resource "aws_security_group_rule" "notebooks_ingress_https_from_jupytehub" {
+resource "aws_security_group_rule" "notebooks_ingress_https_from_admin" {
   description = "ingress-https-from-jupytehub"
 
   security_group_id = "${aws_security_group.notebooks.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+  source_security_group_id = "${aws_security_group.admin_service.id}"
 
   type      = "ingress"
   from_port = "${local.notebook_container_port}"
@@ -791,17 +805,17 @@ resource "aws_security_group_rule" "notebooks_egress_https_to_everywhere" {
   protocol  = "tcp"
 }
 
-resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service" {
-  description = "egress-https-to-jupyterhub-service"
+# resource "aws_security_group_rule" "notebooks_egress_https_to_jupyterhub_service" {
+#   description = "egress-https-to-jupyterhub-service"
 
-  security_group_id        = "${aws_security_group.notebooks.id}"
-  source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
+#   security_group_id        = "${aws_security_group.notebooks.id}"
+#   source_security_group_id = "${aws_security_group.jupyterhub_service.id}"
 
-  type      = "egress"
-  from_port = "${local.jupyterhub_container_port}"
-  to_port   = "${local.jupyterhub_container_port}"
-  protocol  = "tcp"
-}
+#   type      = "egress"
+#   from_port = "${local.jupyterhub_container_port}"
+#   to_port   = "${local.jupyterhub_container_port}"
+#   protocol  = "tcp"
+# }
 
 resource "aws_security_group_rule" "notebooks_egress_postgres_to_tiva" {
   description = "egress-postgres-to-test-1"
@@ -827,17 +841,17 @@ resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_1" {
   protocol  = "tcp"
 }
 
-resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
-  description = "egress-postgres-to-test-2"
+# resource "aws_security_group_rule" "notebooks_egress_postgres_to_test_2" {
+#   description = "egress-postgres-to-test-2"
 
-  security_group_id        = "${aws_security_group.notebooks.id}"
-  source_security_group_id = "${aws_security_group.test_2_db.id}"
+#   security_group_id        = "${aws_security_group.notebooks.id}"
+#   source_security_group_id = "${aws_security_group.test_2_db.id}"
 
-  type      = "egress"
-  from_port = "${aws_db_instance.test_2.port}"
-  to_port   = "${aws_db_instance.test_2.port}"
-  protocol  = "tcp"
-}
+#   type      = "egress"
+#   from_port = "${aws_db_instance.test_2.port}"
+#   to_port   = "${aws_db_instance.test_2.port}"
+#   protocol  = "tcp"
+# }
 
 resource "aws_security_group_rule" "notebooks_egress_dns_tcp" {
   description = "egress-dns-tcp"
