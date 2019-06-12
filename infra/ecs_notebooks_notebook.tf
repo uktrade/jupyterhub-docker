@@ -174,20 +174,20 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
     ]
   }
 
-  # statement {
-  #   principals {
-  #     type = "*"
-  #     identifiers = ["*"]
-  #   }
+  statement {
+    principals {
+      type = "*"
+      identifiers = ["*"]
+    }
 
-  #   actions = [
-  #       "s3:GetObject",
-  #   ]
+    actions = [
+        "s3:GetObject",
+    ]
 
-  #   resources = [
-  #     "${aws_s3_bucket.mirrors.arn}/*",
-  #   ]
-  # }
+    resources = [
+      "arn:aws:s3:::${var.mirrors_data_bucket_name != "" ? var.mirrors_data_bucket_name : var.mirrors_bucket_name}/*",
+    ]
+  }
 }
 
 resource "aws_iam_policy" "notebook_task_boundary" {

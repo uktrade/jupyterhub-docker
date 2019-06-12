@@ -42,6 +42,7 @@ variable "admin_environment" {}
 variable "appstream_bucket" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
+variable "rstudio_container_image" {}
 
 variable "alb_access_logs_bucket" {}
 variable "alb_logs_account" {}
@@ -58,6 +59,7 @@ variable "cloudwatch_destination_arn" {}
 
 variable "mirrors_bucket_name" {}
 variable "mirrors_sync_container_image" {}
+variable "mirrors_data_bucket_name" {}
 
 variable "sentry_dsn" {}
 
