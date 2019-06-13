@@ -43,6 +43,7 @@ variable "appstream_bucket" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
 variable "rstudio_container_image" {}
+variable "pgadmin_container_image" {}
 
 variable "alb_access_logs_bucket" {}
 variable "alb_logs_account" {}

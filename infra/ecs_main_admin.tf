@@ -127,6 +127,7 @@ data "template_file" "admin_container_definitions" {
     fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
 
     fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
+    fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
 
   }
 }
@@ -214,6 +215,8 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
 
     fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
+    fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
+
   }
 }
 
@@ -311,6 +314,7 @@ data "aws_iam_policy_document" "admin_run_tasks" {
     resources = [
       "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.notebook.family}:*",
       "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.rstudio.family}:*",
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.pgadmin.family}:*",
     ]
   }
 
