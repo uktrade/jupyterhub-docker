@@ -13,34 +13,23 @@ sentry_sdk.init()
 sentry_sdk.init(integrations=[TornadoIntegration()])
 
 import logging
-from logging.handlers import HTTPHandler
 import os
-import subprocess
-
-from async_http_logging_handler import AsyncHTTPLoggingHandler
+import sys
 from jupyters3 import JupyterS3, JupyterS3ECSRoleAuthentication
-from tornado.ioloop import IOLoop
-from tornado.httpclient import AsyncHTTPClient
 
-http_handler = AsyncHTTPLoggingHandler(
-    ioloop=IOLoop.current(),
-    client=AsyncHTTPClient(force_instance=True),
-    host=os.environ['LOGSTASH_HOST'],
-    port=os.environ['LOGSTASH_PORT'],
-    path="/",
-)
+handler = logging.StreamHandler(sys.stdout)
+handler.setLevel(logging.DEBUG)
+
 loggers = [
     logging.getLogger(),
-    # These can result in a lot of log messages
-    # logging.getLogger('urllib3'),
-    # logging.getLogger('tornado'),
-    # logging.getLogger('tornado.access'),
-    # For logging exceptions
+    logging.getLogger('urllib3'),
+    logging.getLogger('tornado'),
+    logging.getLogger('tornado.access'),
     logging.getLogger('tornado.application'),
     logging.getLogger('tornado.general'),
 ]
 for logger in loggers:
-    logger.addHandler(http_handler)
+    logger.addHandler(handler)
 c = get_config()
 
 c.NotebookApp.ip = '0.0.0.0'

@@ -67,7 +67,6 @@
       "value": "${authbroker_url}"
     },
     ${environment}
-
     {
       "name": "DATA_DB__tiva__HOST",
       "value": "${data_db__tiva__host}"
@@ -371,7 +370,6 @@
       "name": "APPLICATION_TEMPLATES__3__SPAWNER_OPTIONS__S3_BUCKET",
       "value": "${notebooks_bucket}"
     },
-
     {
       "name": "SECRET_KEY",
       "value": "${secret_key}"
@@ -384,18 +382,6 @@
     }, {
       "name": "SUPPORT_URL",
       "value": "${support_url}"
-    },
-    {
-        "name": "LOGSTASH_HOST",
-        "value": "${logstash_host}"
-    },
-    {
-        "name": "LOGSTASH_PORT",
-        "value": "${logstash_port}"
-    },
-    {
-        "name": "SENTRY_DSN",
-        "value": "${sentry_dsn}"
     }]
   }
 ]

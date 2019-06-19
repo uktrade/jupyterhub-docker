@@ -86,107 +86,6 @@ resource "aws_security_group_rule" "sentryproxy_ingress_http_notebooks" {
   protocol    = "tcp"
 }
 
-resource "aws_security_group" "logstash_alb" {
-  name        = "${var.prefix}-logstash-alb"
-  description = "${var.prefix}-logstash-alb"
-  vpc_id      = "${aws_vpc.main.id}"
-
-  tags {
-    Name = "${var.prefix}-logstash-alb"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_security_group_rule" "logstash_alb_ingress_https_from_notebooks" {
-  description = "ingress-https-from-notebooks"
-
-  security_group_id = "${aws_security_group.logstash_alb.id}"
-  source_security_group_id = "${aws_security_group.notebooks.id}"
-
-  type        = "ingress"
-  from_port   = "443"
-  to_port     = "443"
-  protocol    = "tcp"
-}
-
-resource "aws_security_group_rule" "logstash_alb_egress_https_to_service" {
-  description = "egress-https-to-service"
-
-  security_group_id = "${aws_security_group.logstash_alb.id}"
-  source_security_group_id = "${aws_security_group.logstash_service.id}"
-
-  type        = "egress"
-  from_port   = "${local.logstash_container_port}"
-  to_port     = "${local.logstash_container_port}"
-  protocol    = "tcp"
-}
-
-resource "aws_security_group_rule" "logstash_alb_egress_http_api_to_service" {
-  description = "egress-https-to-service"
-
-  security_group_id = "${aws_security_group.logstash_alb.id}"
-  source_security_group_id = "${aws_security_group.logstash_service.id}"
-
-  type        = "egress"
-  from_port   = "${local.logstash_container_api_port}"
-  to_port     = "${local.logstash_container_api_port}"
-  protocol    = "tcp"
-}
-
-resource "aws_security_group" "logstash_service" {
-  name        = "${var.prefix}-logstash-service"
-  description = "${var.prefix}-logstash-service"
-  vpc_id      = "${aws_vpc.main.id}"
-
-  tags {
-    Name = "${var.prefix}-logstash-service"
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_security_group_rule" "logstash_service_ingress_https_from_alb" {
-  description = "ingress-https-from-alb"
-
-  security_group_id = "${aws_security_group.logstash_service.id}"
-  source_security_group_id = "${aws_security_group.logstash_alb.id}"
-
-  type        = "ingress"
-  from_port   = "${local.logstash_container_port}"
-  to_port     = "${local.logstash_container_port}"
-  protocol    = "tcp"
-}
-
-resource "aws_security_group_rule" "logstash_service_ingress_http_api_from_alb" {
-  description = "egress-https-to-service"
-
-  security_group_id = "${aws_security_group.logstash_service.id}"
-  source_security_group_id = "${aws_security_group.logstash_alb.id}"
-
-  type        = "ingress"
-  from_port   = "${local.logstash_container_api_port}"
-  to_port     = "${local.logstash_container_api_port}"
-  protocol    = "tcp"
-}
-
-resource "aws_security_group_rule" "logstash_service_egress_https_to_everywhere" {
-  description = "egress-https-to-everywhere"
-
-  security_group_id = "${aws_security_group.logstash_service.id}"
-  cidr_blocks       = ["0.0.0.0/0"]
-  ipv6_cidr_blocks  = ["::/0"]
-
-  type        = "egress"
-  from_port   = "443"
-  to_port     = "443"
-  protocol    = "tcp"
-}
-
 resource "aws_security_group" "registry_alb" {
   name        = "${var.prefix}-registry-alb"
   description = "${var.prefix}-registry-alb"
@@ -199,6 +98,18 @@ resource "aws_security_group" "registry_alb" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "registry_alb_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.registry_alb.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "registry_alb_ingress_https_from_notebooks" {
@@ -314,6 +225,18 @@ resource "aws_security_group_rule" "admin_alb_egress_https_to_admin_service" {
   protocol    = "tcp"
 }
 
+resource "aws_security_group_rule" "admin_alb_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.admin_alb.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group" "admin_redis" {
   name        = "${var.prefix}-admin-redis"
   description = "${var.prefix}-admin-redis"
@@ -326,6 +249,18 @@ resource "aws_security_group" "admin_redis" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "admin_redis_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.admin_redis.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "admin_redis_ingress_from_admin_service" {
@@ -352,6 +287,18 @@ resource "aws_security_group" "admin_service" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "admin_service_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.admin_service.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "admin_service_egress_to_admin_service" {
@@ -479,6 +426,18 @@ resource "aws_security_group" "admin_db" {
   }
 }
 
+resource "aws_security_group_rule" "admin_sdb_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.admin_db.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group_rule" "admin_db_ingress_postgres_from_admin_service" {
   description = "ingress-postgres-from-admin-service"
 
@@ -503,6 +462,18 @@ resource "aws_security_group" "tiva_db" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "tiva_db_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.tiva_db.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "tiva_db_ingress_postgres_from_admin_service" {
@@ -541,6 +512,18 @@ resource "aws_security_group" "test_1_db" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "test_1_db_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.test_1_db.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "test_1_db_ingress_postgres_from_admin_service" {
@@ -877,6 +860,32 @@ resource "aws_security_group_rule" "notebooks_egress_dns_udp" {
   protocol    = "udp"
 }
 
+resource "aws_security_group" "cloudwatch" {
+  name        = "${var.prefix}-cloudwatch"
+  description = "${var.prefix}-cloudwatch"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-cloudwatch"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "cloudwatch_ingress_https_from_all" {
+  description = "ingress-https-from-everywhere"
+
+  security_group_id = "${aws_security_group.cloudwatch.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  type        = "ingress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group" "mirrors_sync" {
   name        = "${var.prefix}-mirrors-sync"
   description = "${var.prefix}-mirrors-sync"
@@ -917,6 +926,18 @@ resource "aws_security_group" "healthcheck_alb" {
   }
 }
 
+resource "aws_security_group_rule" "healthcheck_alb_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.healthcheck_alb.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
 resource "aws_security_group_rule" "healthcheck_alb_ingress_https_from_all" {
   description = "ingress-https-from-all"
 
@@ -953,6 +974,18 @@ resource "aws_security_group" "healthcheck_service" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+resource "aws_security_group_rule" "healthcheck_service_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.healthcheck_service.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }
 
 resource "aws_security_group_rule" "healthcheck_service_ingress_https_from_healthcheck_alb" {

@@ -48,11 +48,6 @@ variable "pgadmin_container_image" {}
 variable "alb_access_logs_bucket" {}
 variable "alb_logs_account" {}
 
-variable "logstash_container_image" {}
-variable "logstash_internal_domain" {}
-variable "logstash_downstream_url" {}
-variable "logstash_downstream_authorization_header" {}
-
 variable "dnsmasq_container_image" {}
 variable "sentryproxy_container_image" {}
 

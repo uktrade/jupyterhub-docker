@@ -175,7 +175,7 @@ resource "aws_subnet" "private_without_egress" {
   availability_zone = "${var.aws_availability_zones[count.index]}"
 
   tags {
-    Name = "jupyterhub-private-without-egress-${var.aws_availability_zones_short[count.index]}"
+    Name = "${var.prefix}-private-without-egress-${var.aws_availability_zones_short[count.index]}"
   }
 
   lifecycle {
@@ -186,7 +186,7 @@ resource "aws_subnet" "private_without_egress" {
 resource "aws_route_table" "public" {
   vpc_id = "${aws_vpc.main.id}"
   tags {
-    Name = "jupyterhub-public"
+    Name = "${var.prefix}-public"
   }
 }
 
@@ -205,7 +205,7 @@ resource "aws_route" "public_internet_gateway_ipv4" {
 resource "aws_route_table" "private_with_egress" {
   vpc_id = "${aws_vpc.main.id}"
   tags {
-    Name = "jupyterhub-private-with-egress"
+    Name = "${var.prefix}-private-with-egress"
   }
 }
 
@@ -233,7 +233,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = "${aws_vpc.main.id}"
 
   tags {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 }
 
@@ -242,7 +242,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = "${aws_subnet.public.*.id[0]}"
 
   tags {
-    Name = "jupyterhub"
+    Name = "${var.prefix}"
   }
 }
 
@@ -253,7 +253,7 @@ resource "aws_eip" "nat_gateway" {
 resource "aws_route_table" "private_without_egress" {
   vpc_id = "${aws_vpc.notebooks.id}"
   tags {
-    Name = "jupyterhub-private-without-egress"
+    Name = "${var.prefix}-private-without-egress"
   }
 }
 

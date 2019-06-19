@@ -107,10 +107,7 @@ data "template_file" "admin_container_definitions" {
 
     redis_url = "redis://${aws_elasticache_cluster.admin.cache_nodes.0.address}:6379"
 
-    logstash_host = "${var.logstash_internal_domain}"
-    logstash_port = "${local.logstash_alb_port}"
     sentry_dsn = "${var.sentry_dsn}"
-
 
     notebook_task_role__role_prefix                        = "${var.notebook_task_role_prefix}"
     notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
@@ -171,8 +168,6 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
     data_db__tiva__port       = "${aws_db_instance.tiva.port}"
     data_db__tiva__user       = "${aws_db_instance.tiva.username}"
-
-
     data_db__test_1__host     = "${aws_db_instance.test_1.address}"
     data_db__test_1__name     = "${aws_db_instance.test_1.name}"
     data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
@@ -195,8 +190,6 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
 
     redis_url = "redis://${aws_elasticache_cluster.admin.cache_nodes.0.address}:6379"
 
-    logstash_host = "${var.logstash_internal_domain}"
-    logstash_port = "${local.logstash_alb_port}"
     sentry_dsn = "${var.sentry_dsn}"
 
 

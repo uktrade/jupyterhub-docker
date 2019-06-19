@@ -21,9 +21,6 @@ data "template_file" "pgadmin_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.notebook.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
-    logstash_host = "${var.logstash_internal_domain}"
-    logstash_port = "${local.logstash_alb_port}"
-
     sentry_dsn = "${var.sentry_dsn}"
   }
 }
