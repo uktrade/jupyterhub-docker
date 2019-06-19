@@ -67,6 +67,10 @@ variable "sentry_dsn" {}
 variable "notebook_task_role_prefix" {}
 variable "notebook_task_role_policy_name" {}
 
+variable healthcheck_container_image {}
+variable healthcheck_domain {}
+
+
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
@@ -104,4 +108,10 @@ locals {
   mirrors_sync_container_name    = "jupyterhub-mirrors-sync"
   mirrors_sync_container_memory  = 8192
   mirrors_sync_container_cpu     = 1024
+
+  healthcheck_container_port = 8888
+  healthcheck_container_name = "healthcheck"
+  healthcheck_alb_port = "443"
+  healthcheck_container_memory     = 512
+  healthcheck_container_cpu        = 256
 }

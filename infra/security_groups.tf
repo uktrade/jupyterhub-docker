@@ -282,7 +282,7 @@ resource "aws_security_group_rule" "admin_alb_ingress_https_from_whitelist" {
   description = "ingress-https-from-whitelist"
 
   security_group_id = "${aws_security_group.admin_alb.id}"
-  cidr_blocks       = ["${var.ip_whitelist}"]
+  cidr_blocks       = ["${var.ip_whitelist}", "${aws_eip.nat_gateway.public_ip}/32"]
 
   type       = "ingress"
   from_port  = "443"
@@ -901,4 +901,80 @@ resource "aws_security_group_rule" "mirrors_sync_egress_https_to_everywhere" {
   from_port = "443"
   to_port   = "443"
   protocol  = "tcp"
+}
+
+resource "aws_security_group" "healthcheck_alb" {
+  name        = "${var.prefix}-healthcheck-alb"
+  description = "${var.prefix}-healthcheck-alb"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-healthcheck-alb"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "healthcheck_alb_ingress_https_from_all" {
+  description = "ingress-https-from-all"
+
+  security_group_id = "${aws_security_group.healthcheck_alb.id}"
+  cidr_blocks       = ["0.0.0.0/0"]
+
+  type       = "ingress"
+  from_port  = "443"
+  to_port    = "443"
+  protocol   = "tcp"
+}
+
+resource "aws_security_group_rule" "healthcheck_alb_egress_https_to_healthcheck_service" {
+  description = "egress-https-to-healthcheck-service"
+
+  security_group_id = "${aws_security_group.healthcheck_alb.id}"
+  source_security_group_id = "${aws_security_group.healthcheck_service.id}"
+ 
+  type        = "egress"
+  from_port   = "${local.healthcheck_container_port}"
+  to_port     = "${local.healthcheck_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "healthcheck_service" {
+  name        = "${var.prefix}-healthcheck_service"
+  description = "${var.prefix}-healthcheck_service"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-healthcheck_service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "healthcheck_service_ingress_https_from_healthcheck_alb" {
+  description = "ingress-https-from-healthcheck-alb"
+
+  security_group_id = "${aws_security_group.healthcheck_service.id}"
+  source_security_group_id = "${aws_security_group.healthcheck_alb.id}"
+
+  type        = "ingress"
+  from_port   = "${local.healthcheck_container_port}"
+  to_port     = "${local.healthcheck_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "healthcheck_service_egress_https_to_everywhere" {
+  description = "ingress-https-from-healthcheck-alb"
+
+  security_group_id = "${aws_security_group.healthcheck_service.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
 }

@@ -9,6 +9,11 @@
     "portMappings": [{
         "containerPort": ${container_port}
     }],
+    "ulimits": [{
+        "softLimit": 4096,
+        "hardLimit": 4096,
+        "name": "nofile"
+    }],
     "logConfiguration": {
       "logDriver": "awslogs",
       "options": {
@@ -63,8 +68,6 @@
     },
     ${environment}
 
-
-
     {
       "name": "DATA_DB__tiva__HOST",
       "value": "${data_db__tiva__host}"
@@ -85,7 +88,6 @@
       "name": "DATA_DB__tiva__USER",
       "value": "${data_db__tiva__user}"
     },
-
     {
       "name": "DATA_DB__test_1__HOST",
       "value": "${data_db__test_1__host}"
