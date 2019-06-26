@@ -65,6 +65,7 @@ variable "notebook_task_role_policy_name" {}
 variable healthcheck_container_image {}
 variable healthcheck_domain {}
 
+variable cloudwatch_subscription_filter {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"

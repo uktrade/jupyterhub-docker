@@ -58,6 +58,7 @@ resource "aws_cloudwatch_log_group" "registry" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "registry" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-registry"
   log_group_name  = "${aws_cloudwatch_log_group.registry.name}"
   filter_pattern  = ""

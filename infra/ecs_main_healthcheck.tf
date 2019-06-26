@@ -79,6 +79,7 @@ resource "aws_cloudwatch_log_group" "healthcheck" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "healthcheck" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-healthcheck"
   log_group_name  = "${aws_cloudwatch_log_group.healthcheck.name}"
   filter_pattern  = ""

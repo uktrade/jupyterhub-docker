@@ -194,6 +194,7 @@ resource "aws_cloudwatch_log_group" "admin" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "admin" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-admin"
   log_group_name  = "${aws_cloudwatch_log_group.admin.name}"
   filter_pattern  = ""
