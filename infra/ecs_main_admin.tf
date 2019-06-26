@@ -69,42 +69,47 @@ data "template_file" "admin_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.admin.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
+
+    root_domain               = "${var.admin_domain}"
     admin_db__host            = "${aws_db_instance.admin.address}"
     admin_db__name            = "${aws_db_instance.admin.name}"
     admin_db__password        = "${random_string.aws_db_instance_admin_password.result}"
     admin_db__port            = "${aws_db_instance.admin.port}"
     admin_db__user            = "${aws_db_instance.admin.username}"
-    allowed_hosts_1           = "${var.admin_domain}"
-    allowed_hosts_2           = "${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}"
     authbroker_client_id      = "${var.admin_authbroker_client_id}"
     authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
     authbroker_url            = "${var.admin_authbroker_url}"
-    data_db__tiva__host       = "${aws_db_instance.tiva.address}"
-    data_db__tiva__name       = "${aws_db_instance.tiva.name}"
-    data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
-    data_db__tiva__port       = "${aws_db_instance.tiva.port}"
-    data_db__tiva__user       = "${aws_db_instance.tiva.username}"
-    data_db__test_1__host     = "${aws_db_instance.test_1.address}"
-    data_db__test_1__name     = "${aws_db_instance.test_1.name}"
-    data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
-    data_db__test_1__port     = "${aws_db_instance.test_1.port}"
-    data_db__test_1__user     = "${aws_db_instance.test_1.username}"
-    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
-    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
-    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
-    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
-    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
 
     environment = "${var.admin_environment}"
 
-    notebooks_bucket = "${var.appstream_bucket}"
+    #notebooks_bucket = "${var.appstream_bucket}"
+    notebooks_bucket = "${var.notebooks_bucket}"
 
-    notebooks_url = "https://${var.jupyterhub_domain}/"
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
 
     redis_url = "redis://${aws_elasticache_cluster.admin.cache_nodes.0.address}:6379"
+
+    sentry_dsn = "${var.sentry_dsn}"
+
+    notebook_task_role__role_prefix                        = "${var.notebook_task_role_prefix}"
+    notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
+    notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
+    notebook_task_role__policy_name                        = "${var.notebook_task_role_policy_name}"
+    notebook_task_role__policy_document_template_base64    = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_template.json)}"
+    fargate_spawner__aws_region            = "${data.aws_region.aws_region.name}"
+    fargate_spawner__aws_ecs_host          = "ecs.${data.aws_region.aws_region.name}.amazonaws.com"
+    fargate_spawner__notebook_port         = "${local.notebook_container_port}"
+    fargate_spawner__task_custer_name      = "${aws_ecs_cluster.notebooks.name}"
+    fargate_spawner__task_container_name   = "${local.notebook_container_name}"
+    fargate_spawner__task_definition_arn   = "${aws_ecs_task_definition.notebook.family}:${aws_ecs_task_definition.notebook.revision}"
+    fargate_spawner__task_security_group   = "${aws_security_group.notebooks.id}"
+    fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
+
+    fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
+    fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
+
   }
 }
 
@@ -133,42 +138,47 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.admin.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
+    root_domain               = "${var.admin_domain}"
     admin_db__host            = "${aws_db_instance.admin.address}"
     admin_db__name            = "${aws_db_instance.admin.name}"
     admin_db__password        = "${random_string.aws_db_instance_admin_password.result}"
     admin_db__port            = "${aws_db_instance.admin.port}"
     admin_db__user            = "${aws_db_instance.admin.username}"
-    allowed_hosts_1           = "${var.admin_domain}"
-    allowed_hosts_2           = "${aws_service_discovery_service.admin.name}.${aws_service_discovery_private_dns_namespace.jupyterhub.name}"
     authbroker_client_id      = "${var.admin_authbroker_client_id}"
     authbroker_client_secret  = "${var.admin_authbroker_client_secret}"
     authbroker_url            = "${var.admin_authbroker_url}"
-    data_db__tiva__host       = "${aws_db_instance.tiva.address}"
-    data_db__tiva__name       = "${aws_db_instance.tiva.name}"
-    data_db__tiva__password   = "${random_string.aws_db_instance_tiva_password.result}"
-    data_db__tiva__port       = "${aws_db_instance.tiva.port}"
-    data_db__tiva__user       = "${aws_db_instance.tiva.username}"
-    data_db__test_1__host     = "${aws_db_instance.test_1.address}"
-    data_db__test_1__name     = "${aws_db_instance.test_1.name}"
-    data_db__test_1__password = "${random_string.aws_db_instance_test_1_password.result}"
-    data_db__test_1__port     = "${aws_db_instance.test_1.port}"
-    data_db__test_1__user     = "${aws_db_instance.test_1.username}"
-    data_db__test_2__host     = "${aws_db_instance.test_2.address}"
-    data_db__test_2__name     = "${aws_db_instance.test_2.name}"
-    data_db__test_2__password = "${random_string.aws_db_instance_test_2_password.result}"
-    data_db__test_2__port     = "${aws_db_instance.test_2.port}"
-    data_db__test_2__user     = "${aws_db_instance.test_2.username}"
     secret_key                = "${random_string.admin_secret_key.result}"
 
     environment = "${var.admin_environment}"
 
-    notebooks_bucket = "${var.appstream_bucket}"
+    #notebooks_bucket = "${var.appstream_bucket}"
+    notebooks_bucket = "${var.notebooks_bucket}"
 
-    notebooks_url = "https://${var.jupyterhub_domain}/"
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
 
     redis_url = "redis://${aws_elasticache_cluster.admin.cache_nodes.0.address}:6379"
+
+    sentry_dsn = "${var.sentry_dsn}"
+
+
+    notebook_task_role__role_prefix                        = "${var.notebook_task_role_prefix}"
+    notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
+    notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
+    notebook_task_role__policy_name                        = "${var.notebook_task_role_policy_name}"
+    notebook_task_role__policy_document_template_base64    = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_template.json)}"
+    fargate_spawner__aws_region            = "${data.aws_region.aws_region.name}"
+    fargate_spawner__aws_ecs_host          = "ecs.${data.aws_region.aws_region.name}.amazonaws.com"
+    fargate_spawner__notebook_port         = "${local.notebook_container_port}"
+    fargate_spawner__task_custer_name      = "${aws_ecs_cluster.notebooks.name}"
+    fargate_spawner__task_container_name   = "${local.notebook_container_name}"
+    fargate_spawner__task_definition_arn   = "${aws_ecs_task_definition.notebook.family}:${aws_ecs_task_definition.notebook.revision}"
+    fargate_spawner__task_security_group   = "${aws_security_group.notebooks.id}"
+    fargate_spawner__task_subnet           = "${aws_subnet.private_without_egress.*.id[0]}"
+
+    fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
+    fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
+
   }
 }
 
@@ -184,6 +194,7 @@ resource "aws_cloudwatch_log_group" "admin" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "admin" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-admin"
   log_group_name  = "${aws_cloudwatch_log_group.admin.name}"
   filter_pattern  = ""
@@ -235,6 +246,119 @@ resource "aws_iam_role" "admin_task" {
   name               = "${var.prefix}-admin-task"
   path               = "/"
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
+}
+
+
+resource "aws_iam_role_policy_attachment" "admin_run_tasks" {
+  role       = "${aws_iam_role.admin_task.name}"
+  policy_arn = "${aws_iam_policy.admin_run_tasks.arn}"
+}
+
+resource "aws_iam_policy" "admin_run_tasks" {
+  name        = "${var.prefix}-admin-run-tasks"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.admin_run_tasks.json}"
+}
+
+data "aws_iam_policy_document" "admin_run_tasks" {
+  statement {
+    actions = [
+      "ecs:RunTask",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.notebook.family}:*",
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.rstudio.family}:*",
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task-definition/${aws_ecs_task_definition.pgadmin.family}:*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "ecs:StopTask",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "ecs:DescribeTasks",
+    ]
+
+    condition {
+      test     = "ArnEquals"
+      variable = "ecs:cluster"
+      values = [
+        "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:cluster/${aws_ecs_cluster.notebooks.name}",
+      ]
+    }
+
+    resources = [
+      "arn:aws:ecs:${data.aws_region.aws_region.name}:${data.aws_caller_identity.aws_caller_identity.account_id}:task/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:PassRole"
+    ]
+    resources = [
+      "${aws_iam_role.notebook_task_execution.arn}",
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:GetRole",
+      "iam:PassRole",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${var.notebook_task_role_prefix}*"
+    ]
+  }
+
+  statement {
+    actions = [
+      "iam:CreateRole",
+      "iam:PutRolePolicy",
+    ]
+
+    resources = [
+      "arn:aws:iam::${data.aws_caller_identity.aws_caller_identity.account_id}:role/${var.notebook_task_role_prefix}*"
+    ]
+
+    # The boundary means that JupyterHub can't create abitrary roles:
+    # they must have this boundary attached. At most, they will
+    # be able to have access to the entire bucket, and only
+    # from inside the VPC
+    condition {
+      test     = "StringEquals"
+      variable = "iam:PermissionsBoundary"
+      values   = [
+        "${aws_iam_policy.notebook_task_boundary.arn}",
+      ]
+    }
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "admin_admin_store_db_creds_in_s3_task" {

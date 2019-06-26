@@ -10,15 +10,14 @@
           "hardLimit": 4096,
           "name": "nofile"
     }],
-    "environment": [{
-        "name": "LOGSTASH_HOST",
-        "value": "${logstash_host}"
-    },{
-        "name": "LOGSTASH_PORT",
-        "value": "${logstash_port}"
-    },{
-        "name": "SENTRY_DSN",
-        "value": "${sentry_dsn}"
-    }]
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${log_region}",
+        "awslogs-stream-prefix": "${container_name}"
+      }
+    },
+    "environment": []
   }
 ]

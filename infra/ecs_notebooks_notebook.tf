@@ -21,9 +21,6 @@ data "template_file" "notebook_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.notebook.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
-    logstash_host = "${var.logstash_internal_domain}"
-    logstash_port = "${local.logstash_alb_port}"
-
     sentry_dsn = "${var.sentry_dsn}"
   }
 }
@@ -185,7 +182,7 @@ data "aws_iam_policy_document" "aws_vpc_endpoint_s3_notebooks" {
     ]
 
     resources = [
-      "${aws_s3_bucket.mirrors.arn}/*",
+      "arn:aws:s3:::${var.mirrors_data_bucket_name != "" ? var.mirrors_data_bucket_name : var.mirrors_bucket_name}/*",
     ]
   }
 }
@@ -239,3 +236,27 @@ resource "aws_vpc_endpoint_route_table_association" "s3" {
   vpc_endpoint_id = "${aws_vpc_endpoint.s3.id}"
   route_table_id  = "${aws_route_table.private_without_egress.id}"
 }
+
+resource "aws_vpc_endpoint" "cloudwatch_logs" {
+  vpc_id            = "${aws_vpc.main.id}"
+  service_name      = "com.amazonaws.${data.aws_region.aws_region.name}.logs"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = ["${aws_security_group.cloudwatch.id}"]
+  subnet_ids = ["${aws_subnet.private_with_egress.*.id[0]}"]
+
+  private_dns_enabled = true
+}
+
+resource "aws_vpc_endpoint" "cloudwatch_monitoring" {
+  vpc_id            = "${aws_vpc.main.id}"
+  service_name      = "com.amazonaws.${data.aws_region.aws_region.name}.monitoring"
+  vpc_endpoint_type = "Interface"
+
+  security_group_ids = ["${aws_security_group.cloudwatch.id}"]
+  subnet_ids = ["${aws_subnet.private_with_egress.*.id[0]}"]
+
+  private_dns_enabled = true
+}
+
+

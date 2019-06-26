@@ -23,8 +23,6 @@ variable "vpc_notebooks_subnets_num_bits" {}
 
 variable "aws_route53_zone" {}
 variable "admin_domain" {}
-variable "jupyterhub_domain" {}
-# variable "jupyterhub_secondary_domain" {}
 variable "appstream_domain" {}
 variable "support_domain" {}
 
@@ -41,25 +39,14 @@ variable "admin_authbroker_client_secret" {}
 variable "admin_authbroker_url" {}
 variable "admin_environment" {}
 
-variable "jupyterhub_container_image" {}
-variable "jupyterhub_admin_users" {}
-variable "jupyterhub_oauth_client_id" {}
-variable "jupyterhub_oauth_client_secret" {}
-variable "jupyterhub_oauth_authorize_url" {}
-variable "jupyterhub_oauth_token_url" {}
-variable "jupyterhub_oauth_userdata_url" {}
-
 variable "appstream_bucket" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
+variable "rstudio_container_image" {}
+variable "pgadmin_container_image" {}
 
 variable "alb_access_logs_bucket" {}
 variable "alb_logs_account" {}
-
-variable "logstash_container_image" {}
-variable "logstash_internal_domain" {}
-variable "logstash_downstream_url" {}
-variable "logstash_downstream_authorization_header" {}
 
 variable "dnsmasq_container_image" {}
 variable "sentryproxy_container_image" {}
@@ -68,11 +55,17 @@ variable "cloudwatch_destination_arn" {}
 
 variable "mirrors_bucket_name" {}
 variable "mirrors_sync_container_image" {}
+variable "mirrors_data_bucket_name" {}
 
 variable "sentry_dsn" {}
 
 variable "notebook_task_role_prefix" {}
 variable "notebook_task_role_policy_name" {}
+
+variable healthcheck_container_image {}
+variable healthcheck_domain {}
+
+variable cloudwatch_subscription_filter {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"
@@ -87,14 +80,6 @@ locals {
   admin_container_cpu     = 1024
   admin_alb_port          = "443"
   admin_api_path          = "/api/v1/databases"
-
-  jupyterhub_container_name       = "jupyterhub"
-  jupyterhub_container_port       = "8000"
-  jupyterhub_container_memory     = 2048
-  jupyterhub_container_cpu        = 1024
-  jupyterhub_alb_port             = "443"
-  jupyterhub_oauth_username_key  = "email"
-  jupyterhub_oauth_callback_path = "/hub/oauth_callback"
 
   notebook_container_name   = "jupyterhub-notebook"
   notebook_container_port   = "8888"
@@ -119,4 +104,10 @@ locals {
   mirrors_sync_container_name    = "jupyterhub-mirrors-sync"
   mirrors_sync_container_memory  = 8192
   mirrors_sync_container_cpu     = 1024
+
+  healthcheck_container_port = 8888
+  healthcheck_container_name = "healthcheck"
+  healthcheck_alb_port = "443"
+  healthcheck_container_memory     = 512
+  healthcheck_container_cpu        = 256
 }

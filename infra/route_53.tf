@@ -1,8 +1,10 @@
 data "aws_route53_zone" "aws_route53_zone" {
+  provider = "aws.route53"
   name = "${var.aws_route53_zone}"
 }
 
 resource "aws_route53_record" "registry" {
+  provider = "aws.route53"
   zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
   name    = "${var.registry_internal_domain}"
   type    = "A"
@@ -31,36 +33,8 @@ resource "aws_acm_certificate_validation" "registry" {
   certificate_arn = "${aws_acm_certificate.registry.arn}"
 }
 
-resource "aws_route53_record" "logstash" {
-  zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
-  name    = "${var.logstash_internal_domain}"
-  type    = "A"
-
-  alias {
-    name                   = "${aws_alb.logstash.dns_name}"
-    zone_id                = "${aws_alb.logstash.zone_id}"
-    evaluate_target_health = false
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_acm_certificate" "logstash" {
-  domain_name       = "${aws_route53_record.logstash.name}"
-  validation_method = "DNS"
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
-
-resource "aws_acm_certificate_validation" "logstash" {
-  certificate_arn = "${aws_acm_certificate.logstash.arn}"
-}
-
 resource "aws_route53_record" "admin" {
+  provider = "aws.route53"
   zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
   name    = "${var.admin_domain}"
   type    = "A"
@@ -76,8 +50,26 @@ resource "aws_route53_record" "admin" {
   }
 }
 
+resource "aws_route53_record" "applications" {
+  provider = "aws.route53"
+  zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
+  name    = "*.${var.admin_domain}"
+  type    = "A"
+
+  alias {
+    name                   = "${aws_alb.admin.dns_name}"
+    zone_id                = "${aws_alb.admin.zone_id}"
+    evaluate_target_health = false
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_acm_certificate" "admin" {
   domain_name       = "${aws_route53_record.admin.name}"
+  subject_alternative_names = ["*.${aws_route53_record.admin.name}"]
   validation_method = "DNS"
 
   lifecycle {
@@ -89,14 +81,15 @@ resource "aws_acm_certificate_validation" "admin" {
   certificate_arn = "${aws_acm_certificate.admin.arn}"
 }
 
-resource "aws_route53_record" "jupyterhub" {
+resource "aws_route53_record" "healthcheck" {
+  provider = "aws.route53"
   zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
-  name    = "${var.jupyterhub_domain}."
+  name    = "${var.healthcheck_domain}"
   type    = "A"
 
   alias {
-    name                   = "${aws_alb.jupyterhub.dns_name}"
-    zone_id                = "${aws_alb.jupyterhub.zone_id}"
+    name                   = "${aws_alb.healthcheck.dns_name}"
+    zone_id                = "${aws_alb.healthcheck.zone_id}"
     evaluate_target_health = false
   }
 
@@ -105,19 +98,49 @@ resource "aws_route53_record" "jupyterhub" {
   }
 }
 
-resource "aws_acm_certificate" "jupyterhub" {
-  domain_name       = "${aws_route53_record.jupyterhub.name}"
+resource "aws_acm_certificate" "healthcheck" {
+  domain_name       = "${aws_route53_record.healthcheck.name}"
   validation_method = "DNS"
-
-  # subject_alternative_names = [
-  #   "${var.jupyterhub_secondary_domain}",
-  # ]
 
   lifecycle {
     create_before_destroy = true
   }
 }
 
-resource "aws_acm_certificate_validation" "jupyterhub" {
-  certificate_arn = "${aws_acm_certificate.jupyterhub.arn}"
+resource "aws_acm_certificate_validation" "healthcheck" {
+  certificate_arn = "${aws_acm_certificate.healthcheck.arn}"
 }
+
+
+# resource "aws_route53_record" "jupyterhub" {
+#   zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
+#   name    = "${var.jupyterhub_domain}."
+#   type    = "A"
+
+#   alias {
+#     name                   = "${aws_alb.jupyterhub.dns_name}"
+#     zone_id                = "${aws_alb.jupyterhub.zone_id}"
+#     evaluate_target_health = false
+#   }
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+# resource "aws_acm_certificate" "jupyterhub" {
+#   domain_name       = "${aws_route53_record.jupyterhub.name}"
+#   validation_method = "DNS"
+
+#   # subject_alternative_names = [
+#   #   "${var.jupyterhub_secondary_domain}",
+#   # ]
+
+#   lifecycle {
+#     create_before_destroy = true
+#   }
+# }
+
+# resource "aws_acm_certificate_validation" "jupyterhub" {
+#   certificate_arn = "${aws_acm_certificate.jupyterhub.arn}"
+# }

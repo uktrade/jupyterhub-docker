@@ -48,6 +48,7 @@ resource "aws_cloudwatch_log_group" "dnsmasq" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "dnsmasq" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-dnsmasq"
   log_group_name  = "${aws_cloudwatch_log_group.dnsmasq.name}"
   filter_pattern  = ""

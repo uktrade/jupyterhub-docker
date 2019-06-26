@@ -7,8 +7,6 @@
     "essential": true,
     "portMappings": [{
         "containerPort": ${container_port}
-    }, {
-        "containerPort": ${container_api_port}
     }],
     "logConfiguration": {
       "logDriver": "awslogs",
@@ -19,15 +17,11 @@
       }
     },
     "environment": [{
-        "name": "LOGSTASH_DOWNSTREAM_URL",
-        "value": "${logstash_downstream_url}"
-    },
-    {
-        "name": "LOGSTASH_DOWNSTREAM_AUTHORIZATION_HEADER",
-        "value": "${logstash_downstream_authorization_header}"
-    },{
-        "name": "LOGSTASH_PORT",
-        "value": "${container_port}"
+      "name": "PORT",
+      "value": "${port}"
+    }, {
+      "name": "URL",
+      "value": "${url}"
     }]
   }
 ]

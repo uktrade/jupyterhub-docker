@@ -20,6 +20,18 @@ docker tag jupyterhub-singleuser:latest  quay.io/uktrade/jupyterhub-singleuser:l
 docker push quay.io/uktrade/jupyterhub-singleuser:latest
 ```
 
+```bash
+docker build -t data-workspace-rstudio -f Dockerfile-rstudio . && \
+docker tag data-workspace-rstudio:latest  quay.io/uktrade/data-workspace-rstudio:latest && \
+docker push quay.io/uktrade/data-workspace-rstudio:latest
+```
+
+```bash
+docker build -t data-workspace-pgadmin -f Dockerfile-pgadmin . && \
+docker tag data-workspace-pgadmin:latest  quay.io/uktrade/data-workspace-pgadmin:latest && \
+docker push quay.io/uktrade/data-workspace-pgadmin:latest
+```
+
 ## Docker pull-through cache
 
 To limit egress from the notebook servers, we only allow in-VPC connections. For the docker images themselves, we run a registry that proxies read access to certain images in Quay.

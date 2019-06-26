@@ -65,6 +65,7 @@ resource "aws_cloudwatch_log_group" "sentryproxy" {
 }
 
 resource "aws_cloudwatch_log_subscription_filter" "sentryproxy" {
+  count = "${var.cloudwatch_subscription_filter ? 1 : 0}"
   name            = "${var.prefix}-sentryproxy"
   log_group_name  = "${aws_cloudwatch_log_group.sentryproxy.name}"
   filter_pattern  = ""
