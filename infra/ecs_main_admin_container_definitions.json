@@ -1,28 +1,9 @@
 [
   {
-    "name": "${container_name}",
-    "image": "${container_image}",
     "command": ${container_command},
-    "memoryReservation": ${container_memory},
     "cpu": ${container_cpu},
-    "essential": true,
-    "portMappings": [{
-        "containerPort": ${container_port}
-    }],
-    "ulimits": [{
-        "softLimit": 4096,
-        "hardLimit": 4096,
-        "name": "nofile"
-    }],
-    "logConfiguration": {
-      "logDriver": "awslogs",
-      "options": {
-        "awslogs-group": "${log_group}",
-        "awslogs-region": "${log_region}",
-        "awslogs-stream-prefix": "${container_name}"
-      }
-    },
-    "environment": [{
+    "environment": [
+    {
       "name": "ADMIN_DB__HOST",
       "value": "${admin_db__host}"
     },
@@ -43,10 +24,6 @@
       "value": "${admin_db__user}"
     },
     {
-      "name": "REDIS_URL",
-      "value": "${redis_url}"
-    },
-    {
       "name": "ALLOWED_HOSTS__1",
       "value": "${root_domain}"
     },
@@ -54,65 +31,6 @@
       "name": "ALLOWED_HOSTS__2",
       "value": ".${root_domain}"
     },
-    {
-      "name": "AUTHBROKER_CLIENT_ID",
-      "value": "${authbroker_client_id}"
-    },
-    {
-      "name": "AUTHBROKER_CLIENT_SECRET",
-      "value": "${authbroker_client_secret}"
-    },
-    {
-      "name": "AUTHBROKER_URL",
-      "value": "${authbroker_url}"
-    },
-    ${environment}
-    {
-      "name": "DATA_DB__tiva__HOST",
-      "value": "${data_db__tiva__host}"
-    },
-    {
-      "name": "DATA_DB__tiva__NAME",
-      "value": "${data_db__tiva__name}"
-    },
-    {
-      "name": "DATA_DB__tiva__PASSWORD",
-      "value": "${data_db__tiva__password}"
-    },
-    {
-      "name": "DATA_DB__tiva__PORT",
-      "value": "${data_db__tiva__port}"
-    },
-    {
-      "name": "DATA_DB__tiva__USER",
-      "value": "${data_db__tiva__user}"
-    },
-    {
-      "name": "DATA_DB__test_1__HOST",
-      "value": "${data_db__test_1__host}"
-    },
-    {
-      "name": "DATA_DB__test_1__NAME",
-      "value": "${data_db__test_1__name}"
-    },
-    {
-      "name": "DATA_DB__test_1__PASSWORD",
-      "value": "${data_db__test_1__password}"
-    },
-    {
-      "name": "DATA_DB__test_1__PORT",
-      "value": "${data_db__test_1__port}"
-    },
-    {
-      "name": "DATA_DB__test_1__USER",
-      "value": "${data_db__test_1__user}"
-    },
-    {
-      "name": "APPLICATION_ROOT_DOMAIN",
-      "value": "${root_domain}"
-    },
-
-
     {
       "name": "APPLICATION_TEMPLATES__1__NAME",
       "value": "jupyterlab"
@@ -137,7 +55,6 @@
       "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__3",
       "value": "--config=/etc/jupyter/jupyter_notebook_config.py"
     },
-
     {
       "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__CMD__4",
       "value": "--NotebookApp.token=''"
@@ -218,9 +135,6 @@
       "name": "APPLICATION_TEMPLATES__1__SPAWNER_OPTIONS__S3_BUCKET",
       "value": "${notebooks_bucket}"
     },
-
-
-
     {
       "name": "APPLICATION_TEMPLATES__2__NAME",
       "value": "rstudio"
@@ -371,17 +285,65 @@
       "value": "${notebooks_bucket}"
     },
     {
-      "name": "SECRET_KEY",
-      "value": "${secret_key}"
-    }, {
-      "name": "NOTEBOOKS_BUCKET",
-      "value": "${notebooks_bucket}"
-    }, {
+      "name": "APPLICATION_ROOT_DOMAIN",
+      "value": "${root_domain}"
+    },
+    {
       "name": "APPSTREAM_URL",
       "value": "${appstream_url}"
-    }, {
+    },
+    {
+      "name": "AUTHBROKER_CLIENT_ID",
+      "value": "${authbroker_client_id}"
+    },
+    {
+      "name": "AUTHBROKER_CLIENT_SECRET",
+      "value": "${authbroker_client_secret}"
+    },
+    {
+      "name": "AUTHBROKER_URL",
+      "value": "${authbroker_url}"
+    },
+    ${environment}
+    {
+      "name": "NOTEBOOKS_BUCKET",
+      "value": "${notebooks_bucket}"
+    },
+    {
+      "name": "REDIS_URL",
+      "value": "${redis_url}"
+    },
+    {
+      "name": "SECRET_KEY",
+      "value": "${secret_key}"
+    },
+    {
       "name": "SUPPORT_URL",
       "value": "${support_url}"
-    }]
+    }],
+    "essential": true,
+    "image": "${container_image}",
+    "logConfiguration": {
+      "logDriver": "awslogs",
+      "options": {
+        "awslogs-group": "${log_group}",
+        "awslogs-region": "${log_region}",
+        "awslogs-stream-prefix": "${container_name}"
+      }
+    },
+    "memoryReservation": ${container_memory},
+    "mountPoints": [],
+    "name": "${container_name}",
+    "portMappings": [{
+        "containerPort": ${container_port},
+        "hostPort": ${container_port},
+        "protocol": "tcp"
+    }],
+    "ulimits": [{
+        "softLimit": 4096,
+        "hardLimit": 4096,
+        "name": "nofile"
+    }],
+    "volumesFrom": []
   }
 ]
