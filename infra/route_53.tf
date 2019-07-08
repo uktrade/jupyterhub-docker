@@ -111,6 +111,36 @@ resource "aws_acm_certificate_validation" "healthcheck" {
   certificate_arn = "${aws_acm_certificate.healthcheck.arn}"
 }
 
+resource "aws_route53_record" "prometheus" {
+  provider = "aws.route53"
+  zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"
+  name    = "${var.prometheus_domain}"
+  type    = "A"
+
+  alias {
+    name                   = "${aws_alb.prometheus.dns_name}"
+    zone_id                = "${aws_alb.prometheus.zone_id}"
+    evaluate_target_health = false
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate" "prometheus" {
+  domain_name       = "${aws_route53_record.prometheus.name}"
+  validation_method = "DNS"
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_acm_certificate_validation" "prometheus" {
+  certificate_arn = "${aws_acm_certificate.prometheus.arn}"
+}
+
 
 # resource "aws_route53_record" "jupyterhub" {
 #   zone_id = "${data.aws_route53_zone.aws_route53_zone.zone_id}"

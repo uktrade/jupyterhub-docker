@@ -65,12 +65,27 @@ variable "notebook_task_role_policy_name" {}
 variable healthcheck_container_image {}
 variable healthcheck_domain {}
 
+variable prometheus_container_image {}
+variable prometheus_domain {}
+
 variable cloudwatch_subscription_filter {}
+variable zendesk_email {}
+variable zendesk_subdomain {}
+variable zendesk_token {}
+variable zendesk_service_field_id {}
+variable zendesk_service_field_value {}
+
+variable prometheus_whitelist {
+  type = "list"
+}
+variable metrics_service_discovery_basic_auth_user {}
+variable metrics_service_discovery_basic_auth_password {}
+variable metrics_container_image {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"
   registry_container_port    = "5000"
-  registry_container_memory  = 15360
+  registry_container_memory  = 4096
   registry_container_cpu     = 2048
   registry_alb_port          = "443"
 
@@ -83,8 +98,8 @@ locals {
 
   notebook_container_name   = "jupyterhub-notebook"
   notebook_container_port   = "8888"
-  notebook_container_memory = 30720
-  notebook_container_cpu    = 4096
+  notebook_container_memory = 8192
+  notebook_container_cpu    = 1024
 
   logstash_container_name       = "jupyterhub-logstash"
   logstash_alb_port             = "443"
@@ -110,4 +125,10 @@ locals {
   healthcheck_alb_port = "443"
   healthcheck_container_memory     = 512
   healthcheck_container_cpu        = 256
+
+  prometheus_container_port = 9090
+  prometheus_container_name = "prometheus"
+  prometheus_alb_port = "443"
+  prometheus_container_memory     = 512
+  prometheus_container_cpu        = 256
 }

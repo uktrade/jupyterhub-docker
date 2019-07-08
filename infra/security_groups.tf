@@ -350,8 +350,6 @@ resource "aws_security_group_rule" "admin_service_egress_http_to_notebooks" {
   protocol    = "tcp"
 }
 
-
-
 resource "aws_security_group_rule" "admin_service_egress_postgres_to_admin_db" {
   description = "egress-postgres-to-admin-db"
 
@@ -425,6 +423,18 @@ resource "aws_security_group_rule" "notebooks_ingress_https_from_admin" {
   type      = "ingress"
   from_port = "${local.notebook_container_port}"
   to_port   = "${local.notebook_container_port}"
+  protocol  = "tcp"
+}
+
+resource "aws_security_group_rule" "notebooks_ingress_http_from_prometheus" {
+  description = "ingress-https-from-prometheus-service"
+
+  security_group_id = "${aws_security_group.notebooks.id}"
+  source_security_group_id = "${aws_security_group.prometheus_service.id}"
+
+  type      = "ingress"
+  from_port = "${local.notebook_container_port + 1}"
+  to_port   = "${local.notebook_container_port + 1}"
   protocol  = "tcp"
 }
 
@@ -613,5 +623,105 @@ resource "aws_security_group_rule" "healthcheck_service_egress_https_to_everywhe
   type        = "egress"
   from_port   = "443"
   to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "prometheus_alb" {
+  name        = "${var.prefix}-prometheus-alb"
+  description = "${var.prefix}-prometheus-alb"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-prometheus-alb"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "prometheus_alb_egress_https_to_cloudwatch" {
+  description = "egress-https-to-cloudwatch"
+
+  security_group_id = "${aws_security_group.prometheus_alb.id}"
+  source_security_group_id = "${aws_security_group.cloudwatch.id}"
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "prometheus_alb_ingress_https_from_whitelist" {
+  description = "ingress-https-from-all"
+
+  security_group_id = "${aws_security_group.prometheus_alb.id}"
+  cidr_blocks       = ["${var.prometheus_whitelist}"]
+
+  type       = "ingress"
+  from_port  = "443"
+  to_port    = "443"
+  protocol   = "tcp"
+}
+
+resource "aws_security_group_rule" "prometheus_alb_egress_https_to_prometheus_service" {
+  description = "egress-https-to-prometheus-service"
+
+  security_group_id = "${aws_security_group.prometheus_alb.id}"
+  source_security_group_id = "${aws_security_group.prometheus_service.id}"
+ 
+  type        = "egress"
+  from_port   = "${local.prometheus_container_port}"
+  to_port     = "${local.prometheus_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group" "prometheus_service" {
+  name        = "${var.prefix}-prometheus_service"
+  description = "${var.prefix}-prometheus_service"
+  vpc_id      = "${aws_vpc.main.id}"
+
+  tags {
+    Name = "${var.prefix}-prometheus_service"
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_security_group_rule" "prometheus_service_ingress_https_from_prometheus_alb" {
+  description = "ingress-https-from-prometheus-alb"
+
+  security_group_id = "${aws_security_group.prometheus_service.id}"
+  source_security_group_id = "${aws_security_group.prometheus_alb.id}"
+
+  type        = "ingress"
+  from_port   = "${local.prometheus_container_port}"
+  to_port     = "${local.prometheus_container_port}"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "prometheus_service_egress_https_to_everywhere" {
+  description = "egress-https-from-prometheus-service"
+
+  security_group_id = "${aws_security_group.prometheus_service.id}"
+  cidr_blocks = ["0.0.0.0/0"]
+
+  type        = "egress"
+  from_port   = "443"
+  to_port     = "443"
+  protocol    = "tcp"
+}
+
+resource "aws_security_group_rule" "prometheus_service_egress_http_to_notebooks" {
+  description = "egress-https-from-prometheus-service"
+
+  security_group_id = "${aws_security_group.prometheus_service.id}"
+  source_security_group_id = "${aws_security_group.notebooks.id}"
+
+  type        = "egress"
+  from_port   = "${local.notebook_container_port + 1}"
+  to_port     = "${local.notebook_container_port + 1}"
   protocol    = "tcp"
 }

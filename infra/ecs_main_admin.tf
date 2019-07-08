@@ -2,7 +2,7 @@ resource "aws_ecs_service" "admin" {
   name            = "${var.prefix}-admin"
   cluster         = "${aws_ecs_cluster.main_cluster.id}"
   task_definition = "${aws_ecs_task_definition.admin.arn}"
-  desired_count   = 1
+  desired_count   = 2
   launch_type     = "FARGATE"
 
   network_configuration {
@@ -110,6 +110,14 @@ data "template_file" "admin_container_definitions" {
     fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
     fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
 
+    zendesk_email = "${var.zendesk_email}"
+    zendesk_subdomain = "${var.zendesk_subdomain}"
+    zendesk_token = "${var.zendesk_token}"
+    zendesk_service_field_id = "${var.zendesk_service_field_id}"
+    zendesk_service_field_value = "${var.zendesk_service_field_value}"
+
+    metrics_service_discovery_basic_auth_user = "${var.metrics_service_discovery_basic_auth_user}"
+    metrics_service_discovery_basic_auth_password = "${var.metrics_service_discovery_basic_auth_password}"
   }
 }
 
@@ -161,7 +169,6 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
 
     sentry_dsn = "${var.sentry_dsn}"
 
-
     notebook_task_role__role_prefix                        = "${var.notebook_task_role_prefix}"
     notebook_task_role__permissions_boundary_arn           = "${aws_iam_policy.notebook_task_boundary.arn}"
     notebook_task_role__assume_role_policy_document_base64 = "${base64encode(data.aws_iam_policy_document.notebook_s3_access_ecs_tasks_assume_role.json)}"
@@ -179,6 +186,14 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     fargate_spawner__rstudio_task_definition_arn   = "${aws_ecs_task_definition.rstudio.family}:${aws_ecs_task_definition.rstudio.revision}"
     fargate_spawner__pgadmin_task_definition_arn   = "${aws_ecs_task_definition.pgadmin.family}:${aws_ecs_task_definition.pgadmin.revision}"
 
+    zendesk_email = "${var.zendesk_email}"
+    zendesk_subdomain = "${var.zendesk_subdomain}"
+    zendesk_token = "${var.zendesk_token}"
+    zendesk_service_field_id = "${var.zendesk_service_field_id}"
+    zendesk_service_field_value = "${var.zendesk_service_field_value}"
+
+    metrics_service_discovery_basic_auth_user = "${var.metrics_service_discovery_basic_auth_user}"
+    metrics_service_discovery_basic_auth_password = "${var.metrics_service_discovery_basic_auth_password}"
   }
 }
 

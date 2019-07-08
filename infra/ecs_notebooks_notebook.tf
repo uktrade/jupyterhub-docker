@@ -22,6 +22,8 @@ data "template_file" "notebook_container_definitions" {
     log_region = "${data.aws_region.aws_region.name}"
 
     sentry_dsn = "${var.sentry_dsn}"
+
+    metrics_container_image = "${var.metrics_container_image}"
   }
 }
 

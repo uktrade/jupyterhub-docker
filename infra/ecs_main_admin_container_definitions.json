@@ -320,6 +320,32 @@
     {
       "name": "SUPPORT_URL",
       "value": "${support_url}"
+    },
+    {
+      "name": "ZENDESK_EMAIL",
+      "value": "${zendesk_email}"
+    },
+    {
+      "name": "ZENDESK_SUBDOMAIN",
+      "value": "${zendesk_subdomain}"
+    },
+    {
+      "name": "ZENDESK_TOKEN",
+      "value": "${zendesk_token}"
+    },
+    {
+      "name": "ZENDESK_SERVICE_FIELD_ID",
+      "value": "${zendesk_service_field_id}"
+    },
+    {
+      "name": "ZENDESK_SERVICE_FIELD_VALUE",
+      "value": "${zendesk_service_field_value}"
+    },{
+      "name": "METRICS_SERVICE_DISCOVERY_BASIC_AUTH_USER",
+      "value": "${metrics_service_discovery_basic_auth_user}"
+    }, {
+      "name": "METRICS_SERVICE_DISCOVERY_BASIC_AUTH_PASSWORD",
+      "value": "${metrics_service_discovery_basic_auth_password}"
     }],
     "essential": true,
     "image": "${container_image}",
