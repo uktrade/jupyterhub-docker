@@ -7,6 +7,10 @@ resource "aws_ecs_task_definition" "pgadmin" {
   cpu                   = "${local.notebook_container_cpu}"
   memory                = "${local.notebook_container_memory}"
   requires_compatibilities = ["FARGATE"]
+
+  volume {
+    name = "home_directory"
+  }
 }
 
 data "template_file" "pgadmin_container_definitions" {
@@ -24,5 +28,8 @@ data "template_file" "pgadmin_container_definitions" {
     sentry_dsn = "${var.sentry_dsn}"
 
     metrics_container_image = "${var.metrics_container_image}"
+    s3sync_container_image = "${var.s3sync_container_image}"
+
+    home_directory = "/home/jovyan"
   }
 }

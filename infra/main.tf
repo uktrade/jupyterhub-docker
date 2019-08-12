@@ -39,6 +39,7 @@ variable "admin_authbroker_client_secret" {}
 variable "admin_authbroker_url" {}
 variable "admin_environment" {}
 
+variable "uploads_bucket" {}
 variable "appstream_bucket" {}
 variable "notebooks_bucket" {}
 variable "notebook_container_image" {}
@@ -81,6 +82,10 @@ variable prometheus_whitelist {
 variable metrics_service_discovery_basic_auth_user {}
 variable metrics_service_discovery_basic_auth_password {}
 variable metrics_container_image {}
+
+variable s3sync_container_image {}
+
+variable google_analytics_site_id {}
 
 locals {
   registry_container_name    = "jupyterhub-registry"

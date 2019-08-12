@@ -69,7 +69,6 @@ data "template_file" "admin_container_definitions" {
     log_group  = "${aws_cloudwatch_log_group.admin.name}"
     log_region = "${data.aws_region.aws_region.name}"
 
-
     root_domain               = "${var.admin_domain}"
     admin_db__host            = "${aws_db_instance.admin.address}"
     admin_db__name            = "${aws_db_instance.admin.name}"
@@ -85,6 +84,7 @@ data "template_file" "admin_container_definitions" {
 
     #notebooks_bucket = "${var.appstream_bucket}"
     notebooks_bucket = "${var.notebooks_bucket}"
+    uploads_bucket = "${var.uploads_bucket}"
 
     appstream_url = "https://${var.appstream_domain}/"
     support_url = "https://${var.support_domain}/"
@@ -116,8 +116,11 @@ data "template_file" "admin_container_definitions" {
     zendesk_service_field_id = "${var.zendesk_service_field_id}"
     zendesk_service_field_value = "${var.zendesk_service_field_value}"
 
+    prometheus_domain = "${var.prometheus_domain}"
     metrics_service_discovery_basic_auth_user = "${var.metrics_service_discovery_basic_auth_user}"
     metrics_service_discovery_basic_auth_password = "${var.metrics_service_discovery_basic_auth_password}"
+  
+    google_analytics_site_id = "${var.google_analytics_site_id}"
   }
 }
 
@@ -160,6 +163,7 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     environment = "${var.admin_environment}"
 
     #notebooks_bucket = "${var.appstream_bucket}"
+    uploads_bucket = "${var.uploads_bucket}"
     notebooks_bucket = "${var.notebooks_bucket}"
 
     appstream_url = "https://${var.appstream_domain}/"
@@ -192,8 +196,11 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
     zendesk_service_field_id = "${var.zendesk_service_field_id}"
     zendesk_service_field_value = "${var.zendesk_service_field_value}"
 
+    prometheus_domain = "${var.prometheus_domain}"
     metrics_service_discovery_basic_auth_user = "${var.metrics_service_discovery_basic_auth_user}"
     metrics_service_discovery_basic_auth_password = "${var.metrics_service_discovery_basic_auth_password}"
+
+    google_analytics_site_id = "${var.google_analytics_site_id}"
   }
 }
 
@@ -263,6 +270,40 @@ resource "aws_iam_role" "admin_task" {
   assume_role_policy = "${data.aws_iam_policy_document.admin_task_ecs_tasks_assume_role.json}"
 }
 
+resource "aws_iam_role_policy_attachment" "admin_access_uploads_bucket" {
+  role       = "${aws_iam_role.admin_task.name}"
+  policy_arn = "${aws_iam_policy.admin_access_uploads_bucket.arn}"
+}
+
+resource "aws_iam_policy" "admin_access_uploads_bucket" {
+  name        = "${var.prefix}-admin-access-uploads-bucket"
+  path        = "/"
+  policy       = "${data.aws_iam_policy_document.admin_access_uploads_bucket.json}"
+}
+
+data "aws_iam_policy_document" "admin_access_uploads_bucket" {
+  statement {
+    actions = [
+        "s3:PutObject",
+        "s3:GetObject",
+        "s3:DeleteObject"
+    ]
+
+    resources = [
+      "${aws_s3_bucket.uploads.arn}/*",
+    ]
+  }
+
+  statement {
+    actions = [
+      "s3:GetBucketLocation",
+    ]
+
+    resources = [
+      "${aws_s3_bucket.uploads.arn}",
+    ]
+  }
+}
 
 resource "aws_iam_role_policy_attachment" "admin_run_tasks" {
   role       = "${aws_iam_role.admin_task.name}"

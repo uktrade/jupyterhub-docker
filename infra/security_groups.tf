@@ -656,7 +656,7 @@ resource "aws_security_group_rule" "prometheus_alb_ingress_https_from_whitelist"
   description = "ingress-https-from-all"
 
   security_group_id = "${aws_security_group.prometheus_alb.id}"
-  cidr_blocks       = ["${var.prometheus_whitelist}"]
+  cidr_blocks       = ["${var.prometheus_whitelist}", "${aws_eip.nat_gateway.public_ip}/32"]
 
   type       = "ingress"
   from_port  = "443"
