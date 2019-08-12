@@ -1,6 +1,18 @@
 resource "aws_s3_bucket" "notebooks" {
   bucket = "${var.notebooks_bucket}"
 
+  versioning {
+    enabled = true
+  }
+
+  lifecycle_rule {
+    enabled = true
+
+    noncurrent_version_expiration {
+      days = 365
+    }
+  }
+
   server_side_encryption_configuration {
     rule {
       apply_server_side_encryption_by_default {

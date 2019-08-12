@@ -11,8 +11,11 @@ ENV \
 ENV \
     PATH="$CONDA_DIR/bin:$PATH"
 
+# Must be the same as the s3sync user in the s3sync container so it
+# can modify files
 RUN \
-    adduser -S jovyan
+    addgroup -S -g 4356 jovyan && \
+    adduser -S -u 4357 jovyan -G jovyan
 
 RUN \
     apk add --no-cache \
@@ -114,10 +117,10 @@ RUN \
 
 ENTRYPOINT ["tini", "-g", "--"]
 
-USER jovyan
-
 RUN \
     python -m spacy download en && \
-    python -m nltk.downloader wordnet stopwords gutenberg
+    python -m nltk.downloader -d /usr/local/share/nltk_data wordnet stopwords gutenberg
+
+USER jovyan
 
 WORKDIR /home/jovyan

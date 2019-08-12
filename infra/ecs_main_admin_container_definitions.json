@@ -176,6 +176,14 @@
       "value": "true"
     },
     {
+      "name": "APPLICATION_TEMPLATES__2__SPAWNER_OPTIONS__ENV__USERID",
+      "value": "4357"
+    },
+    {
+      "name": "APPLICATION_TEMPLATES__2__SPAWNER_OPTIONS__ENV__GROUPID",
+      "value": "4357"
+    },
+    {
       "name": "APPLICATION_TEMPLATES__2__SPAWNER_OPTIONS__PORT",
       "value": "8888"
     },
@@ -322,6 +330,10 @@
       "value": "${support_url}"
     },
     {
+      "name": "UPLOADS_BUCKET",
+      "value": "${uploads_bucket}"
+    },
+    {
       "name": "ZENDESK_EMAIL",
       "value": "${zendesk_email}"
     },
@@ -340,12 +352,29 @@
     {
       "name": "ZENDESK_SERVICE_FIELD_VALUE",
       "value": "${zendesk_service_field_value}"
-    },{
+    },
+    {
+      "name": "PROMETHEUS_DOMAIN",
+      "value": "${prometheus_domain}"
+    },
+    {
       "name": "METRICS_SERVICE_DISCOVERY_BASIC_AUTH_USER",
       "value": "${metrics_service_discovery_basic_auth_user}"
     }, {
       "name": "METRICS_SERVICE_DISCOVERY_BASIC_AUTH_PASSWORD",
       "value": "${metrics_service_discovery_basic_auth_password}"
+    }, {
+      "name": "GOOGLE_ANALYTICS_SITE_ID",
+      "value": "${google_analytics_site_id}"
+    }, {
+      "name": "GOOGLE_ANALYTICS_SITE_ID",
+      "value": "${google_analytics_site_id}"
+    }, {
+      "name": "X_FORWARDED_FOR_TRUSTED_HOPS",
+      "value": "2"      
+    }, {
+      "name": "APPLICATION_IP_WHITELIST__1",
+      "value": "0.0.0.0/0"
     }],
     "essential": true,
     "image": "${container_image}",
