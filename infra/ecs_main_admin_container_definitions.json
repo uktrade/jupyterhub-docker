@@ -372,9 +372,6 @@
     }, {
       "name": "X_FORWARDED_FOR_TRUSTED_HOPS",
       "value": "2"      
-    }, {
-      "name": "APPLICATION_IP_WHITELIST__1",
-      "value": "0.0.0.0/0"
     }],
     "essential": true,
     "image": "${container_image}",
