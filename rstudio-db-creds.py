@@ -114,7 +114,7 @@ def normalise_environment(key_values):
 
 env = normalise_environment(os.environ)
 
-for name, dsn in env['DATABASE_DSN'].items():
+for name, dsn in env.get('DATABASE_DSN', {}).items():
     user = re.search(r'user=([a-z0-9_]+)', dsn).groups()[0]
     password = re.search(r'password=([a-zA-Z0-9_]+)', dsn).groups()[0]
     port = re.search(r'port=(\d+)', dsn).groups()[0]
