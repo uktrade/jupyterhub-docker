@@ -4,6 +4,7 @@ resource "aws_ecs_service" "admin" {
   task_definition = "${aws_ecs_task_definition.admin.arn}"
   desired_count   = 2
   launch_type     = "FARGATE"
+  deployment_maximum_percent = 600
 
   network_configuration {
     subnets         = ["${aws_subnet.private_with_egress.*.id}"]
@@ -59,9 +60,9 @@ data "template_file" "admin_container_definitions" {
   template = "${file("${path.module}/ecs_main_admin_container_definitions.json")}"
 
   vars {
-    container_image   = "${var.admin_container_image}"
+    container_image   = "${var.admin_container_image}:${data.external.admin_current_tag.result.tag}"
     container_name    = "${local.admin_container_name}"
-    container_command = "[\"/app/start.sh\"]"
+    container_command = "[\"/dataworkspace/start.sh\"]"
     container_port    = "${local.admin_container_port}"
     container_cpu     = "${local.admin_container_cpu}"
     container_memory  = "${local.admin_container_memory}"
@@ -124,6 +125,16 @@ data "template_file" "admin_container_definitions" {
   }
 }
 
+data "external" "admin_current_tag" {
+  program = ["${path.module}/container-tag.sh"]
+
+  query = {
+    cluster_name = "${aws_ecs_cluster.main_cluster.name}"
+    service_name = "${var.prefix}-admin"  # Manually specified to avoid a cycle
+    container_name = "jupyterhub-admin"
+  }
+}
+
 resource "aws_ecs_task_definition" "admin_store_db_creds_in_s3" {
   family                   = "${var.prefix}-admin-store-db-creds-in-s3"
   container_definitions    = "${data.template_file.admin_store_db_creds_in_s3_container_definitions.rendered}"
@@ -139,7 +150,7 @@ data "template_file" "admin_store_db_creds_in_s3_container_definitions" {
   template = "${file("${path.module}/ecs_main_admin_container_definitions.json")}"
 
   vars {
-    container_image   = "${var.admin_container_image}"
+    container_image   = "${var.admin_container_image}:${data.external.admin_current_tag.result.tag}"
     container_name    = "${local.admin_container_name}"
     container_command = "[\"django-admin\", \"store_db_creds_in_s3\"]"
     container_port    = "${local.admin_container_port}"
