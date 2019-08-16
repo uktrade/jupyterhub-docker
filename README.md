@@ -1,7 +1,5 @@
 # jupyterhub-docker
 
-![JupyterHub components and connections](jupyterhub-components-and-connections.png)
-
 # Building & Pushing Docker Images to Quay
 
 ## JupyterHub
