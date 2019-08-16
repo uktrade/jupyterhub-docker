@@ -4,6 +4,7 @@ resource "aws_ecs_service" "healthcheck" {
   task_definition = "${aws_ecs_task_definition.healthcheck.arn}"
   desired_count   = 1
   launch_type     = "FARGATE"
+  deployment_maximum_percent = 600
 
   network_configuration {
     subnets         = ["${aws_subnet.private_with_egress.*.id}"]
@@ -24,6 +25,16 @@ resource "aws_ecs_service" "healthcheck" {
     # The target group must have been associated with the listener first
     "aws_alb_listener.healthcheck",
   ]
+}
+
+data "external" "healthcheck_current_tag" {
+  program = ["${path.module}/container-tag.sh"]
+
+  query = {
+    cluster_name = "${aws_ecs_cluster.main_cluster.name}"
+    service_name = "${var.prefix}-healthcheck"  # Manually specified to avoid a cycle
+    container_name = "healthcheck"
+  }
 }
 
 resource "aws_service_discovery_service" "healthcheck" {
@@ -59,7 +70,7 @@ data "template_file" "healthcheck_container_definitions" {
   template = "${file("${path.module}/ecs_main_healthcheck_container_definitions.json")}"
 
   vars {
-    container_image   = "${var.healthcheck_container_image}"
+    container_image   = "${var.healthcheck_container_image}:${data.external.healthcheck_current_tag.result.tag}"
     container_name    = "${local.healthcheck_container_name}"
     container_port    = "${local.healthcheck_container_port}"
     container_cpu     = "${local.healthcheck_container_cpu}"
